@@ -1,18 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[250]:
-
-
-from cryptography.fernet import Fernet
-
-# Generate a new Fernet key
-secret_key = Fernet.generate_key()
-
-# Print it so you can use it in your `secrets.toml`
-print(secret_key.decode())  # Output will be a base64 URL-safe key
-
-
 # In[251]:
 
 
@@ -50,23 +38,32 @@ def add_user(username, name, password, role):
 
     conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
+
+    # Debugging: Check the password before hashing
+    print(f"Hashing password for {username}: {password}")
     
     # Hash password
-    password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(12)).decode('utf-8')
     
     # Encrypt MFA secret
     mfa_secret = pyotp.random_base32()
     encrypted_mfa = cipher.encrypt(mfa_secret.encode()).decode()
-    
-    # Insert user into the database
-    cursor.execute("""
-        INSERT INTO users (username, name, password_hash, mfa_secret, role) 
-        VALUES (?, ?, ?, ?, ?)
-    """, (username, name, password_hash, encrypted_mfa, role))
-    
-    conn.commit()
-    conn.close()
 
+    # Debugging: Print SQL query and values
+    print(f"Inserting user {username} into the database with role {role}")
+
+    try:
+        # Insert user into the database
+        cursor.execute("""
+            INSERT INTO users (username, name, password_hash, mfa_secret, role) 
+            VALUES (?, ?, ?, ?, ?)
+        """, (username, name, password_hash, encrypted_mfa, role))
+        conn.commit()
+    except sqlite3.IntegrityError as e:
+        print(f"Error inserting user: {e}")
+    
+    conn.close()
+    
 # Step 3: Decrypt MFA Secret (for usage/validation)
 def decrypt_mfa_secret(username):
     # Load encryption key
@@ -98,9 +95,6 @@ init_db()  # Initialize the DB (only needs to run once)
 add_user("exec_user", "Executive User", "password123", "executive")
 add_user("finance_user", "Finance User", "securepass456", "finance")
 add_user("data_user", "Data User", "datapass789", "data_science")
-
-# Decrypt MFA secret for a user (e.g., for validation)
-decrypt_mfa_secret("exec_user")
 
 
 # In[252]:
