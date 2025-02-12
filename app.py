@@ -1,7 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[239]:
+# In[250]:
+
+
+from cryptography.fernet import Fernet
+
+# Generate a new Fernet key
+secret_key = Fernet.generate_key()
+
+# Print it so you can use it in your `secrets.toml`
+print(secret_key.decode())  # Output will be a base64 URL-safe key
+
+
+# In[251]:
 
 
 import sqlite3
@@ -91,7 +103,7 @@ add_user("data_user", "Data User", "datapass789", "data_science")
 decrypt_mfa_secret("exec_user")
 
 
-# In[ ]:
+# In[252]:
 
 
 # final submission 
