@@ -179,7 +179,7 @@ def check_timeout():
             st.session_state.role = None
             st.rerun()
 
-# 🚨 **Ensure NOTHING from the app renders unless the user is authenticated**
+# Ensure NOTHING from the app renders unless the user is authenticated
 if not st.session_state.authenticated:
 
     # Render login form
