@@ -1,11 +1,100 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[238]:
+# In[239]:
+
+
+import sqlite3
+import pyotp
+from cryptography.fernet import Fernet
+import bcrypt
+import streamlit as st
+
+# Step 1: Initialize Database
+def init_db():
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+    
+    # Create users table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            name TEXT,
+            password_hash TEXT,
+            mfa_secret TEXT,
+            role TEXT
+        )
+    """)
+    
+    conn.commit()
+    conn.close()
+
+# Step 2: Add User (with encrypted MFA secret)
+def add_user(username, name, password, role):
+    # Load encryption key
+    cipher_key = st.secrets["SECRET_KEY"].encode()  # Streamlit secrets management
+    cipher = Fernet(cipher_key)
+
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+    
+    # Hash password
+    password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    
+    # Encrypt MFA secret
+    mfa_secret = pyotp.random_base32()
+    encrypted_mfa = cipher.encrypt(mfa_secret.encode()).decode()
+    
+    # Insert user into the database
+    cursor.execute("""
+        INSERT INTO users (username, name, password_hash, mfa_secret, role) 
+        VALUES (?, ?, ?, ?, ?)
+    """, (username, name, password_hash, encrypted_mfa, role))
+    
+    conn.commit()
+    conn.close()
+
+# Step 3: Decrypt MFA Secret (for usage/validation)
+def decrypt_mfa_secret(username):
+    # Load encryption key
+    cipher_key = st.secrets["SECRET_KEY"].encode()  # Streamlit secrets management
+    cipher = Fernet(cipher_key)
+
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT mfa_secret FROM users WHERE username = ?", (username,))
+    encrypted_secret = cursor.fetchone()
+
+    if encrypted_secret:
+        try:
+            # Decrypt MFA secret
+            decrypted_secret = cipher.decrypt(encrypted_secret[0].encode()).decode()
+            print(f"Decryption successful for {username}: {decrypted_secret}")
+        except Exception as e:
+            print(f"Decryption failed for {username}: {e}")
+    else:
+        print(f"No MFA secret found for {username}")
+
+    conn.close()
+
+# Example usage:
+init_db()  # Initialize the DB (only needs to run once)
+
+# Add example users
+add_user("exec_user", "Executive User", "password123", "executive")
+add_user("finance_user", "Finance User", "securepass456", "finance")
+add_user("data_user", "Data User", "datapass789", "data_science")
+
+# Decrypt MFA secret for a user (e.g., for validation)
+decrypt_mfa_secret("exec_user")
+
+
+# In[ ]:
 
 
 # final submission 
-streamlit_code = '''
 import streamlit as st
 import pandas as pd
 import pickle
@@ -466,9 +555,10 @@ with tabs[2]:  # Data Cleaning
 
     else:
         st.warning("🚫 You do not have permission to access data cleaning.")
-'''
 
-# Write the code to the app.py file
-with open('app.py', 'w') as f:
-    f.write(streamlit_code)
+
+# In[ ]:
+
+
+
 
