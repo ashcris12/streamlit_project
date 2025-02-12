@@ -358,13 +358,6 @@ with tabs[0]:  # Upload Data
     else:
         st.info("No file uploaded or URL entered yet.")  # ✅ Keep this message but remove global checks
 
-    # Load the trained model
-    try:
-        with open('xgboost_model.pkl', 'rb') as model_file:
-            model = pickle.load(model_file)
-    except FileNotFoundError:
-        st.error("Model file not found!")
-
 with tabs[1]:  # EDA
     if st.session_state.role in ["data_science", "finance"]:
         st.header("Exploratory Data Analysis (EDA)")
