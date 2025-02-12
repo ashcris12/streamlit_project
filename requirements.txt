@@ -17,4 +17,3 @@ streamlit-authenticator
 pyotp
 qrcode
 cryptography
-sqlite3
