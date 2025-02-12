@@ -10,7 +10,7 @@ from cryptography.fernet import Fernet
 import bcrypt
 import streamlit as st
 
-# Step 1: Initialize Database
+# Initialize Database
 def init_db():
     conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
@@ -30,7 +30,7 @@ def init_db():
     conn.commit()
     conn.close()
 
-# Step 2: Add User (with encrypted MFA secret)
+# Add User (with encrypted MFA secret)
 def add_user(username, name, password, role):
     # Load encryption key
     cipher_key = st.secrets["SECRET_KEY"].encode()  # Streamlit secrets management
@@ -39,7 +39,7 @@ def add_user(username, name, password, role):
     conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
 
-    # Debugging: Check the password before hashing
+    # Check the password before hashing
     print(f"Hashing password for {username}: {password}")
     
     # Hash password
@@ -49,7 +49,7 @@ def add_user(username, name, password, role):
     mfa_secret = pyotp.random_base32()
     encrypted_mfa = cipher.encrypt(mfa_secret.encode()).decode()
 
-    # Debugging: Print SQL query and values
+    # Print SQL query and values
     print(f"Inserting user {username} into the database with role {role}")
 
     try:
@@ -64,10 +64,10 @@ def add_user(username, name, password, role):
     
     conn.close()
     
-# Step 3: Decrypt MFA Secret (for usage/validation)
+# Decrypt MFA Secret 
 def decrypt_mfa_secret(username):
     # Load encryption key
-    cipher_key = st.secrets["SECRET_KEY"].encode()  # Streamlit secrets management
+    cipher_key = st.secrets["SECRET_KEY"].encode()
     cipher = Fernet(cipher_key)
 
     conn = sqlite3.connect("users.db")
@@ -89,9 +89,9 @@ def decrypt_mfa_secret(username):
     conn.close()
 
 # Example usage:
-init_db()  # Initialize the DB (only needs to run once)
+init_db()  # Initialize the DB 
 
-# Add example users
+# Add example users based on role
 add_user("exec_user", "Executive User", "password123", "executive")
 add_user("finance_user", "Finance User", "securepass456", "finance")
 add_user("data_user", "Data User", "datapass789", "data_science")
@@ -179,7 +179,7 @@ def check_timeout():
             st.session_state.role = None
             st.rerun()
 
-# 🚨 **Ensure NOTHING renders unless the user is authenticated**
+# 🚨 **Ensure NOTHING from the app renders unless the user is authenticated**
 if not st.session_state.authenticated:
 
     # Render login form
@@ -213,7 +213,7 @@ if not st.session_state.authenticated:
         else:
             st.error("❌ Invalid credentials!")
 
-    # MFA Step (only after password is verified)
+    # MFA Step (only AFTER password is verified)
     if st.session_state.username and not st.session_state.authenticated:
         st.subheader("🔑 Set Up or Enter Your MFA Code")
         totp = pyotp.TOTP(st.session_state.mfa_secret)
@@ -235,15 +235,15 @@ if not st.session_state.authenticated:
                 # Store username in session to fetch user details after rerun
                 st.session_state.username = username_input  
 
-                st.success("🎉 MFA Verified! Logging you in...")
+                st.success("MFA Verified! Logging you in...")
                 st.rerun()
 
             else:
                 st.error("❌ Invalid MFA Code!")
 
-    st.stop()  # 🚨 **Prevents anything below from rendering unless authenticated**
+    st.stop()  # Prevents anything below from rendering unless authenticated
     
-# 🔓 **User is authenticated, enforce role-based access**
+# User is authenticated, enforce RBAC
 check_timeout()  # Ensure inactivity timeout is enforced
 
 if st.session_state.authenticated and st.session_state.username:
@@ -281,14 +281,14 @@ else:
     st.error("🚫 Unauthorized access. Please contact the admin.")
     st.stop()
 
-# Log Out Button (Place this AFTER user authentication check)
+# Log Out Button
 if st.session_state.authenticated:
     if st.sidebar.button("🔒 Log Out"):
         st.session_state.logged_out = True  # Set a flag
         st.session_state.clear()  # Clears session variables
         st.success("✅ Logged out successfully. Redirecting...")
         time.sleep(2)
-        st.rerun()  # Now it will trigger correctly
+        st.rerun()  
 
 # Main App Content After Authentication
 st.title("🎬 Box Office Revenue Prediction Dashboard")
@@ -356,19 +356,18 @@ with tabs[0]:  # Upload Data
         if df.empty:
             st.error("The uploaded dataset is empty. Please check your file or URL.")
     else:
-        st.info("No file uploaded or URL entered yet.")  # ✅ Keep this message but remove global checks
+        st.info("No file uploaded or URL entered yet.")  
 
 with tabs[1]:  # EDA
     if st.session_state.role in ["data_science", "finance"]:
         st.header("Exploratory Data Analysis (EDA)")
-        # (Existing EDA code)
 
         # Ensure df exists before accessing it
         if "df" not in st.session_state or st.session_state.df is None:
             st.warning("No data uploaded yet. Please upload a CSV file or URL in the 'Upload Data' tab.")
             st.stop()  # 🚀 This prevents further execution when df is missing
 
-        df = st.session_state.df  # Now it's safe to use df
+        df = st.session_state.df  
 
         # Display Basic Statistics
         st.subheader("Basic Statistics")
@@ -443,9 +442,9 @@ with tabs[2]:  # Data Cleaning
         if "cleaned_df" not in st.session_state or st.session_state.cleaned_df is None:
             st.session_state.cleaned_df = st.session_state.df.copy()
 
-        cleaned_df = st.session_state.cleaned_df  # ✅ Now it's guaranteed to exist
+        cleaned_df = st.session_state.cleaned_df  
 
-        # ✅ Only show the preview if cleaned_df is not empty
+        # Only show the preview if cleaned_df is not empty
         if cleaned_df.empty:
             st.warning("⚠️ No data available for preview.")
         else:
