@@ -50,7 +50,7 @@ if "role" not in st.session_state:
     st.session_state.role = None
 
 # Load cipher key from Streamlit Secrets
-cipher_key = st.secrets["SECRET_KEY"].encode()
+cipher_key = st.secrets["secrets"]["SECRET_KEY"].encode()
 
 cipher = Fernet(cipher_key)
 
