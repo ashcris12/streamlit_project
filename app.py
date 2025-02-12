@@ -461,9 +461,6 @@ with tabs[2]:  # Data Cleaning
             # Work on a copy of the session state dataframe
             cleaned_df = st.session_state.cleaned_df
 
-            st.subheader("Raw Data Preview:")
-            st.dataframe(cleaned_df.head())
-
             ### Step 1: Remove Invalid Data Points
             with st.expander("Data Cleaning: Removing Invalid Data Points"):
                 cleaned_df['release_date'] = pd.to_datetime(cleaned_df['release_date'], errors='coerce')
