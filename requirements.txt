@@ -1,6 +1,5 @@
 streamlit
 pandas
-pickle5
 xgboost
 plotly
 holidays
