@@ -131,6 +131,7 @@ import time
 import qrcode
 from cryptography.fernet import Fernet
 import sqlite3
+import threading
         
 # Initialize session state variables if they don't exist
 if "authenticated" not in st.session_state:
