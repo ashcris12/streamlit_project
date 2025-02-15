@@ -656,14 +656,14 @@ with tabs[4]:  # Model Training
         model = LinearRegression()
     
     def train_model():
-    # Function to train the model while updating the progress bar
-    progress_bar = st.progress(0)
-    status_text = st.empty()
-
-    # Ensure selected features are correctly applied
-    selected_features = st.session_state.selected_features
-    X_train_selected = X_train[selected_features]
-    X_test_selected = X_test[selected_features]
+        # Function to train the model while updating the progress bar
+        progress_bar = st.progress(0)
+        status_text = st.empty()
+    
+        # Ensure selected features are correctly applied
+        selected_features = st.session_state.selected_features
+        X_train_selected = X_train[selected_features]
+        X_test_selected = X_test[selected_features]
 
     # Start model training in a separate thread
     def model_training():
