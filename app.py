@@ -663,10 +663,25 @@ with tabs[4]:  # Model Training
         model = LinearRegression()
     
     # Train the model
-    if st.button("Train Model"):
-        model.fit(X_train, y_train)
-        st.session_state.trained_model = model  # ✅ Store trained model in session state
-        st.success(f"{model_option} has been trained successfully!")
+if st.button("Train Model"):
+    progress_bar = st.progress(0)  # Initialize progress bar
+    status_text = st.empty()  # Placeholder for status updates
+
+    st.info(f"Training {model_option}... Please wait.")
+
+    # Simulate incremental progress (visual feedback)
+    for i in range(100):  
+        time.sleep(0.02)  # Adjust sleep time based on real training duration
+        progress_bar.progress(i + 1)
+
+    model.fit(X_train, y_train)  # Train the model
+
+    # Save trained model in session state
+    st.session_state.trained_model = model  
+
+    # Clear progress bar & notify success
+    progress_bar.empty()
+    st.success(f"{model_option} has been trained successfully! ✅")
 
 # In[ ]:
 
