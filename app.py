@@ -694,6 +694,66 @@ def train_model():
 if st.button("Train Model"):
     st.info(f"Training {model_option}... Please wait.")
     train_model()
+
+with tabs[5]: # Predictions & Performance
+    st.title("Evaluate Model Performance")
+
+# Ensure required session state variables exist
+if "trained_model" not in st.session_state:
+    st.warning("No trained model found. Please train a model first.")
+    st.stop()
+
+if "X_test" not in st.session_state or "y_test" not in st.session_state:
+    st.warning("No test data found. Please train a model first.")
+    st.stop()
+
+if "selected_features" not in st.session_state:
+    st.warning("No feature selection found. Please select features before training.")
+    st.stop()
+
+# Retrieve session state variables
+model = st.session_state.trained_model  
+X_test = st.session_state.X_test
+y_test = st.session_state.y_test
+selected_features = st.session_state.selected_features
+
+y_pred = model.predict(X_test)
+
+# Compute evaluation metrics
+mae = mean_absolute_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+rmse = mean_squared_error(y_test, y_pred, squared=False)
+
+# Display results
+st.subheader("Model Evaluation Metrics")
+st.write(f"Mean Absolute Error (MAE): {mae:.2f}")
+st.write(f"Root Mean Squared Error (RMSE): {rmse:.2f}")
+st.write(f"R-squared (R²): {r2:.2f}")
+
+# Actual vs Predicted plot
+st.subheader("Actual vs Predicted Revenue")
+results_df = pd.DataFrame({"Actual": y_test, "Predicted": y_pred})
+fig = px.scatter(results_df, x="Actual", y="Predicted", title="Actual vs Predicted Revenue")
+st.plotly_chart(fig)
+
+# Residual Plot
+st.subheader("Residual Plot")
+residuals = y_test - y_pred
+fig_residuals = px.scatter(x=y_pred, y=residuals, title="Residual Plot", labels={"x": "Predicted", "y": "Residuals"})
+st.plotly_chart(fig_residuals)
+
+# Feature Importance (for tree-based models)
+if hasattr(model, "feature_importances_"):
+    feature_importance_df = pd.DataFrame({
+        "Feature": selected_features,
+        "Importance": model.feature_importances_
+    }).sort_values(by="Importance", ascending=False)
+
+    st.subheader("Feature Importance")
+    st.write(feature_importance_df)
+    fig_importance = px.bar(feature_importance_df, x="Feature", y="Importance", title="Feature Importance")
+    st.plotly_chart(fig_importance)
+
 # In[ ]:
 
 
