@@ -656,7 +656,7 @@ with tabs[4]:  # Model Training
         model = LinearRegression()
     
     def train_model():
-    """Function to train the model while updating the progress bar."""
+    # Function to train the model while updating the progress bar
     progress_bar = st.progress(0)  # ✅ Initialize before the thread starts
     status_text = st.empty()
 
