@@ -677,6 +677,10 @@ def train_model():
     # Align X_test with the same order used in training
     X_test_selected = X_test_selected.reindex(columns=list(st.session_state.X_train_selected.columns))
 
+    # ✅ Store split datasets in session state to access them in another tab
+    st.session_state.X_train_selected = X_train_selected
+    st.session_state.X_test_selected = X_test_selected
+
     training_complete = threading.Event()  
 
     def model_training():
@@ -728,6 +732,10 @@ if "X_test" not in st.session_state or "y_test" not in st.session_state:
 
 if "selected_features" not in st.session_state:
     st.warning("No feature selection found. Please select features before training.")
+    st.stop()
+
+if "X_train_selected" not in st.session_state:
+    st.warning("No selected train data found. Please train selected features first.")
     st.stop()
 
 # Retrieve session state variables
