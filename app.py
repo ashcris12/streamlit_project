@@ -659,7 +659,7 @@ with tabs[4]:  # Model Training
         model = LinearRegression()
     
 def train_model():
-    """Function to train the model while updating the progress bar."""
+    # Function to train the model while updating the progress bar
     progress_bar = st.progress(0)  
     status_text = st.empty()
 
@@ -669,8 +669,11 @@ def train_model():
         return  
 
     selected_features = st.session_state.selected_features
+
+    # ✅ Ensure X_train_selected and X_test_selected are in the same feature order
+    selected_features = list(st.session_state.X_train.columns)  # Ensure order consistency
     X_train_selected = st.session_state.X_train[selected_features]
-    X_test_selected = st.session_state.X_test[selected_features]  # ✅ Ensure X_test is filtered the same way
+    X_test_selected = st.session_state.X_test[selected_features]  
 
     training_complete = threading.Event()  
 
