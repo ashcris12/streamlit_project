@@ -721,9 +721,6 @@ def train_model():
 with tabs[5]: # Predictions & Performance
     st.title("Evaluate Model Performance")
 
-# ✅ Load data from session state
-    X_train_selected = st.session_state.X_train_selected
-
 # Ensure required session state variables exist
 if "trained_model" not in st.session_state:
     st.warning("No trained model found. Please train a model first.")
@@ -742,7 +739,8 @@ if "X_train_selected" not in st.session_state:
     st.stop()
 
 # Retrieve session state variables
-model = st.session_state.trained_model  
+model = st.session_state.trained_model 
+X_train_selected = st.session_state.X_train_selected
 
 # Ensure X_test has the same columns as used in training (feature order consistency)
 X_train_features = list(st.session_state.X_train.columns)  # Get feature names from training set
