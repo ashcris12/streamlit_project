@@ -663,23 +663,23 @@ def train_model():
     progress_bar = st.progress(0)  
     status_text = st.empty()
 
-    # Ensure selected features are correctly applied
+    # Ensure selected features are available
     if "selected_features" not in st.session_state or not st.session_state.selected_features:
         st.error("No selected features found. Please select features before training.")
         return  
 
     selected_features = st.session_state.selected_features
 
-    # ✅ Ensure X_train_selected and X_test_selected are in the same feature order
-    selected_features = list(st.session_state.X_train.columns)  # Ensure order consistency
+    # ✅ Ensure feature order consistency before reindexing
     X_train_selected = st.session_state.X_train[selected_features]
     X_test_selected = st.session_state.X_test[selected_features]  
-    # Align X_test with the same order used in training
-    X_test_selected = X_test_selected.reindex(columns=list(st.session_state.X_train_selected.columns))
 
-    # ✅ Store split datasets in session state to access them in another tab
-    st.session_state.X_train_selected = X_train_selected
-    st.session_state.X_test_selected = X_test_selected
+    # ✅ Store X_train_selected in session state BEFORE using it
+    st.session_state.X_train_selected = X_train_selected  
+    st.session_state.X_test_selected = X_test_selected  
+
+    # Now reindex X_test_selected using the stored feature order
+    X_test_selected = X_test_selected.reindex(columns=st.session_state.X_train_selected.columns)
 
     training_complete = threading.Event()  
 
@@ -688,7 +688,7 @@ def train_model():
         try:
             model.fit(X_train_selected, st.session_state.y_train)
             st.session_state.trained_model = model  
-            st.session_state.X_test_selected = X_test_selected  # ✅ Store X_test_selected in session state
+            st.session_state.X_test_selected = X_test_selected  
         except Exception as e:
             st.session_state.model_error = str(e)  
         finally:
@@ -711,7 +711,7 @@ def train_model():
         st.error(f"Model training failed: {st.session_state.model_error}")
         del st.session_state.model_error  
     else:
-        st.success(f"{model_option} has been trained successfully! ✅")
+        st.success(f"{st.session_state.model_option} has been trained successfully! ✅")
 
 # Train the model when button is clicked
 if st.button("Train Model"):
