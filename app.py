@@ -663,6 +663,10 @@ with tabs[4]:  # Model Training
         # Start model training in a separate thread
         def model_training():
             global model
+
+            X_train = X_train[st.session_state.selected_features]
+            X_test = X_test[st.session_state.selected_features]
+
             model.fit(X_train, y_train)
             st.session_state.trained_model = model  # Store model in session state
     
@@ -681,7 +685,7 @@ with tabs[4]:  # Model Training
         progress_bar.progress(100)
         status_text.text("")
         st.success(f"{model_option} has been trained successfully! ✅")
-    
+
     # Train the model when button is clicked
     if st.button("Train Model"):
         st.info(f"Training {model_option}... Please wait.")
