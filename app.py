@@ -662,31 +662,37 @@ with tabs[4]:  # Model Training
     elif model_option == "Linear Regression":
         model = LinearRegression()
     
-# Train the model
-if st.button("Train Model"):
-    progress_bar = st.progress(0)  # Initialize progress bar
-    status_text = st.empty()  # Placeholder for status updates
+def train_model():
+    """Function to train the model while updating the progress bar."""
+    progress_bar = st.progress(0)
+    status_text = st.empty()
 
-    st.info(f"Training {model_option}... Please wait.")
+    # Start model training in a separate thread
+    def model_training():
+        global model
+        model.fit(X_train, y_train)
+        st.session_state.trained_model = model  # Store model in session state
 
-    # Estimate number of steps based on training size
-    num_steps = 10  # You can adjust this based on dataset/model complexity
+    training_thread = threading.Thread(target=model_training)
+    training_thread.start()
 
-    for i in range(num_steps):
-        time.sleep(0.1)  # Small delay for UI responsiveness
-        progress_bar.progress(int((i + 1) / num_steps * 100))
-        status_text.text(f"Training in progress... {int((i + 1) / num_steps * 100)}%")
+    # Update progress bar while training is running
+    progress = 0
+    while training_thread.is_alive():
+        progress = min(progress + 5, 95)  # Ensure progress doesn't hit 100% before completion
+        progress_bar.progress(progress)
+        status_text.text(f"Training in progress... {progress}%")
+        time.sleep(1)  # Adjust timing based on model speed
 
-    # Fit the model
-    model.fit(X_train, y_train)
-
-    # Save trained model in session state
-    st.session_state.trained_model = model  
-
-    # Clear progress bar & notify success
-    progress_bar.empty()
+    # Ensure progress reaches 100% once training is done
+    progress_bar.progress(100)
     status_text.text("")
     st.success(f"{model_option} has been trained successfully! ✅")
+
+# Train the model when button is clicked
+if st.button("Train Model"):
+    st.info(f"Training {model_option}... Please wait.")
+    train_model()
 # In[ ]:
 
 
