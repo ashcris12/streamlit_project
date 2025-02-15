@@ -601,13 +601,16 @@ with tabs[3]:  # Feature Engineering
     
     # Split the data into training and testing sets (80/20)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # ✅ Ensure selected_features are stored in a consistent order
+    selected_features = list(X_train.columns)  # Preserves feature order
     
     # ✅ Store split datasets in session state to access them in another tab
     st.session_state.X_train = X_train
     st.session_state.X_test = X_test
     st.session_state.y_train = y_train
     st.session_state.y_test = y_test
-    st.session_state.selected_features = selected_features  # Save selected features for consistency
+    st.session_state.selected_features = list(X_train.columns)  # ✅ Ensure consistent feature ordery
     
     # Section: Correlation Analysis
     st.header("Correlation Analysis")
