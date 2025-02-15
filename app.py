@@ -656,52 +656,52 @@ with tabs[4]:  # Model Training
         model = LinearRegression()
     
     def train_model():
-    # Function to train the model while updating the progress bar
-    progress_bar = st.progress(0)  # ✅ Initialize before the thread starts
-    status_text = st.empty()
-
-    # Ensure selected features are correctly applied
-    if "selected_features" not in st.session_state or not st.session_state.selected_features:
-        st.error("No selected features found. Please select features before training.")
-        return  # 🚨 Stop execution if no features are selected
-
-    selected_features = st.session_state.selected_features
-    X_train_selected = X_train[selected_features]
-    X_test_selected = X_test[selected_features]
-
-    training_complete = threading.Event()  # ✅ Use an event to track completion
-
-    def model_training():
-        global model  # Reference the global model variable
-        try:
-            model.fit(X_train_selected, y_train)  # Use the filtered data
-            st.session_state.trained_model = model  # Store trained model in session state
-        except Exception as e:
-            st.session_state.model_error = str(e)  # Store error in session state
-        finally:
-            training_complete.set()  # ✅ Ensure thread signals completion
-
-    training_thread = threading.Thread(target=model_training)
-    training_thread.start()
-
-    # Update progress bar while training is running
-    progress = 0
-    while not training_complete.is_set():  # ✅ Check event status
-        progress = min(progress + 5, 95)  # Ensure progress doesn't hit 100% before completion
-        progress_bar.progress(progress)
-        status_text.text(f"Training in progress... {progress}%")
-        time.sleep(1)  # Adjust timing based on model speed
-
-    # Ensure progress reaches 100% once training is done
-    progress_bar.progress(100)
-    status_text.text("")
-
-    # ✅ Handle errors from training
-    if "model_error" in st.session_state:
-        st.error(f"Model training failed: {st.session_state.model_error}")
-        del st.session_state.model_error  # Clear error after displaying
-    else:
-        st.success(f"{model_option} has been trained successfully! ✅")
+        # Function to train the model while updating the progress bar
+        progress_bar = st.progress(0)  # ✅ Initialize before the thread starts
+        status_text = st.empty()
+    
+        # Ensure selected features are correctly applied
+        if "selected_features" not in st.session_state or not st.session_state.selected_features:
+            st.error("No selected features found. Please select features before training.")
+            return  # 🚨 Stop execution if no features are selected
+    
+        selected_features = st.session_state.selected_features
+        X_train_selected = X_train[selected_features]
+        X_test_selected = X_test[selected_features]
+    
+        training_complete = threading.Event()  # ✅ Use an event to track completion
+    
+        def model_training():
+            global model  # Reference the global model variable
+            try:
+                model.fit(X_train_selected, y_train)  # Use the filtered data
+                st.session_state.trained_model = model  # Store trained model in session state
+            except Exception as e:
+                st.session_state.model_error = str(e)  # Store error in session state
+            finally:
+                training_complete.set()  # ✅ Ensure thread signals completion
+    
+        training_thread = threading.Thread(target=model_training)
+        training_thread.start()
+    
+        # Update progress bar while training is running
+        progress = 0
+        while not training_complete.is_set():  # ✅ Check event status
+            progress = min(progress + 5, 95)  # Ensure progress doesn't hit 100% before completion
+            progress_bar.progress(progress)
+            status_text.text(f"Training in progress... {progress}%")
+            time.sleep(1)  # Adjust timing based on model speed
+    
+        # Ensure progress reaches 100% once training is done
+        progress_bar.progress(100)
+        status_text.text("")
+    
+        # ✅ Handle errors from training
+        if "model_error" in st.session_state:
+            st.error(f"Model training failed: {st.session_state.model_error}")
+            del st.session_state.model_error  # Clear error after displaying
+        else:
+            st.success(f"{model_option} has been trained successfully! ✅")
 
     # Train the model when button is clicked
     if st.button("Train Model"):
