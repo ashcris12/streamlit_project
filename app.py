@@ -663,37 +663,37 @@ with tabs[4]:  # Model Training
     elif model_option == "Linear Regression":
         model = LinearRegression()
     
-def train_model():
-    """Function to train the model while updating the progress bar."""
-    progress_bar = st.progress(0)
-    status_text = st.empty()
-
-    # Start model training in a separate thread
-    def model_training():
-        global model
-        model.fit(X_train, y_train)
-        st.session_state.trained_model = model  # Store model in session state
-
-    training_thread = threading.Thread(target=model_training)
-    training_thread.start()
-
-    # Update progress bar while training is running
-    progress = 0
-    while training_thread.is_alive():
-        progress = min(progress + 5, 95)  # Ensure progress doesn't hit 100% before completion
-        progress_bar.progress(progress)
-        status_text.text(f"Training in progress... {progress}%")
-        time.sleep(1)  # Adjust timing based on model speed
-
-    # Ensure progress reaches 100% once training is done
-    progress_bar.progress(100)
-    status_text.text("")
-    st.success(f"{model_option} has been trained successfully! ✅")
-
-# Train the model when button is clicked
-if st.button("Train Model"):
-    st.info(f"Training {model_option}... Please wait.")
-    train_model()
+    def train_model():
+        """Function to train the model while updating the progress bar."""
+        progress_bar = st.progress(0)
+        status_text = st.empty()
+    
+        # Start model training in a separate thread
+        def model_training():
+            global model
+            model.fit(X_train, y_train)
+            st.session_state.trained_model = model  # Store model in session state
+    
+        training_thread = threading.Thread(target=model_training)
+        training_thread.start()
+    
+        # Update progress bar while training is running
+        progress = 0
+        while training_thread.is_alive():
+            progress = min(progress + 5, 95)  # Ensure progress doesn't hit 100% before completion
+            progress_bar.progress(progress)
+            status_text.text(f"Training in progress... {progress}%")
+            time.sleep(1)  # Adjust timing based on model speed
+    
+        # Ensure progress reaches 100% once training is done
+        progress_bar.progress(100)
+        status_text.text("")
+        st.success(f"{model_option} has been trained successfully! ✅")
+    
+    # Train the model when button is clicked
+    if st.button("Train Model"):
+        st.info(f"Training {model_option}... Please wait.")
+        train_model()
 
 with tabs[5]: # Predictions & Performance
     st.title("Evaluate Model Performance")
