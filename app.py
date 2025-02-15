@@ -576,12 +576,6 @@ with tabs[3]:  # Feature Engineering
     # Dynamically generate a list of all features (excluding the target)
     all_features = [col for col in df.columns if col != target]
 
-    # Set default selected features (choose key features by default)
-    default_features = ['Opening Weekend (USD)']
-
-    # Ensure the selected default features exist in the dataframe
-    features = [col for col in default_features if col in all_features]
-
     # Section: Feature Engineering - Interaction Features
     st.header("Feature Engineering: Interaction Features")
     if st.checkbox("Create Interaction Features"):
@@ -595,13 +589,11 @@ with tabs[3]:  # Feature Engineering
     selected_features = st.multiselect(
         "Select the features you want to include in the model:",
         options=all_features,  # Use all features except the target
-        default=features  # Use only the valid default features
     )
 
     # Ensure at least one feature is selected
     if not selected_features:
         st.warning("Please select at least one feature.")
-        selected_features = features  # Ensure a default set of features is used
 
     # Define X and y after selection
     X = df[selected_features]
