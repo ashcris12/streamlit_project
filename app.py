@@ -553,7 +553,7 @@ with tabs[2]:  # Data Cleaning
 
 with tabs[3]:  # Upload Data
     if st.session_state.role in ["data_science", "finance"]:
-    st.header("Exploratory Data Analysis (EDA)")
+        st.header("Exploratory Data Analysis (EDA)")
 
     # Ensure df exists before accessing it
     if "df" not in st.session_state or st.session_state.df is None:
