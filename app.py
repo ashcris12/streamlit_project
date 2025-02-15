@@ -713,10 +713,10 @@ def train_model():
     else:
         st.success(f"{st.session_state.model_option} has been trained successfully! ✅")
 
-# Train the model when button is clicked
-if st.button("Train Model"):
-    st.info(f"Training {model_option}... Please wait.")
-    train_model()
+    # Train the model when button is clicked
+    if st.button("Train Model"):
+        st.info(f"Training {model_option}... Please wait.")
+        train_model()
 
 with tabs[5]: # Predictions & Performance
     st.title("Evaluate Model Performance")
