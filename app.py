@@ -731,9 +731,9 @@ if "selected_features" not in st.session_state:
 # Retrieve session state variables
 model = st.session_state.trained_model  
 
-# ✅ Ensure X_test maintains the same feature order as during training
-selected_features = list(st.session_state.X_train.columns)  # Preserve feature order
-X_test = st.session_state.X_test[selected_features]  
+# Ensure X_test has the same columns as used in training (feature order consistency)
+X_train_features = list(st.session_state.X_train.columns)  # Get feature names from training set
+X_test = st.session_state.X_test.reindex(columns=X_train_features, fill_value=0)  # Align X_test
 
 y_test = st.session_state.y_test
 
