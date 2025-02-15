@@ -736,11 +736,7 @@ model = st.session_state.trained_model
 # Ensure X_test has the same columns as used in training (feature order consistency)
 X_train_features = list(st.session_state.X_train.columns)  # Get feature names from training set
 # Ensure X_test follows the exact feature order from training
-X_test = st.session_state.X_test[st.session_state.selected_features]
-
-# Align X_test with the same order used in training
-X_test = X_test.reindex(columns=list(st.session_state.X_train.columns))
-
+X_test = st.session_state.X_test.reindex(columns=list(st.session_state.X_train.columns))
 
 y_test = st.session_state.y_test
 
