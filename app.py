@@ -552,91 +552,67 @@ with tabs[2]:  # Data Cleaning
         st.warning("🚫 You do not have permission to access data cleaning.")
 
 with tabs[3]:  # Upload Data
-    if st.session_state.role in ["data_science", "finance"]:
-        st.header("Exploratory Data Analysis (EDA)")
+    if st.session_state.role in ["data_science"]:
+    st.header("Feature Engineering")
 
-    # Ensure df exists before accessing it
-    if "df" not in st.session_state or st.session_state.df is None:
+    # Ensure cleaned_df exists before accessing it
+    if "cleaned_df" not in st.session_state or st.session_state.cleaned_df is None:
         st.warning("No data uploaded yet. Please upload a CSV file or URL in the 'Upload Data' tab.")
-        st.stop()
-    
-    df = st.session_state.df
-    
+        st.stop()  # 🚀 This prevents further execution when cleaned_df is missing
+
+    df = st.session_state.cleaned_df
+
     # Section: Data Overview
     st.header("Data Overview")
     if st.checkbox('Show Data Overview'):
-        st.write(df.head())
-        st.write(df.describe())
-        st.write(df.info())
-    
+        st.write(df.head())  # Show top rows of the data
+        st.write(df.describe())  # Display data statistics
+        st.write(df.info())  # Display data types and missing values
+
     # Ensure the target variable is defined
     target = 'Domestic Gross (USD)'
-    
+
     # Dynamically generate a list of all features (excluding the target)
     all_features = [col for col in df.columns if col != target]
-    
+
     # Set default selected features (choose key features by default)
     default_features = ['Opening Weekend (USD)']
-    
+
     # Ensure the selected default features exist in the dataframe
     features = [col for col in default_features if col in all_features]
-    
+
+    # Section: Feature Engineering - Interaction Features
+    st.header("Feature Engineering: Interaction Features")
+    if st.checkbox("Create Interaction Features"):
+        df["budget_opening_ratio"] = df["Production Budget (USD)"] / df["Opening Weekend (USD)"].replace(0, 1)
+        df["popularity_vote_ratio"] = df["popularity"] / df["vote_count"].replace(0, 1)
+        st.success("Interaction features created successfully!")
+
     # Section: Feature Selection
     st.header("Select Features for Model")
+    all_features = [col for col in df.columns if col != target and col != "release_date"]  # Exclude original date column
     selected_features = st.multiselect(
         "Select the features you want to include in the model:",
-        options=all_features,
-        default=features
+        options=all_features,  # Use all features except the target
+        default=features  # Use only the valid default features
     )
-    
+
+    # Ensure at least one feature is selected
     if not selected_features:
         st.warning("Please select at least one feature.")
-        selected_features = features
-    
+        selected_features = features  # Ensure a default set of features is used
+
     # Define X and y after selection
     X = df[selected_features]
     y = df[target]
-    
-    # Feature Selection using RandomForest
-    if st.checkbox('Perform Feature Selection'):
-        st.write("Feature importance based on RandomForest")
-        model = RandomForestRegressor(n_estimators=100, random_state=42)
-        model.fit(X, y)
-        feature_importances = pd.Series(model.feature_importances_, index=selected_features)
-        st.bar_chart(feature_importances.sort_values(ascending=False))
-        
-        # Allow user to select important features only
-        important_features = feature_importances[feature_importances > feature_importances.mean()].index.tolist()
-        selected_features = st.multiselect("Refine selected features based on importance:", options=selected_features, default=important_features)
-    
-    # Feature Interaction
-    st.header("Feature Interaction")
-    interaction_type = st.radio("Select interaction type:", ("Polynomial Features", "Feature Crosses"))
-    
-    if interaction_type == "Polynomial Features":
-        poly_degree = st.slider("Select polynomial degree:", 2, 3, 2)
-        X_poly = X.copy()
-        for col in selected_features:
-            X_poly[f"{col}^2"] = X[col] ** 2
-            if poly_degree == 3:
-                X_poly[f"{col}^3"] = X[col] ** 3
-        st.write("Polynomial features added:")
-        st.write(X_poly.head())
-    
-    elif interaction_type == "Feature Crosses":
-        X_cross = X.copy()
-        for f1, f2 in combinations(selected_features, 2):
-            X_cross[f"{f1}*{f2}"] = X[f1] * X[f2]
-        st.write("Feature crosses added:")
-        st.write(X_cross.head())
-    
+
     # Split the data into training and testing sets (80/20)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    
+
     # Section: Correlation Analysis
     st.header("Correlation Analysis")
     if st.checkbox('Show Correlation Heatmap'):
-        corr = df[selected_features + [target]].corr()
+        corr = df[selected_features + [target]].corr()  # Ensure correlation matches selected features
         fig, ax = plt.subplots(figsize=(10, 6))
         sns.heatmap(corr, annot=True, cmap='seismic', ax=ax)
         st.pyplot(fig)
