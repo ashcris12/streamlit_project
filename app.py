@@ -730,9 +730,12 @@ if "selected_features" not in st.session_state:
 
 # Retrieve session state variables
 model = st.session_state.trained_model  
-X_test = st.session_state.X_test[st.session_state.selected_features]  # Ensure correct features
+
+# ✅ Ensure X_test maintains the same feature order as during training
+selected_features = list(st.session_state.X_train.columns)  # Preserve feature order
+X_test = st.session_state.X_test[selected_features]  
+
 y_test = st.session_state.y_test
-selected_features = st.session_state.selected_features
 
 y_pred = model.predict(X_test)
 
