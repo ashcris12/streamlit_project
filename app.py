@@ -740,6 +740,21 @@ X_test = st.session_state.X_test.reindex(columns=list(st.session_state.X_train.c
 
 y_test = st.session_state.y_test
 
+st.subheader("Debugging: Feature Order Check")
+
+# Get feature names from training and testing
+train_features = list(st.session_state.X_train.columns)
+test_features = list(st.session_state.X_test.columns)
+
+# Check if feature names match
+if train_features != test_features:
+    st.error("Feature order mismatch detected between X_train and X_test!")
+
+    # Display side-by-side for debugging
+    mismatch_df = pd.DataFrame({"X_train Order": train_features, "X_test Order": test_features})
+    st.write(mismatch_df)
+    st.stop()
+
 y_pred = model.predict(X_test)
 
 # Compute evaluation metrics
