@@ -604,6 +604,12 @@ with tabs[3]:  # Feature Engineering
 
     # ✅ Ensure selected_features are stored in a consistent order
     selected_features = list(X_train.columns)  # Preserves feature order
+
+    # Ensure X_test follows the exact feature order from training
+    X_test = st.session_state.X_test[st.session_state.selected_features]
+
+    # Align X_test with the same order used in training
+    X_test = X_test.reindex(columns=list(st.session_state.X_train.columns))
     
     # ✅ Store split datasets in session state to access them in another tab
     st.session_state.X_train = X_train
