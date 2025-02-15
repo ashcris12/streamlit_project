@@ -605,10 +605,17 @@ with tabs[3]:  # Feature Engineering
     # Define X and y after selection
     X = df[selected_features]
     y = df[target]
-
+    
     # Split the data into training and testing sets (80/20)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
+    
+    # ✅ Store split datasets in session state to access them in another tab
+    st.session_state.X_train = X_train
+    st.session_state.X_test = X_test
+    st.session_state.y_train = y_train
+    st.session_state.y_test = y_test
+    st.session_state.selected_features = selected_features  # Save selected features for consistency
+    
     # Section: Correlation Analysis
     st.header("Correlation Analysis")
     if st.checkbox('Show Correlation Heatmap'):
@@ -617,36 +624,49 @@ with tabs[3]:  # Feature Engineering
         sns.heatmap(corr, annot=True, cmap='seismic', ax=ax)
         st.pyplot(fig)
 
+
 with tabs[4]:  # Model Training
-st.title("Train a Model")
+    if st.session_state.role in ["data_science"]:
+        st.title("Train a Model")
 
-# Select model type (user option)
-model_option = st.selectbox("Select a Model to Train", ["XGBoost", "Random Forest", "Decision Tree", "Linear Regression"])
+    # Ensure train-test data exists in session state
+    if "X_train" not in st.session_state or "y_train" not in st.session_state:
+        st.warning("Train-test split data is missing. Please complete feature selection in the previous tab.")
+        st.stop()  # 🚀 Stops execution if data isn't available
 
-# Hyperparameter selection
-if model_option == "XGBoost":
-    n_estimators = st.slider("Number of Estimators", 50, 300, 100)
-    learning_rate = st.slider("Learning Rate", 0.01, 0.3, 0.1)
-    max_depth = st.slider("Max Depth", 3, 10, 6)
-    model = XGBRegressor(n_estimators=n_estimators, learning_rate=learning_rate, max_depth=max_depth)
+    # ✅ Load data from session state
+    X_train = st.session_state.X_train
+    X_test = st.session_state.X_test
+    y_train = st.session_state.y_train
+    y_test = st.session_state.y_test
 
-elif model_option == "Random Forest":
-    n_estimators = st.slider("Number of Trees", 50, 300, 100)
-    max_depth = st.slider("Max Depth", 3, 20, None)
-    model = RandomForestRegressor(n_estimators=n_estimators, max_depth=max_depth, random_state=42)
-
-elif model_option == "Decision Tree":
-    max_depth = st.slider("Max Depth", 3, 20, None)
-    model = DecisionTreeRegressor(max_depth=max_depth, random_state=42)
-
-elif model_option == "Linear Regression":
-    model = LinearRegression()
-
-# Train the model
-if st.button("Train Model"):
-    model.fit(X_train, y_train)
-    st.session_state.trained_model = model  # Store trained model
-    st.success(f"{model_option} has been trained successfully!")
+    # Select model type (user option)
+    model_option = st.selectbox("Select a Model to Train", ["XGBoost", "Random Forest", "Decision Tree", "Linear Regression"])
+    
+    # Hyperparameter selection
+    if model_option == "XGBoost":
+        n_estimators = st.slider("Number of Estimators", 50, 300, 100)
+        learning_rate = st.slider("Learning Rate", 0.01, 0.3, 0.1)
+        max_depth = st.slider("Max Depth", 3, 10, 6)
+        model = XGBRegressor(n_estimators=n_estimators, learning_rate=learning_rate, max_depth=max_depth)
+    
+    elif model_option == "Random Forest":
+        n_estimators = st.slider("Number of Trees", 50, 300, 100)
+        max_depth = st.slider("Max Depth", 3, 20, None)
+        model = RandomForestRegressor(n_estimators=n_estimators, max_depth=max_depth, random_state=42)
+    
+    elif model_option == "Decision Tree":
+        max_depth = st.slider("Max Depth", 3, 20, None)
+        model = DecisionTreeRegressor(max_depth=max_depth, random_state=42)
+    
+    elif model_option == "Linear Regression":
+        model = LinearRegression()
+    
+    # Train the model
+    if st.button("Train Model"):
+        model.fit(X_train, y_train)
+        st.session_state.trained_model = model  # ✅ Store trained model in session state
+        st.success(f"{model_option} has been trained successfully!")
 
 # In[ ]:
 
