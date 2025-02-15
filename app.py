@@ -656,35 +656,37 @@ with tabs[4]:  # Model Training
         model = LinearRegression()
     
     def train_model():
-        """Function to train the model while updating the progress bar."""
-        progress_bar = st.progress(0)
-        status_text = st.empty()
-    
-        # Start model training in a separate thread
-        def model_training():
-            global model
+    """Function to train the model while updating the progress bar."""
+    progress_bar = st.progress(0)
+    status_text = st.empty()
 
-            X_train = X_train[st.session_state.selected_features]
-            X_test = X_test[st.session_state.selected_features]
+    # Ensure selected features are correctly applied
+    selected_features = st.session_state.selected_features
+    X_train_selected = X_train[selected_features]
+    X_test_selected = X_test[selected_features]
 
-            model.fit(X_train, y_train)
-            st.session_state.trained_model = model  # Store model in session state
+    # Start model training in a separate thread
+    def model_training():
+        global model  # Reference the global model variable
+        model.fit(X_train_selected, y_train)  # Use the filtered data
+        st.session_state.trained_model = model  # Store trained model in session state
     
-        training_thread = threading.Thread(target=model_training)
-        training_thread.start()
-    
-        # Update progress bar while training is running
-        progress = 0
-        while training_thread.is_alive():
-            progress = min(progress + 5, 95)  # Ensure progress doesn't hit 100% before completion
-            progress_bar.progress(progress)
-            status_text.text(f"Training in progress... {progress}%")
-            time.sleep(1)  # Adjust timing based on model speed
-    
-        # Ensure progress reaches 100% once training is done
-        progress_bar.progress(100)
-        status_text.text("")
-        st.success(f"{model_option} has been trained successfully! ✅")
+    training_thread = threading.Thread(target=model_training)
+    training_thread.start()
+
+    # Update progress bar while training is running
+    progress = 0
+    while training_thread.is_alive():
+        progress = min(progress + 5, 95)  # Ensure progress doesn't hit 100% before completion
+        progress_bar.progress(progress)
+        status_text.text(f"Training in progress... {progress}%")
+        time.sleep(1)  # Adjust timing based on model speed
+
+    # Ensure progress reaches 100% once training is done
+    progress_bar.progress(100)
+    status_text.text("")
+    st.success(f"{model_option} has been trained successfully! ✅")
+
 
     # Train the model when button is clicked
     if st.button("Train Model"):
