@@ -755,26 +755,26 @@ with tabs[5]: # Predictions & Performance
     else:
         y_pred = None
         
-            # Compute evaluation metrics
-            mae = mean_absolute_error(y_test, y_pred)
-            r2 = r2_score(y_test, y_pred)
-            rmse = mean_squared_error(y_test, y_pred) ** 0.5  # ✅ Manually compute RMSE
-    
-            # Display results
-            st.subheader("Model Evaluation Metrics")
-            st.write(f"Mean Absolute Error (MAE): {mae:.2f}")
-            st.write(f"Root Mean Squared Error (RMSE): {rmse:.2f}")
-            st.write(f"R-squared (R²): {r2:.2f}")
-    
-            # Actual vs Predicted plot
-            results_df = pd.DataFrame({"Actual": y_test, "Predicted": y_pred})
-            fig = px.scatter(results_df, x="Actual", y="Predicted", title="Actual vs Predicted Revenue")
-            st.plotly_chart(fig)
-    
-            # Residual Plot
-            residuals = y_test - y_pred
-            fig_residuals = px.scatter(x=y_pred, y=residuals, title="Residual Plot", labels={"x": "Predicted", "y": "Residuals"})
-            st.plotly_chart(fig_residuals)
+        # Compute evaluation metrics
+        mae = mean_absolute_error(y_test, y_pred)
+        r2 = r2_score(y_test, y_pred)
+        rmse = mean_squared_error(y_test, y_pred) ** 0.5  # ✅ Manually compute RMSE
+
+        # Display results
+        st.subheader("Model Evaluation Metrics")
+        st.write(f"Mean Absolute Error (MAE): {mae:.2f}")
+        st.write(f"Root Mean Squared Error (RMSE): {rmse:.2f}")
+        st.write(f"R-squared (R²): {r2:.2f}")
+
+        # Actual vs Predicted plot
+        results_df = pd.DataFrame({"Actual": y_test, "Predicted": y_pred})
+        fig = px.scatter(results_df, x="Actual", y="Predicted", title="Actual vs Predicted Revenue")
+        st.plotly_chart(fig)
+
+        # Residual Plot
+        residuals = y_test - y_pred
+        fig_residuals = px.scatter(x=y_pred, y=residuals, title="Residual Plot", labels={"x": "Predicted", "y": "Residuals"})
+        st.plotly_chart(fig_residuals)
 
     except Exception as e:
         st.error(f"Prediction failed: {str(e)}")
