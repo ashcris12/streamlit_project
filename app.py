@@ -817,51 +817,50 @@ with tabs[6]:  # Download Report
     
     st.markdown(report_content)
 
-    # Export to PDF function
-def generate_pdf():
-    pdf = FPDF()
-    pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-
-    pdf.cell(200, 10, "Model Performance Report", ln=True, align='C')
-    pdf.ln(10)
-
-    if include_summary:
-        pdf.cell(200, 10, f"Model: {st.session_state.get('model_option', 'N/A')}", ln=True)
-
-    if include_features:
-        selected_features = st.session_state.get("selected_features", [])
-        pdf.multi_cell(0, 10, f"Features Used: {', '.join(selected_features)}")
-
-    if include_metrics:
-        mae = st.session_state.get("mae", 0)
-        rmse = st.session_state.get("rmse", 0)
-        r2 = st.session_state.get("r2", 0)
-        pdf.cell(200, 10, f"MAE: {mae:.2f}", ln=True)
-        pdf.cell(200, 10, f"RMSE: {rmse:.2f}", ln=True)
-        pdf.cell(200, 10, f"R²: {r2:.2f}", ln=True)
-
-    if include_predictions:
-        y_test = st.session_state.get("y_test", [])
-        y_pred = st.session_state.get("y_pred", [])
-        pdf.cell(200, 10, "Sample Predictions:", ln=True)
-        for i in range(min(5, len(y_test))):  # Prevent index error
-            pdf.cell(200, 10, f"Actual: {y_test.iloc[i]:.2f}, Predicted: {y_pred[i]:.2f}", ln=True)
-
-    # ✅ Fix: Use BytesIO without 'F'
-    pdf_output = BytesIO()
-    pdf.output(pdf_output)  # ❌ No 'F' argument needed
-    pdf_output.seek(0)  # Reset pointer for reading
-
-    return pdf_output
-
-# Download button
-if st.button("Download Report as PDF"):
-    pdf_data = generate_pdf()
-    st.download_button(
-        label="Download PDF",
-        data=pdf_data.getvalue(),  # ✅ Extract bytes
-        file_name="model_report.pdf",
-        mime="application/pdf"
-    )
+      # Export to PDF function
+    def generate_pdf():
+        pdf = FPDF()
+        pdf.set_auto_page_break(auto=True, margin=15)
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
+    
+        pdf.cell(200, 10, "Model Performance Report", ln=True, align='C')
+        pdf.ln(10)
+    
+        if include_summary:
+            model_option = st.session_state.get('model_option', 'N/A')
+            pdf.cell(200, 10, f"Model: {model_option}", ln=True)
+    
+        if include_features:
+            selected_features = st.session_state.get("selected_features", [])
+            pdf.multi_cell(0, 10, f"Features Used: {', '.join(selected_features)}")
+    
+        if include_metrics:
+            mae = st.session_state.get("mae", 0)
+            rmse = st.session_state.get("rmse", 0)
+            r2 = st.session_state.get("r2", 0)
+            pdf.cell(200, 10, f"MAE: {mae:.2f}", ln=True)
+            pdf.cell(200, 10, f"RMSE: {rmse:.2f}", ln=True)
+            pdf.cell(200, 10, f"R²: {r2:.2f}", ln=True)
+    
+        if include_predictions:
+            y_test = st.session_state.get("y_test", [])
+            y_pred = st.session_state.get("y_pred", [])
+            pdf.cell(200, 10, "Sample Predictions:", ln=True)
+            for i in range(min(5, len(y_test))):  # Prevent index error
+                pdf.cell(200, 10, f"Actual: {y_test.iloc[i]:.2f}, Predicted: {y_pred[i]:.2f}", ln=True)
+    
+        # ✅ FIX: Use `output(dest='S')` to get the PDF as bytes
+        pdf_bytes = pdf.output(dest='S').encode('latin1')  # Convert to bytes
+    
+        return BytesIO(pdf_bytes)  # Convert string output to BytesIO
+    
+    # Download button
+    if st.button("Download Report as PDF"):
+        pdf_data = generate_pdf()
+        st.download_button(
+            label="Download PDF",
+            data=pdf_data,
+            file_name="model_report.pdf",
+            mime="application/pdf"
+        )
