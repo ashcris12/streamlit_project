@@ -672,6 +672,8 @@ with tabs[4]:  # Model Training
         # Ensure feature order consistency
         X_train_selected = st.session_state.X_train[selected_features]
         X_test_selected = st.session_state.X_test[selected_features]
+
+        st.session_state.X_train_selected = X_train_selected  # Ensure it's saved
     
         try:
             # ✅ Train model synchronously (without threading)
