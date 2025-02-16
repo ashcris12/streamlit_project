@@ -570,6 +570,12 @@ with tabs[3]:  # Feature Engineering
         st.write(df.describe())  # Display data statistics
         st.write(df.info())  # Display data types and missing values
 
+    # Ensure the target variable is defined
+    target = 'Domestic Gross (USD)'
+
+    # Dynamically generate a list of all features (excluding the target)
+    all_features = [col for col in df.columns if col != target]
+
     # Section: Feature Engineering - Interaction Features
     st.header("Feature Engineering: Interaction Features")
     if st.checkbox("Create Interaction Features"):
@@ -577,42 +583,35 @@ with tabs[3]:  # Feature Engineering
         df["popularity_vote_ratio"] = df["popularity"] / df["vote_count"].replace(0, 1)
         st.success("Interaction features created successfully!")
 
-    # Ensure session state variables exist
-    if "trained_model" not in st.session_state:
-        st.session_state.trained_model = None
-    if "selected_features" not in st.session_state:
-        st.session_state.selected_features = None
-    if "X_train" not in st.session_state or "X_test" not in st.session_state:
-        st.session_state.X_train, st.session_state.X_test, st.session_state.y_train, st.session_state.y_test = None, None, None, None
-    
-    # Feature Selection Section
-    st.header("Feature Selection for Model Training")
-    
-    if "df" in st.session_state and st.session_state.df is not None:
-        df = st.session_state.df.copy()
-        target = "Domestic Gross (USD)"
+    # Section: Feature Selection
+    st.header("Select Features for Model")
+    all_features = [col for col in df.columns if col != target and col != "release_date"]  # Exclude original date column
+    selected_features = st.multiselect(
+        "Select the features you want to include in the model:",
+        options=all_features,  # Use all features except the target
+    )
 
-         # Select features
-        all_features = [col for col in df.columns if col != target and col != "release_date"]
-        selected_features = st.multiselect("Select features for the model:", options=all_features)
+    # Ensure at least one feature is selected
+    if not selected_features:
+        st.warning("Please select at least one feature.")
+
+    # Define X and y after selection
+    X = df[selected_features]
+    y = df[target]
     
-        if selected_features:
-            # Define train/test split
-            X = df[selected_features]
-            y = df[target]
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    # Split the data into training and testing sets (80/20)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # ✅ Ensure selected_features are stored in a consistent order
+    selected_features = list(X_train.columns)  # Preserves feature order
     
-            # Store in session state
-            st.session_state.X_train = X_train
-            st.session_state.X_test = X_test
-            st.session_state.y_train = y_train
-            st.session_state.y_test = y_test
-            st.session_state.selected_features = selected_features  # Save feature order
+    # ✅ Store split datasets in session state to access them in another tab
+    st.session_state.X_train = X_train
+    st.session_state.X_test = X_test
+    st.session_state.y_train = y_train
+    st.session_state.y_test = y_test
+    st.session_state.selected_features = list(X_train.columns)  # ✅ Ensure consistent feature ordery
     
-            st.success("✅ Train-test split completed successfully!")
-        else:
-            st.warning("Please select at least one feature.")
-            
     # Section: Correlation Analysis
     st.header("Correlation Analysis")
     if st.checkbox('Show Correlation Heatmap'):
@@ -621,17 +620,26 @@ with tabs[3]:  # Feature Engineering
         sns.heatmap(corr, annot=True, cmap='seismic', ax=ax)
         st.pyplot(fig)
 
+
 with tabs[4]:  # Model Training
     if st.session_state.role in ["data_science"]:
         st.title("Train a Model")
 
-    if st.session_state.X_train is None or st.session_state.y_train is None:
-        st.warning("No training data available. Please select features first.")
-        st.stop()
+    # Ensure train-test data exists in session state
+    if "X_train" not in st.session_state or "y_train" not in st.session_state:
+        st.warning("Train-test split data is missing. Please complete feature selection in the previous tab.")
+        st.stop()  # 🚀 Stops execution if data isn't available
+
+    # ✅ Load data from session state
+    X_train = st.session_state.X_train
+    X_test = st.session_state.X_test
+    y_train = st.session_state.y_train
+    y_test = st.session_state.y_test
+
+    # Select model type (user option)
+    model_option = st.selectbox("Select a Model to Train", ["XGBoost", "Random Forest", "Decision Tree", "Linear Regression"])
     
-    model_option = st.selectbox("Select a Model", ["XGBoost", "Random Forest", "Decision Tree", "Linear Regression"])
-    
-    # Define Model
+    # Hyperparameter selection
     if model_option == "XGBoost":
         n_estimators = st.slider("Number of Estimators", 50, 300, 100)
         learning_rate = st.slider("Learning Rate", 0.01, 0.3, 0.1)
@@ -650,46 +658,61 @@ with tabs[4]:  # Model Training
     elif model_option == "Linear Regression":
         model = LinearRegression()
     
-    # Function to train the model
-    def train_model():
-        progress_bar = st.progress(0)
-        status_text = st.empty()
-    
-        selected_features = st.session_state.selected_features
-        X_train_selected = st.session_state.X_train[selected_features]  # Ensure feature order
-        X_test_selected = st.session_state.X_test[selected_features]  # Apply same order
-    
-        training_complete = threading.Event()
-    
-        def model_training():
-            try:
-                model.fit(X_train_selected, st.session_state.y_train)
-                st.session_state.trained_model = model  # Store trained model
-                st.session_state.X_test_selected = X_test_selected  # Store test set with correct order
-            except Exception as e:
-                st.session_state.model_error = str(e)
-            finally:
-                training_complete.set()
-    
-        training_thread = threading.Thread(target=model_training)
-        training_thread.start()
-    
-        progress = 0
-        while not training_complete.is_set():
-            progress = min(progress + 5, 95)
-            progress_bar.progress(progress)
-            status_text.text(f"Training in progress... {progress}%")
-            time.sleep(1)
-    
-        progress_bar.progress(100)
-        status_text.text("")
-    
-        if "model_error" in st.session_state:
-            st.error(f"Model training failed: {st.session_state.model_error}")
-            del st.session_state.model_error
-        else:
-            st.success(f"{model_option} trained successfully! ✅")
-    
+def train_model():
+    # Function to train the model while updating the progress bar
+    progress_bar = st.progress(0)  
+    status_text = st.empty()
+
+    # Ensure selected features are available
+    if "selected_features" not in st.session_state or not st.session_state.selected_features:
+        st.error("No selected features found. Please select features before training.")
+        return  
+
+    selected_features = st.session_state.selected_features
+
+    # ✅ Ensure feature order consistency before reindexing
+    X_train_selected = st.session_state.X_train[selected_features]
+    X_test_selected = st.session_state.X_test[selected_features]  
+
+    # ✅ Store X_train_selected in session state BEFORE using it
+    st.session_state.X_train_selected = X_train_selected  
+    st.session_state.X_test_selected = X_test_selected  
+
+    # Now reindex X_test_selected using the stored feature order
+    X_test_selected = X_test_selected.reindex(columns=st.session_state.X_train_selected.columns)
+
+    training_complete = threading.Event()  
+
+    def model_training():
+        global model
+        try:
+            model.fit(X_train_selected, st.session_state.y_train)
+            st.session_state.trained_model = model  
+            st.session_state.X_test_selected = X_test_selected  
+        except Exception as e:
+            st.session_state.model_error = str(e)  
+        finally:
+            training_complete.set()  
+
+    training_thread = threading.Thread(target=model_training)
+    training_thread.start()
+
+    progress = 0
+    while not training_complete.is_set():  
+        progress = min(progress + 5, 95)  
+        progress_bar.progress(progress)
+        status_text.text(f"Training in progress... {progress}%")
+        time.sleep(1)  
+
+    progress_bar.progress(100)
+    status_text.text("")
+
+    if "model_error" in st.session_state:
+        st.error(f"Model training failed: {st.session_state.model_error}")
+        del st.session_state.model_error  
+    else:
+        st.success(f"{st.session_state.model_option} has been trained successfully! ✅")
+
     # Train the model when button is clicked
     if st.button("Train Model"):
         st.info(f"Training {model_option}... Please wait.")
@@ -698,40 +721,82 @@ with tabs[4]:  # Model Training
 with tabs[5]: # Predictions & Performance
     st.title("Evaluate Model Performance")
 
-    if "trained_model" not in st.session_state or st.session_state.trained_model is None:
-        st.warning("No trained model found. Please train a model first.")
-        st.stop()
-    
-    # Ensure feature order before making predictions
-    st.session_state.X_test_selected = st.session_state.X_test.reindex(columns=st.session_state.X_train.columns)
-    
-    st.subheader("Debugging: Feature Order Check")
-    
-    train_features = list(st.session_state.X_train_selected.columns)
-    test_features = list(st.session_state.X_test_selected.columns)
-    
-    # Check if feature names match
-    if train_features != test_features:
-        st.error("🚨 Feature order mismatch detected between X_train and X_test!")
-    
-        # Display mismatched feature order
-        mismatch_df = pd.DataFrame({"X_train Order": train_features, "X_test Order": test_features})
-        st.write(mismatch_df)
-        st.stop()
-    else:
-        st.success("✅ Feature order is correct!")
-    
-    # Make Predictions
-    model = st.session_state.trained_model
-    y_pred = model.predict(st.session_state.X_test_selected)
-    
-    # Compute evaluation metrics
-    mae = mean_absolute_error(st.session_state.y_test, y_pred)
-    rmse = mean_squared_error(st.session_state.y_test, y_pred, squared=False)
-    r2 = r2_score(st.session_state.y_test, y_pred)
-    
-    # Display results
-    st.subheader("Model Evaluation Metrics")
-    st.write(f"Mean Absolute Error (MAE): {mae:.2f}")
-    st.write(f"Root Mean Squared Error (RMSE): {rmse:.2f}")
-    st.write(f"R-squared (R²): {r2:.2f}")
+# Ensure required session state variables exist
+if "trained_model" not in st.session_state:
+    st.warning("No trained model found. Please train a model first.")
+    st.stop()
+
+if "X_test" not in st.session_state or "y_test" not in st.session_state:
+    st.warning("No test data found. Please train a model first.")
+    st.stop()
+
+if "selected_features" not in st.session_state:
+    st.warning("No feature selection found. Please select features before training.")
+    st.stop()
+
+if "X_train_selected" not in st.session_state:
+    st.warning("No selected train data found. Please train selected features first.")
+    st.stop()
+
+# Retrieve session state variables
+model = st.session_state.trained_model 
+X_train_selected = st.session_state.X_train_selected
+
+# Ensure X_test has the same columns as used in training (feature order consistency)
+X_train_features = list(st.session_state.X_train.columns)  # Get feature names from training set
+# Ensure X_test follows the exact feature order from training
+X_test = st.session_state.X_test.reindex(columns=list(st.session_state.X_train.columns))
+
+y_test = st.session_state.y_test
+
+st.subheader("Debugging: Feature Order Check")
+
+# Get feature names from training and testing
+train_features = list(st.session_state.X_train_selected.columns)
+test_features = list(st.session_state.X_test_selected.columns)
+
+# Check if feature names match
+if train_features != test_features:
+    st.error("Feature order mismatch detected between X_train and X_test!")
+
+    # Display side-by-side for debugging
+    mismatch_df = pd.DataFrame({"X_train Order": train_features, "X_test Order": test_features})
+    st.write(mismatch_df)
+    st.stop()
+
+y_pred = model.predict(X_test)
+
+# Compute evaluation metrics
+mae = mean_absolute_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+rmse = mean_squared_error(y_test, y_pred, squared=False)
+
+# Display results
+st.subheader("Model Evaluation Metrics")
+st.write(f"Mean Absolute Error (MAE): {mae:.2f}")
+st.write(f"Root Mean Squared Error (RMSE): {rmse:.2f}")
+st.write(f"R-squared (R²): {r2:.2f}")
+
+# Actual vs Predicted plot
+st.subheader("Actual vs Predicted Revenue")
+results_df = pd.DataFrame({"Actual": y_test, "Predicted": y_pred})
+fig = px.scatter(results_df, x="Actual", y="Predicted", title="Actual vs Predicted Revenue")
+st.plotly_chart(fig)
+
+# Residual Plot
+st.subheader("Residual Plot")
+residuals = y_test - y_pred
+fig_residuals = px.scatter(x=y_pred, y=residuals, title="Residual Plot", labels={"x": "Predicted", "y": "Residuals"})
+st.plotly_chart(fig_residuals)
+
+# Feature Importance (for tree-based models)
+if hasattr(model, "feature_importances_"):
+    feature_importance_df = pd.DataFrame({
+        "Feature": selected_features,
+        "Importance": model.feature_importances_
+    }).sort_values(by="Importance", ascending=False)
+
+    st.subheader("Feature Importance")
+    st.write(feature_importance_df)
+    fig_importance = px.bar(feature_importance_df, x="Feature", y="Importance", title="Feature Importance")
+    st.plotly_chart(fig_importance)
