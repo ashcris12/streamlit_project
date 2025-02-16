@@ -658,44 +658,44 @@ with tabs[4]:  # Model Training
         model = LinearRegression()
 
     def train_model(model_option, model):
-    st.session_state["training_status"] = "Training in progress..."
-    progress_bar = st.progress(0)  
-    status_text = st.empty()
-
-    # Ensure selected features exist
-    if "selected_features" not in st.session_state or not st.session_state.selected_features:
-        st.error("No selected features found. Please select features before training.")
-        return  
-
-    selected_features = st.session_state.selected_features
-
-    # Ensure feature order consistency
-    X_train_selected = st.session_state.X_train[selected_features]
-    X_test_selected = st.session_state.X_test[selected_features]
-
-    try:
-        # ✅ Train model synchronously (without threading)
-        model.fit(X_train_selected, st.session_state.y_train)
-
-        # ✅ Save trained model to session state
-        st.session_state.trained_model = model  
-
-        # ✅ Save test data with correct feature order
-        st.session_state.X_test_selected = X_test_selected.reindex(columns=X_train_selected.columns)
-
-        # ✅ Progress bar update (simulate training time)
-        for i in range(1, 101, 10):  
-            progress_bar.progress(i)
-            time.sleep(0.1)  
-
-        st.success(f"{model_option} has been trained successfully! ✅")
+        st.session_state["training_status"] = "Training in progress..."
+        progress_bar = st.progress(0)  
+        status_text = st.empty()
     
-    except Exception as e:
-        st.error(f"Model training failed: {str(e)}")
+        # Ensure selected features exist
+        if "selected_features" not in st.session_state or not st.session_state.selected_features:
+            st.error("No selected features found. Please select features before training.")
+            return  
     
-    finally:
-        progress_bar.progress(100)
-        status_text.text("")
+        selected_features = st.session_state.selected_features
+    
+        # Ensure feature order consistency
+        X_train_selected = st.session_state.X_train[selected_features]
+        X_test_selected = st.session_state.X_test[selected_features]
+    
+        try:
+            # ✅ Train model synchronously (without threading)
+            model.fit(X_train_selected, st.session_state.y_train)
+    
+            # ✅ Save trained model to session state
+            st.session_state.trained_model = model  
+    
+            # ✅ Save test data with correct feature order
+            st.session_state.X_test_selected = X_test_selected.reindex(columns=X_train_selected.columns)
+    
+            # ✅ Progress bar update (simulate training time)
+            for i in range(1, 101, 10):  
+                progress_bar.progress(i)
+                time.sleep(0.1)  
+    
+            st.success(f"{model_option} has been trained successfully! ✅")
+        
+        except Exception as e:
+            st.error(f"Model training failed: {str(e)}")
+        
+        finally:
+            progress_bar.progress(100)
+            status_text.text("")
         
     # 🟢 Ensure the button is inside the tab block
     if st.button("Train Model"):
