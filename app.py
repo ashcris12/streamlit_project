@@ -747,14 +747,21 @@ with tabs[5]: # Predictions & Performance
 
     try:
         # Ensure X_test exists and the model is trained before making predictions
-        if 'X_test' in st.session_state and 'model' in st.session_state:
+        if 'X_test' in st.session_state and 'model' in st.session_state and st.session_state.model:
             try:
-                y_pred = st.session_state.model.predict(st.session_state.X_test)
+                # Align test data with trained model features
+                expected_features = st.session_state.model.feature_names_in_  # Get expected feature names
+                X_test_aligned = st.session_state.X_test.reindex(columns=expected_features, fill_value=0)
+                
+                y_pred = st.session_state.model.predict(X_test_aligned)
             except ValueError as e:
                 st.warning("The model's features do not match the current selection. Please retrain the model.")
                 y_pred = None
         else:
             y_pred = None
+    except AttributeError:
+        st.warning("Model not found or not trained. Please train the model first.")
+        y_pred = None
 
         # Compute evaluation metrics
         mae = mean_absolute_error(y_test, y_pred)
