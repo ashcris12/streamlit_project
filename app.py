@@ -620,6 +620,59 @@ with tabs[3]:  # Feature Engineering
         sns.heatmap(corr, annot=True, cmap='seismic', ax=ax)
         st.pyplot(fig)
 
+def train_model(model_option, model):
+    # Function to train the model while updating the progress bar
+    progress_bar = st.progress(0)  
+    status_text = st.empty()
+
+    # Ensure selected features are available
+    if "selected_features" not in st.session_state or not st.session_state.selected_features:
+        st.error("No selected features found. Please select features before training.")
+        return  
+
+    selected_features = st.session_state.selected_features
+
+    # ✅ Ensure feature order consistency before reindexing
+    X_train_selected = st.session_state.X_train[selected_features]
+    X_test_selected = st.session_state.X_test[selected_features]  
+
+    # ✅ Store X_train_selected in session state BEFORE using it
+    st.session_state.X_train_selected = X_train_selected  
+    st.session_state.X_test_selected = X_test_selected  
+
+    # Now reindex X_test_selected using the stored feature order
+    X_test_selected = X_test_selected.reindex(columns=st.session_state.X_train_selected.columns)
+
+    training_complete = threading.Event()  
+
+    def model_training():
+        try:
+            model.fit(X_train_selected, st.session_state.y_train)
+            st.session_state.trained_model = model  
+            st.session_state.X_test_selected = X_test_selected  
+        except Exception as e:
+            st.session_state.model_error = str(e)  
+        finally:
+            training_complete.set()  
+
+    training_thread = threading.Thread(target=model_training)
+    training_thread.start()
+
+    progress = 0
+    while not training_complete.is_set():  
+        progress = min(progress + 5, 95)  
+        progress_bar.progress(progress)
+        status_text.text(f"Training in progress... {progress}%")
+        time.sleep(1)  
+
+    progress_bar.progress(100)
+    status_text.text("")
+
+    if "model_error" in st.session_state:
+        st.error(f"Model training failed: {st.session_state.model_error}")
+        del st.session_state.model_error  
+    else:
+        st.success(f"{model_option} has been trained successfully! ✅")
 
 with tabs[4]:  # Model Training
     if st.session_state.role in ["data_science"]:
@@ -658,65 +711,10 @@ with tabs[4]:  # Model Training
     elif model_option == "Linear Regression":
         model = LinearRegression()
     
-def train_model():
-    # Function to train the model while updating the progress bar
-    progress_bar = st.progress(0)  
-    status_text = st.empty()
-
-    # Ensure selected features are available
-    if "selected_features" not in st.session_state or not st.session_state.selected_features:
-        st.error("No selected features found. Please select features before training.")
-        return  
-
-    selected_features = st.session_state.selected_features
-
-    # ✅ Ensure feature order consistency before reindexing
-    X_train_selected = st.session_state.X_train[selected_features]
-    X_test_selected = st.session_state.X_test[selected_features]  
-
-    # ✅ Store X_train_selected in session state BEFORE using it
-    st.session_state.X_train_selected = X_train_selected  
-    st.session_state.X_test_selected = X_test_selected  
-
-    # Now reindex X_test_selected using the stored feature order
-    X_test_selected = X_test_selected.reindex(columns=st.session_state.X_train_selected.columns)
-
-    training_complete = threading.Event()  
-
-    def model_training():
-        global model
-        try:
-            model.fit(X_train_selected, st.session_state.y_train)
-            st.session_state.trained_model = model  
-            st.session_state.X_test_selected = X_test_selected  
-        except Exception as e:
-            st.session_state.model_error = str(e)  
-        finally:
-            training_complete.set()  
-
-    training_thread = threading.Thread(target=model_training)
-    training_thread.start()
-
-    progress = 0
-    while not training_complete.is_set():  
-        progress = min(progress + 5, 95)  
-        progress_bar.progress(progress)
-        status_text.text(f"Training in progress... {progress}%")
-        time.sleep(1)  
-
-    progress_bar.progress(100)
-    status_text.text("")
-
-    if "model_error" in st.session_state:
-        st.error(f"Model training failed: {st.session_state.model_error}")
-        del st.session_state.model_error  
-    else:
-        st.success(f"{st.session_state.model_option} has been trained successfully! ✅")
-
-# Train the model when button is clicked
-if st.button("Train Model"):
-    st.info(f"Training {model_option}... Please wait.")
-    train_model()
+    # 🟢 Ensure the button is inside the tab block
+    if st.button("Train Model"):
+        st.info(f"Training {model_option}... Please wait.")
+        train_model(model_option, model)
 
 with tabs[5]: # Predictions & Performance
     st.title("Evaluate Model Performance")
