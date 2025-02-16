@@ -720,81 +720,66 @@ with tabs[5]: # Predictions & Performance
     st.title("Evaluate Model Performance")
 
 # Ensure required session state variables exist
-if "trained_model" not in st.session_state:
-    st.warning("No trained model found. Please train a model first.")
-    st.stop()
+    if "trained_model" not in st.session_state or st.session_state.trained_model is None:
+        st.warning("❌ No trained model found. Please train a model first.")
+        st.stop()
 
-if "X_test" not in st.session_state or "y_test" not in st.session_state:
-    st.warning("No test data found. Please train a model first.")
-    st.stop()
+    if "X_test" not in st.session_state or "y_test" not in st.session_state:
+        st.warning("❌ No test data found. Please train a model first.")
+        st.stop()
 
-if "selected_features" not in st.session_state:
-    st.warning("No feature selection found. Please select features before training.")
-    st.stop()
+    if "selected_features" not in st.session_state:
+        st.warning("❌ No feature selection found. Please select features before training.")
+        st.stop()
 
-if "X_train_selected" not in st.session_state:
-    st.warning("No selected train data found. Please train selected features first.")
-    st.stop()
+    if "X_train_selected" not in st.session_state:
+        st.warning("❌ No selected train data found. Please train selected features first.")
+        st.stop()
 
-# Retrieve session state variables
-model = st.session_state.trained_model 
-X_train_selected = st.session_state.X_train_selected
+    # Retrieve session state variables
+    model = st.session_state.trained_model 
+    X_train_selected = st.session_state.X_train_selected
 
-# Ensure X_test has the same columns as used in training (feature order consistency)
-X_train_features = list(st.session_state.X_train.columns)  # Get feature names from training set
-# Ensure X_test follows the exact feature order from training
-X_test = st.session_state.X_test.reindex(columns=list(st.session_state.X_train.columns))
+    # Ensure X_test has the same columns as used in training
+    X_test = st.session_state.X_test.reindex(columns=X_train_selected.columns, fill_value=0)
+    y_test = st.session_state.y_test
 
-y_test = st.session_state.y_test
+    # Debugging output
+    st.subheader("Debugging: Feature Order Check")
+    train_features = list(st.session_state.X_train_selected.columns)
+    test_features = list(X_test.columns)
 
-st.subheader("Debugging: Feature Order Check")
+    if train_features != test_features:
+        st.error("Feature order mismatch detected between X_train and X_test!")
 
-# Get feature names from training and testing
-train_features = list(st.session_state.X_train_selected.columns)
-test_features = list(st.session_state.X_test_selected.columns)
+        # Display mismatch details
+        mismatch_df = pd.DataFrame({"X_train Order": train_features, "X_test Order": test_features})
+        st.write(mismatch_df)
+        st.stop()
 
-# Check if feature names match
-if train_features != test_features:
-    st.error("Feature order mismatch detected between X_train and X_test!")
+    try:
+        y_pred = model.predict(X_test)
 
-    # Display side-by-side for debugging
-    mismatch_df = pd.DataFrame({"X_train Order": train_features, "X_test Order": test_features})
-    st.write(mismatch_df)
-    st.stop()
+        # Compute evaluation metrics
+        mae = mean_absolute_error(y_test, y_pred)
+        r2 = r2_score(y_test, y_pred)
+        rmse = mean_squared_error(y_test, y_pred, squared=False)
 
-y_pred = model.predict(X_test)
+        # Display results
+        st.subheader("Model Evaluation Metrics")
+        st.write(f"Mean Absolute Error (MAE): {mae:.2f}")
+        st.write(f"Root Mean Squared Error (RMSE): {rmse:.2f}")
+        st.write(f"R-squared (R²): {r2:.2f}")
 
-# Compute evaluation metrics
-mae = mean_absolute_error(y_test, y_pred)
-r2 = r2_score(y_test, y_pred)
-rmse = mean_squared_error(y_test, y_pred, squared=False)
+        # Actual vs Predicted plot
+        results_df = pd.DataFrame({"Actual": y_test, "Predicted": y_pred})
+        fig = px.scatter(results_df, x="Actual", y="Predicted", title="Actual vs Predicted Revenue")
+        st.plotly_chart(fig)
 
-# Display results
-st.subheader("Model Evaluation Metrics")
-st.write(f"Mean Absolute Error (MAE): {mae:.2f}")
-st.write(f"Root Mean Squared Error (RMSE): {rmse:.2f}")
-st.write(f"R-squared (R²): {r2:.2f}")
+        # Residual Plot
+        residuals = y_test - y_pred
+        fig_residuals = px.scatter(x=y_pred, y=residuals, title="Residual Plot", labels={"x": "Predicted", "y": "Residuals"})
+        st.plotly_chart(fig_residuals)
 
-# Actual vs Predicted plot
-st.subheader("Actual vs Predicted Revenue")
-results_df = pd.DataFrame({"Actual": y_test, "Predicted": y_pred})
-fig = px.scatter(results_df, x="Actual", y="Predicted", title="Actual vs Predicted Revenue")
-st.plotly_chart(fig)
-
-# Residual Plot
-st.subheader("Residual Plot")
-residuals = y_test - y_pred
-fig_residuals = px.scatter(x=y_pred, y=residuals, title="Residual Plot", labels={"x": "Predicted", "y": "Residuals"})
-st.plotly_chart(fig_residuals)
-
-# Feature Importance (for tree-based models)
-if hasattr(model, "feature_importances_"):
-    feature_importance_df = pd.DataFrame({
-        "Feature": selected_features,
-        "Importance": model.feature_importances_
-    }).sort_values(by="Importance", ascending=False)
-
-    st.subheader("Feature Importance")
-    st.write(feature_importance_df)
-    fig_importance = px.bar(feature_importance_df, x="Feature", y="Importance", title="Feature Importance")
-    st.plotly_chart(fig_importance)
+    except Exception as e:
+        st.error(f"Prediction failed: {str(e)}")
