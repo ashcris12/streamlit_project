@@ -620,7 +620,7 @@ with tabs[3]:  # Feature Engineering
         sns.heatmap(corr, annot=True, cmap='seismic', ax=ax)
         st.pyplot(fig)
 
-def train_model():
+def train_model(model_option, model):
     st.session_state["training_status"] = "Training in progress..."
     progress_bar = st.progress(0)  
     status_text = st.empty()
