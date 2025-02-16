@@ -776,9 +776,6 @@ with tabs[5]: # Predictions & Performance
         fig_residuals = px.scatter(x=y_pred, y=residuals, title="Residual Plot", labels={"x": "Predicted", "y": "Residuals"})
         st.plotly_chart(fig_residuals)
 
-    except Exception as e:
-        st.error(f"Prediction failed: {str(e)}")
-
 with tabs[6]:  # Download Report
     st.title("Download Report")
 
