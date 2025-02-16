@@ -746,7 +746,15 @@ with tabs[5]: # Predictions & Performance
         st.stop()
 
     try:
-        y_pred = model.predict(X_test)
+        # Ensure X_test exists and the model is trained before making predictions
+        if 'X_test' in st.session_state and 'model' in st.session_state:
+            try:
+                y_pred = st.session_state.model.predict(st.session_state.X_test)
+            except ValueError as e:
+                st.warning("The model's features do not match the current selection. Please retrain the model.")
+                y_pred = None
+        else:
+            y_pred = None
 
         # Compute evaluation metrics
         mae = mean_absolute_error(y_test, y_pred)
