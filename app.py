@@ -745,33 +745,16 @@ with tabs[5]: # Predictions & Performance
         st.write(mismatch_df)
         st.stop()
 
-    try:
-        if 'X_test' in st.session_state and 'model' in st.session_state and st.session_state.model:
-            try:
-                # Handle cases where feature_names_in_ might not exist
-                if hasattr(st.session_state.model, "feature_names_in_"):
-                    expected_features = st.session_state.model.feature_names_in_
-                else:
-                    expected_features = st.session_state.X_test.columns  # Fallback
-                
-                # Debug: Print expected features
-                st.write("Expected Features:", expected_features)
-                
-                # Align test data with model’s expected features
-                X_test_aligned = st.session_state.X_test.reindex(columns=expected_features, fill_value=0)
-    
-                # Debug: Show shape of aligned X_test
-                st.write("Aligned X_test shape:", X_test_aligned.shape)
-    
-                y_pred = st.session_state.model.predict(X_test_aligned)
-                st.session_state.y_pred = y_pred  # Store predictions
-            except ValueError as e:
-                st.warning("The model's features do not match the current selection. Please retrain the model.")
-                y_pred = None
-        else:
+        # Ensure selected features exist before prediction
+    if 'X_test' in st.session_state and 'model' in st.session_state:
+        try:
+            y_pred = st.session_state.model.predict(
+                st.session_state.X_test.reindex(columns=selected_features, fill_value=0)
+            )
+        except ValueError as e:
+            st.warning("The model features do not match the current selection. Please retrain the model.")
             y_pred = None
-    except AttributeError:
-        st.warning("Model not found or not trained. Please train the model first.")
+    else:
         y_pred = None
 
         # Compute evaluation metrics
