@@ -702,6 +702,11 @@ with tabs[4]:  # Model Training
         st.info(f"Training {model_option}... Please wait.")
         train_model(model_option, model)
 
+if "X_train_selected" in st.session_state:
+    st.write("✅ X_train_selected found in session state")
+else:
+    st.error("❌ X_train_selected is missing after training")
+
 with tabs[5]: # Predictions & Performance
     st.title("Evaluate Model Performance")
 
