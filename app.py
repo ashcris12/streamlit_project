@@ -685,9 +685,9 @@ with tabs[4]:  # Model Training
             # ✅ Save test data with correct feature order
             st.session_state.X_test_selected = X_test_selected.reindex(columns=X_train_selected.columns)
     
-            # ✅ Progress bar update (simulate training time)
             for i in range(1, 101, 10):  
-                progress_bar.progress(i)
+                progress_bar.progress(i / 100)  # Streamlit expects a value between 0 and 1
+                status_text.text(f"Training in progress... {i}%")  # Show percentage
                 time.sleep(0.1)  
     
             st.success(f"{model_option} has been trained successfully! ✅")
