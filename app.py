@@ -620,30 +620,45 @@ with tabs[3]:  # Feature Engineering
         sns.heatmap(corr, annot=True, cmap='seismic', ax=ax)
         st.pyplot(fig)
 
-def train_model(model_option, model):
-    # Function to train the model while updating the progress bar
+def train_model():
+    st.session_state["training_status"] = "Training in progress..."
     progress_bar = st.progress(0)  
     status_text = st.empty()
 
-    # Ensure selected features are available
+    # Ensure selected features exist
     if "selected_features" not in st.session_state or not st.session_state.selected_features:
         st.error("No selected features found. Please select features before training.")
         return  
 
     selected_features = st.session_state.selected_features
 
-    # ✅ Ensure feature order consistency before reindexing
+    # Ensure feature order consistency
     X_train_selected = st.session_state.X_train[selected_features]
-    X_test_selected = st.session_state.X_test[selected_features]  
+    X_test_selected = st.session_state.X_test[selected_features]
 
-    # ✅ Store X_train_selected in session state BEFORE using it
-    st.session_state.X_train_selected = X_train_selected  
-    st.session_state.X_test_selected = X_test_selected  
+    try:
+        # ✅ Train model synchronously (without threading)
+        model.fit(X_train_selected, st.session_state.y_train)
 
-    # Now reindex X_test_selected using the stored feature order
-    X_test_selected = X_test_selected.reindex(columns=st.session_state.X_train_selected.columns)
+        # ✅ Save trained model to session state
+        st.session_state.trained_model = model  
 
-    training_complete = threading.Event()  
+        # ✅ Save test data with correct feature order
+        st.session_state.X_test_selected = X_test_selected.reindex(columns=X_train_selected.columns)
+
+        # ✅ Progress bar update
+        for i in range(1, 101, 10):  
+            progress_bar.progress(i)
+            time.sleep(0.1)  
+
+        st.success(f"{st.session_state.model_option} has been trained successfully! ✅")
+    
+    except Exception as e:
+        st.error(f"Model training failed: {str(e)}")
+    
+    finally:
+        progress_bar.progress(100)
+        status_text.text("")
 
     def model_training():
         try:
