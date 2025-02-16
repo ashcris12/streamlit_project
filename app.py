@@ -745,36 +745,39 @@ with tabs[5]: # Predictions & Performance
         st.write(mismatch_df)
         st.stop()
 
-   # Ensure model and test data exist before making predictions
-    if "model" in st.session_state and "X_test" in st.session_state:
-        if st.session_state.model is not None and st.session_state.X_test is not None:
-            try:
-                # Ensure selected features exist in X_test
-                if set(selected_features).issubset(st.session_state.X_test.columns):
-                    y_pred = st.session_state.model.predict(st.session_state.X_test[selected_features])
-                    
-                    # Compute evaluation metrics
-                    mae = mean_absolute_error(st.session_state.y_test, y_pred)
-                    r2 = r2_score(st.session_state.y_test, y_pred)
-                    rmse = mean_squared_error(st.session_state.y_test, y_pred) ** 0.5
-                    
-                    # Display results
-                    st.subheader("Model Evaluation Metrics")
-                    st.write(f"Mean Absolute Error (MAE): {mae:.2f}")
-                    st.write(f"Root Mean Squared Error (RMSE): {rmse:.2f}")
-                    st.write(f"R-squared (R²): {r2:.2f}")
+    # Ensure X_test exists and the model is trained before making predictions
+    if 'X_test' in st.session_state and 'model' in st.session_state:
+        try:
+            y_pred = st.session_state.model.predict(st.session_state.X_test)
+            
+            # Compute evaluation metrics
+            mae = mean_absolute_error(st.session_state.y_test, y_pred)
+            r2 = r2_score(st.session_state.y_test, y_pred)
+            rmse = mean_squared_error(st.session_state.y_test, y_pred) ** 0.5  
     
-                else:
-                    st.warning("Selected features do not match the trained model. Please retrain the model.")
-                    y_pred = None
-            except Exception as e:
-                st.error(f"Prediction failed: {str(e)}")
-                y_pred = None
-        else:
-            st.warning("Please train the model before making predictions.")
+            # Display results
+            st.subheader("Model Evaluation Metrics")
+            st.write(f"Mean Absolute Error (MAE): {mae:.2f}")
+            st.write(f"Root Mean Squared Error (RMSE): {rmse:.2f}")
+            st.write(f"R-squared (R²): {r2:.2f}")
+    
+            # Actual vs Predicted plot
+            results_df = pd.DataFrame({"Actual": st.session_state.y_test, "Predicted": y_pred})
+            fig = px.scatter(results_df, x="Actual", y="Predicted", title="Actual vs Predicted Revenue")
+            st.plotly_chart(fig)
+    
+            # Residual Plot
+            residuals = st.session_state.y_test - y_pred
+            fig_residuals = px.scatter(x=y_pred, y=residuals, title="Residual Plot", labels={"x": "Predicted", "y": "Residuals"})
+            st.plotly_chart(fig_residuals)
+    
+        except ValueError as e:
+            st.warning("The model's features do not match the current selection. Please retrain the model.")
             y_pred = None
+        except Exception as e:
+            st.error(f"Prediction failed: {str(e)}")
     else:
-        st.info("No model found. Please train a model before making predictions.")
+        st.warning("Please train the model before making predictions.")
         y_pred = None
 
 with tabs[6]:  # Download Report
