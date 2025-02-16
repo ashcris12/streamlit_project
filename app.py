@@ -745,18 +745,16 @@ with tabs[5]: # Predictions & Performance
         st.write(mismatch_df)
         st.stop()
 
-        # Ensure selected features exist before prediction
+   # Ensure X_test exists and the model is trained before making predictions
     if 'X_test' in st.session_state and 'model' in st.session_state:
         try:
-            y_pred = st.session_state.model.predict(
-                st.session_state.X_test.reindex(columns=selected_features, fill_value=0)
-            )
+            y_pred = st.session_state.model.predict(st.session_state.X_test)
         except ValueError as e:
-            st.warning("The model features do not match the current selection. Please retrain the model.")
+            st.warning("The model's features do not match the current selection. Please retrain the model.")
             y_pred = None
     else:
         y_pred = None
-
+        
         # Compute evaluation metrics
         mae = mean_absolute_error(y_test, y_pred)
         r2 = r2_score(y_test, y_pred)
