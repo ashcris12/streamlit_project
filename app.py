@@ -577,7 +577,7 @@ with tabs[3]:  # Feature Engineering
     all_features = [col for col in df.columns if col != target]
 
     # Section: Feature Engineering - Interaction Features
-    st.header("Feature Engineering: Interaction Features")
+    st.header("Interaction Features")
     if st.checkbox("Create Interaction Features"):
         df["budget_opening_ratio"] = df["Production Budget (USD)"] / df["Opening Weekend (USD)"].replace(0, 1)
         df["popularity_vote_ratio"] = df["popularity"] / df["vote_count"].replace(0, 1)
