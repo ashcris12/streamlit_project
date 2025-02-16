@@ -771,3 +771,94 @@ with tabs[5]: # Predictions & Performance
 
     except Exception as e:
         st.error(f"Prediction failed: {str(e)}")
+
+with tabs[6]: # Download Reports
+    st.title("Report Generator")
+    # Placeholder data for demonstration
+    selected_model = "Random Forest"
+    hyperparameters = {"n_estimators": 100, "max_depth": None}
+    evaluation_metrics = {"MAE": 2.5, "RMSE": 3.2, "R²": 0.85}
+    selected_features = ["Budget", "Genre", "Director Popularity"]
+    
+    # Sample predictions
+    y_test = [100, 200, 150, 300, 250]
+    y_pred = [110, 190, 160, 290, 240]
+    results_df = pd.DataFrame({"Actual": y_test, "Predicted": y_pred})
+    
+    # UI for Report Selection
+    st.title("Download Report")
+    st.write("Select sections to include in your report:")
+    
+    include_summary = st.checkbox("Model Summary", value=True)
+    include_metrics = st.checkbox("Performance Metrics", value=True)
+    include_visuals = st.checkbox("Visualizations", value=True)
+    include_features = st.checkbox("Feature Selection", value=True)
+    include_predictions = st.checkbox("Final Predictions", value=False)
+    
+    # Dynamic Report Preview
+    st.subheader("Report Preview")
+    
+    if include_summary:
+        st.write(f"**Model:** {selected_model}")
+        st.write(f"**Hyperparameters:** {hyperparameters}")
+        st.write("---")
+    
+    if include_metrics:
+        st.write("### Performance Metrics")
+        for metric, value in evaluation_metrics.items():
+            st.write(f"**{metric}:** {value:.2f}")
+        st.write("---")
+    
+    if include_visuals:
+        fig = px.scatter(results_df, x="Actual", y="Predicted", title="Actual vs Predicted Revenue")
+        st.plotly_chart(fig)
+        st.write("---")
+    
+    if include_features:
+        st.write("### Selected Features")
+        st.write(", ".join(selected_features))
+        st.write("---")
+    
+    if include_predictions:
+        st.write("### Sample Predictions")
+        st.write(results_df.head())
+        st.write("---")
+    
+    # Download Button
+    def generate_pdf():
+        pdf = FPDF()
+        pdf.set_auto_page_break(auto=True, margin=15)
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
+        pdf.cell(200, 10, "Model Report", ln=True, align="C")
+        pdf.ln(10)
+        
+        if include_summary:
+            pdf.cell(200, 10, f"Model: {selected_model}", ln=True)
+            pdf.cell(200, 10, f"Hyperparameters: {hyperparameters}", ln=True)
+            pdf.ln(5)
+        
+        if include_metrics:
+            pdf.cell(200, 10, "Performance Metrics:", ln=True)
+            for metric, value in evaluation_metrics.items():
+                pdf.cell(200, 10, f"{metric}: {value:.2f}", ln=True)
+            pdf.ln(5)
+        
+        if include_features:
+            pdf.cell(200, 10, "Selected Features:", ln=True)
+            pdf.cell(200, 10, ", ".join(selected_features), ln=True)
+            pdf.ln(5)
+        
+        pdf_output = BytesIO()
+        pdf.output(pdf_output)
+        pdf_output.seek(0)
+        return pdf_output
+    
+    if st.button("Download Report"):
+        pdf_data = generate_pdf()
+        st.download_button(
+            label="Download PDF",
+            data=pdf_data,
+            file_name="model_report.pdf",
+            mime="application/pdf"
+        )
