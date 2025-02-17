@@ -101,7 +101,6 @@ add_user("data_user", "Data User", "datapass789", "data_science")
 
 
 # final submission 
-import streamlit as st
 import pandas as pd
 import pickle
 from xgboost import XGBRegressor
@@ -124,15 +123,24 @@ import logging
 import datetime
 import toml
 import getpass
-import bcrypt
 import streamlit_authenticator as stauth
-import pyotp
 import time
 import qrcode
 from cryptography.fernet import Fernet
-import sqlite3
 import threading
 import os
+import json
+from pydrive2.auth import GoogleAuth
+from pydrive2.drive import GoogleDrive
+from google.oauth2.service_account import Credentials
+
+# Authenticate Google Drive
+def authenticate_google_drive():
+    gauth = GoogleAuth()
+    gauth.LocalWebserverAuth()  # Opens a browser for authentication
+    return GoogleDrive(gauth)
+
+drive = authenticate_google_drive()
 
 # Initialize session state variables if they don't exist
 if "authenticated" not in st.session_state:
@@ -960,8 +968,32 @@ with tabs[6]:  # Download Report
     
         pdf.output("report.pdf")
     
-    # 📌 Download Button
-    if st.button("Download Report as PDF"):
+    # 📌 Upload to Google Drive
+    def upload_to_drive(filename, filepath, folder_id=None):
+        file_drive = drive.CreateFile({"title": filename, "parents": [{"id": folder_id}] if folder_id else []})
+        file_drive.SetContentFile(filepath)
+        file_drive.Upload()
+        return file_drive['id']
+    
+    # 📌 Save Report Metadata
+    metadata_file = "report_metadata.csv"
+    
+    def save_metadata(report_name, creator_role, file_id):
+        metadata = pd.DataFrame([[report_name, creator_role, file_id]], columns=["Report Name", "Role", "File ID"])
+        if os.path.exists(metadata_file):
+            existing_metadata = pd.read_csv(metadata_file)
+            metadata = pd.concat([existing_metadata, metadata], ignore_index=True)
+        metadata.to_csv(metadata_file, index=False)
+    
+    # 📌 Download & Upload Buttons
+    if st.button("Generate & Download Report as PDF"):
         generate_pdf()
         with open("report.pdf", "rb") as f:
             st.download_button("📄 Download Report", f, file_name="report.pdf", mime="application/pdf")
+    
+    if st.button("Upload Report to Google Drive"):
+        generate_pdf()
+        report_id = upload_to_drive("BoxOfficeReport.pdf", "report.pdf")
+        save_metadata("Box Office Report", st.session_state.role, report_id)
+        st.success(f"✅ Report uploaded successfully! [🔗 View Report](https://drive.google.com/file/d/{report_id}/view)")
+        
