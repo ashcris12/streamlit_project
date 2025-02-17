@@ -149,10 +149,19 @@ def authenticate_google_drive():
 
     # Authenticate with PyDrive2
     gauth = GoogleAuth()
-    gauth.credentials = creds
 
-    # Force token refresh to avoid expiration issues
-    gauth.LocalWebserverAuth()  # Ensures the token remains valid
+    # Create a temporary credentials file for PyDrive2 to read
+    with open("service_account.json", "w") as f:
+        json.dump(creds_dict, f)
+
+    # Load the credentials from the JSON file
+    gauth.LoadCredentialsFile("service_account.json")
+
+    # Use service account authentication
+    gauth.ServiceAuth()
+
+    # Remove the temporary file
+    os.remove("service_account.json")
 
     drive = GoogleDrive(gauth)
     return drive
