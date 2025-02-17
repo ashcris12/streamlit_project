@@ -291,6 +291,40 @@ if st.session_state.authenticated:
         st.success("✅ Logged out successfully. Redirecting...")
         time.sleep(2)
         st.rerun()  
+# Help Section in Sidebar
+st.sidebar.title("Help & Documentation")
+
+with st.sidebar.expander("📌 How to Use This App"):
+    st.markdown(
+        """
+        **Welcome to the Box Office Prediction Tool!**  
+        This app allows you to analyze movie data, train models, and generate reports.
+
+        **Steps to Use:**
+        1. **Upload Data**: Load your dataset in CSV format.
+        2. **Explore & Clean Data**: View statistics, handle missing values.
+        3. **Select Features & Models**: Choose predictors and machine learning models.
+        4. **Train & Evaluate**: Run models and check performance metrics.
+        5. **Visualize & Report**: Generate charts and download a report.
+
+        **For detailed guidance, hover over tooltips or check feature-specific help below.**
+        """
+    )
+
+with st.sidebar.expander("📂 Uploading Data"):
+    st.write("Upload a CSV file with relevant movie data to begin analysis.")
+
+with st.sidebar.expander("🔍 Data Exploration & Cleaning"):
+    st.write("View summary statistics, handle missing values, and preprocess data.")
+
+with st.sidebar.expander("⚙️ Model Selection & Training"):
+    st.write("Choose machine learning models and configure hyperparameters.")
+
+with st.sidebar.expander("📊 Visualization & Reports"):
+    st.write("Generate plots and export results to a PDF report.")
+
+with st.sidebar.expander("❓ Need More Help?"):
+    st.write("For additional support, refer to the documentation or contact support.")
 
 # Main App Content After Authentication
 st.title("🎬 Box Office Revenue Prediction Dashboard")
