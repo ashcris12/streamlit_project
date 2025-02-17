@@ -584,7 +584,7 @@ with tabs[2]:  # Data Cleaning
             st.subheader("Download Processed Data")
             st.download_button("Download Processed CSV", cleaned_df.to_csv(index=False), "processed_data.csv")
 
-    else:
+     else:
         st.warning("🚫 You do not have permission to access data cleaning.")
 
 with tabs[3]:  # Feature Engineering
