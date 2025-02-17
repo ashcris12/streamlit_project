@@ -134,9 +134,6 @@ from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 from google.oauth2.service_account import Credentials
 
-# 📌 Authenticate Google Drive at the start of the app
-drive = authenticate_google_drive()
-
 def authenticate_google_drive():
     """Authenticate with Google Drive using service account credentials from Streamlit secrets."""
     
@@ -982,6 +979,9 @@ with tabs[6]:  # Download Report
     
         pdf.output("report.pdf")
     
+    # 📌 Authenticate Google Drive at the start of the app
+    drive = authenticate_google_drive()
+
     # 📌 Upload to Google Drive
     def upload_to_drive(filename, filepath, folder_id=None):
         file_drive = drive.CreateFile({"title": filename, "parents": [{"id": folder_id}] if folder_id else []})
