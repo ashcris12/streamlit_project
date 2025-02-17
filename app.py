@@ -301,30 +301,26 @@ if st.session_state.authenticated:
             st.write("Reports include model summaries, financial projections, and performance evaluations.")
     
     elif st.session_state.role == "finance":
-        with st.sidebar.expander("📊 Viewing Reports"):
-            st.write("Access financial reports and performance summaries under **Download Report**.")
+        with st.sidebar.expander("📂 Upload Data"):
+            st.write("Go to the **Upload Data** tab to load a CSV file for analysis.")
         with st.sidebar.expander("📈 Running Predictive Models"):
             st.write("Use the **Predictions & Performance** tab to execute trained models and analyze results.")
+        with st.sidebar.expander("📊 Viewing Reports"):
+            st.write("Access financial reports and performance summaries under **Download Report**.")
     
     elif st.session_state.role == "data_science":
         with st.sidebar.expander("📂 Upload Data"):
             st.write("Go to the **Upload Data** tab to load a CSV file for analysis.")
-    
         with st.sidebar.expander("🔍 Exploratory Data Analysis (EDA)"):
             st.write("Use the **EDA** tab to explore data distributions and summary statistics.")
-    
         with st.sidebar.expander("🛠️ Data Cleaning"):
             st.write("In the **Data Cleaning** tab, handle missing values, remove duplicates, and preprocess data.")
-    
         with st.sidebar.expander("⚙️ Feature Engineering"):
             st.write("Use the **Feature Engineering** tab to create new predictive features and choose which features to include in your model.")
-    
         with st.sidebar.expander("🤖 Model Training"):
             st.write("Train machine learning models under the **Model Training** tab.")
-    
         with st.sidebar.expander("📊 Predictions & Performance"):
             st.write("Evaluate model performance and make predictions in the **Predictions & Performance** tab.")
-    
         with st.sidebar.expander("📄 Download Report"):
             st.write("Generate and export reports from the **Download Report** tab.")
 
