@@ -130,10 +130,8 @@ from cryptography.fernet import Fernet
 import threading
 import os
 import json
-import tempfile
 from google.oauth2 import service_account
-from pydrive2.auth import GoogleAuth
-from pydrive2.drive import GoogleDrive
+from googleapiclient.discovery import build
 
 def authenticate_google_drive():
     """Authenticate with Google Drive using service account credentials from Streamlit secrets."""
@@ -141,18 +139,18 @@ def authenticate_google_drive():
     # Load credentials from Streamlit secrets
     creds_dict = dict(st.secrets["gcp_service_account"])
 
-    # Authenticate with google-auth (correct way for service accounts)
-    creds = service_account.Credentials.from_service_account_info(creds_dict, scopes=["https://www.googleapis.com/auth/drive"])
+    # Authenticate using google-auth (correct method for service accounts)
+    creds = service_account.Credentials.from_service_account_info(
+        creds_dict, scopes=["https://www.googleapis.com/auth/drive"]
+    )
 
-    # Authenticate PyDrive2
-    gauth = GoogleAuth()
-    gauth.credentials = creds
-    drive = GoogleDrive(gauth)
+    # Create a Google Drive service instance
+    drive_service = build("drive", "v3", credentials=creds)
 
-    return drive
+    return drive_service
 
 # Authenticate at the start of the script
-drive = authenticate_google_drive()
+drive_service = authenticate_google_drive()
     
 # Initialize session state variables if they don't exist
 if "authenticated" not in st.session_state:
