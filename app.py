@@ -144,12 +144,15 @@ def authenticate_google_drive():
     # Define the required scope
     scope = ["https://www.googleapis.com/auth/drive"]
 
-    # Create credentials using google-auth with the specified scope
+    # Create service account credentials
     creds = service_account.Credentials.from_service_account_info(creds_dict, scopes=scope)
 
-    # Authenticate with PyDrive2
+    # Refresh credentials manually to get an access token
+    creds.refresh(Request())
+
+    # Create PyDrive2 authentication instance
     gauth = GoogleAuth()
-    gauth.credentials = creds  # Directly assign credentials (No need for LoadCredentialsFile)
+    gauth.credentials = creds  # Now PyDrive2 can use these credentials
     drive = GoogleDrive(gauth)
 
     return drive
