@@ -136,7 +136,7 @@ from google.oauth2.service_account import Credentials
 
 def authenticate_google_drive():
     # Load credentials from Streamlit secrets
-    creds_dict = st.secrets["gdrive"]
+    creds_dict = st.secrets["gcp_service_account"]
 
     # Define scope for Google Drive API
     scope = ['https://www.googleapis.com/auth/drive']
