@@ -976,12 +976,23 @@ with tabs[6]:  # Download Report
     
         pdf.output("report.pdf")
 
-    # 📌 Upload to Google Drive
     def upload_to_drive(filename, filepath, folder_id=None):
-        file_drive = drive.CreateFile({"title": filename, "parents": [{"id": folder_id}] if folder_id else []})
-        file_drive.SetContentFile(filepath)
-        file_drive.Upload()
-        return file_drive['id']
+    """Upload a file to Google Drive using the authenticated service."""
+    
+    # Define file metadata
+    file_metadata = {"name": filename}
+    
+    # If uploading to a specific folder
+    if folder_id:
+        file_metadata["parents"] = [folder_id]
+    
+    # Prepare the file for upload
+    media = MediaFileUpload(filepath, mimetype="application/pdf")
+
+    # Upload the file
+    file = drive_service.files().create(body=file_metadata, media_body=media).execute()
+
+    return file.get("id")  # Return the file ID
     
     # 📌 Save Report Metadata
     metadata_file = "report_metadata.csv"
