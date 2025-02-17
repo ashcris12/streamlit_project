@@ -977,7 +977,7 @@ with tabs[6]:  # Download Report
         pdf.output("report.pdf")
 
     def upload_to_drive(filename, filepath, folder_id=None):
-    """Upload a file to Google Drive using the authenticated service."""
+    # Upload a file to Google Drive using the authenticated service
     
     # Define file metadata
     file_metadata = {"name": filename}
