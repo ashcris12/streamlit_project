@@ -837,15 +837,20 @@ with tabs[6]:  # Download Report
         plt.close()
     
     def plot_feature_importance(model, selected_features, filename="feature_importance.png"):
-        if hasattr(model, "feature_importances_"):
-            importance = model.feature_importances_
-            plt.figure(figsize=(6, 4))
-            sns.barplot(x=importance, y=selected_features)
-            plt.xlabel("Importance Score")
-            plt.ylabel("Features")
-            plt.title("Feature Importance")
-            plt.savefig(os.path.join(plot_dir, filename))
-            plt.close()
+    if hasattr(model, "feature_importances_"):
+        importance = model.feature_importances_
+        plt.figure(figsize=(6, 4))
+        sns.barplot(x=importance, y=selected_features)
+        plt.xlabel("Importance Score")
+        plt.ylabel("Features")
+        plt.title("Feature Importance")
+
+        # 🔹 Fix: Rotate feature names & adjust layout
+        plt.yticks(rotation=0)  # Keep y-axis labels horizontal
+        plt.tight_layout()  # Prevent labels from being cut off
+
+        plt.savefig(os.path.join(plot_dir, filename))
+        plt.close()
     
     # Generate selected plots
     if include_actual_vs_pred:
