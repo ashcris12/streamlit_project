@@ -142,13 +142,21 @@ def authenticate_google_drive():
     # 🔹 Load credentials from Streamlit secrets
     creds_dict = dict(st.secrets["gcp_service_account"])
 
-    # 🔹 Create Google-auth credentials
-    creds = service_account.Credentials.from_service_account_info(creds_dict)
+    # 🔹 Save creds_dict to a temporary JSON file
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as temp_json:
+        temp_json.write(json.dumps(creds_dict).encode())
+        temp_json_path = temp_json.name  # Store temp file path
 
-    # 🔹 Authenticate PyDrive2 manually
+    # 🔹 Authenticate PyDrive2 using the temp JSON file
     gauth = GoogleAuth()
-    gauth.credentials = creds  # Directly set credentials (no `LoadCredentialsFile()`)
+    gauth.LoadServiceConfig()  # Load default settings
+    gauth.LoadCredentialsFile(temp_json_path)  # Load credentials
+    gauth.LocalWebserverAuth()  # Authenticate (bypasses access_token_expired issue)
+    
     drive = GoogleDrive(gauth)
+
+    # 🔹 Clean up temp file after authentication
+    os.remove(temp_json_path)
 
     return drive
     
