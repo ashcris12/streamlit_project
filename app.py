@@ -509,7 +509,7 @@ with tabs[2]:  # Data Cleaning
             cleaned_df = st.session_state.cleaned_df
 
             ### Step 1: Remove Invalid Data Points
-            with st.expander("Data Cleaning: Removing Invalid Data Points"):
+            with st.expander("Removing Invalid Data Points"):
                 cleaned_df['release_date'] = pd.to_datetime(cleaned_df['release_date'], errors='coerce')
                 cleaned_df['release_year'] = cleaned_df['release_date'].dt.year
 
