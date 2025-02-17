@@ -16,3 +16,4 @@ streamlit-authenticator
 pyotp
 qrcode
 cryptography
+pydrive2
