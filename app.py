@@ -132,6 +132,7 @@ import os
 import json
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
 
 def authenticate_google_drive():
     """Authenticate with Google Drive using service account credentials from Streamlit secrets."""
@@ -977,23 +978,23 @@ with tabs[6]:  # Download Report
         pdf.output("report.pdf")
 
     def upload_to_drive(filename, filepath, folder_id=None):
-    # Upload a file to Google Drive using the authenticated service
+        # Upload a file to Google Drive using the authenticated service
+        
+        # Define file metadata
+        file_metadata = {"name": filename}
+        
+        # If uploading to a specific folder
+        if folder_id:
+            file_metadata["parents"] = [folder_id]
+        
+        # Prepare the file for upload
+        media = MediaFileUpload(filepath, mimetype="application/pdf")
     
-    # Define file metadata
-    file_metadata = {"name": filename}
+        # Upload the file
+        file = drive_service.files().create(body=file_metadata, media_body=media).execute()
     
-    # If uploading to a specific folder
-    if folder_id:
-        file_metadata["parents"] = [folder_id]
-    
-    # Prepare the file for upload
-    media = MediaFileUpload(filepath, mimetype="application/pdf")
-
-    # Upload the file
-    file = drive_service.files().create(body=file_metadata, media_body=media).execute()
-
-    return file.get("id")  # Return the file ID
-    
+        return file.get("id")  # Return the file ID
+        
     # 📌 Save Report Metadata
     metadata_file = "report_metadata.csv"
     
