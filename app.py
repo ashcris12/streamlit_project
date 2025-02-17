@@ -978,24 +978,24 @@ with tabs[6]:  # Download Report
         pdf.output("report.pdf")
 
     def get_or_create_folder(folder_name, parent_folder_id=None):
-    # Check if a folder exists; if not, create it and return its ID.
-    query = f"name='{folder_name}' and mimeType='application/vnd.google-apps.folder'"
-    if parent_folder_id:
-        query += f" and '{parent_folder_id}' in parents"
-
-    response = drive_service.files().list(q=query, fields="files(id)").execute()
-    folders = response.get("files", [])
-
-    if folders:
-        return folders[0]["id"]  # Folder already exists, return ID
-
-    # Create a new folder
-    metadata = {"name": folder_name, "mimeType": "application/vnd.google-apps.folder"}
-    if parent_folder_id:
-        metadata["parents"] = [parent_folder_id]
-
-    folder = drive_service.files().create(body=metadata, fields="id").execute()
-    return folder["id"]
+        # Check if a folder exists; if not, create it and return its ID.
+        query = f"name='{folder_name}' and mimeType='application/vnd.google-apps.folder'"
+        if parent_folder_id:
+            query += f" and '{parent_folder_id}' in parents"
+    
+        response = drive_service.files().list(q=query, fields="files(id)").execute()
+        folders = response.get("files", [])
+    
+        if folders:
+            return folders[0]["id"]  # Folder already exists, return ID
+    
+        # Create a new folder
+        metadata = {"name": folder_name, "mimeType": "application/vnd.google-apps.folder"}
+        if parent_folder_id:
+            metadata["parents"] = [parent_folder_id]
+    
+        folder = drive_service.files().create(body=metadata, fields="id").execute()
+        return folder["id"]
 
 def upload_to_drive(report_name, filepath, user_role):
     # Upload a report to Google Drive under the correct role-based folder.
