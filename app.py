@@ -131,11 +131,9 @@ import threading
 import os
 import json
 import tempfile
+from google.oauth2 import service_account
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
-from google.oauth2.service_account import Credentials
-from google.oauth2 import service_account
-from google.auth.transport.requests import Request
 
 def authenticate_google_drive():
     """Authenticate with Google Drive using service account credentials from Streamlit secrets."""
@@ -143,19 +141,13 @@ def authenticate_google_drive():
     # Load credentials from Streamlit secrets
     creds_dict = dict(st.secrets["gcp_service_account"])
 
-    # Create a temporary JSON file for PyDrive2
-    with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as temp_file:
-        json.dump(creds_dict, temp_file)
-        temp_json_path = temp_file.name
+    # Authenticate with google-auth (correct way for service accounts)
+    creds = service_account.Credentials.from_service_account_info(creds_dict, scopes=["https://www.googleapis.com/auth/drive"])
 
-    try:
-        # Authenticate with PyDrive2 using the correct service account method
-        gauth = GoogleAuth()
-        gauth.LoadCredentialsFile(temp_json_path)  # Load the service account credentials correctly
-        gauth.ServiceAuth()  # Correct method for service account authentication
-        drive = GoogleDrive(gauth)
-    finally:
-        os.remove(temp_json_path)  # Clean up the temp file
+    # Authenticate PyDrive2
+    gauth = GoogleAuth()
+    gauth.credentials = creds
+    drive = GoogleDrive(gauth)
 
     return drive
 
@@ -987,9 +979,6 @@ with tabs[6]:  # Download Report
                 pdf.image(os.path.join(plot_dir, "feature_importance.png"), x=10, w=180)
     
         pdf.output("report.pdf")
-    
-    # 📌 Authenticate Google Drive at the start of the app
-    drive = authenticate_google_drive()
 
     # 📌 Upload to Google Drive
     def upload_to_drive(filename, filepath, folder_id=None):
