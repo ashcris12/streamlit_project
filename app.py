@@ -135,14 +135,16 @@ from pydrive2.drive import GoogleDrive
 from google.oauth2.service_account import Credentials
 
 def authenticate_google_drive():
+    """Authenticate with Google Drive using service account credentials from Streamlit secrets."""
+    
     # Load credentials from Streamlit secrets
-    creds_dict = st.secrets["gcp_service_account"]
+    creds_dict = dict(st.secrets["gcp_service_account"])
+    
+    # Define the required scope
+    scope = ["https://www.googleapis.com/auth/drive"]
 
-    # Define scope for Google Drive API
-    scope = ['https://www.googleapis.com/auth/drive']
-
-    # Create credentials from the JSON
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+    # Create credentials using google-auth with the specified scope
+    creds = service_account.Credentials.from_service_account_info(creds_dict, scopes=scope)
 
     # Authenticate with PyDrive2
     gauth = GoogleAuth()
@@ -150,10 +152,7 @@ def authenticate_google_drive():
     drive = GoogleDrive(gauth)
 
     return drive
-
-# Authenticate and create a drive instance
-drive = authenticate_google_drive()
-
+    
 # Initialize session state variables if they don't exist
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
