@@ -977,43 +977,92 @@ with tabs[6]:  # Download Report
     
         pdf.output("report.pdf")
 
-    def upload_to_drive(filename, filepath, folder_id=None):
-        # Upload a file to Google Drive using the authenticated service
+    def get_or_create_folder(folder_name, parent_folder_id=None):
+    """Check if a folder exists; if not, create it and return its ID."""
+    query = f"name='{folder_name}' and mimeType='application/vnd.google-apps.folder'"
+    if parent_folder_id:
+        query += f" and '{parent_folder_id}' in parents"
+
+    response = drive_service.files().list(q=query, fields="files(id)").execute()
+    folders = response.get("files", [])
+
+    if folders:
+        return folders[0]["id"]  # Folder already exists, return ID
+
+    # Create a new folder
+    metadata = {"name": folder_name, "mimeType": "application/vnd.google-apps.folder"}
+    if parent_folder_id:
+        metadata["parents"] = [parent_folder_id]
+
+    folder = drive_service.files().create(body=metadata, fields="id").execute()
+    return folder["id"]
+
+def upload_to_drive(report_name, filepath, user_role):
+    """Upload a report to Google Drive under the correct role-based folder."""
+
+    # Define role-based folders
+    role_folders = {
+        "Executive": "Executive_Reports",
+        "Finance Analyst": "Finance_Reports",
+        "Data Science Team": "DataScience_Reports"
+    }
+    folder_name = role_folders.get(user_role, "General_Reports")
+
+    # Get/Create the role-based folder
+    folder_id = get_or_create_folder(folder_name)
+
+    # Prepare file metadata
+    file_metadata = {"name": report_name, "parents": [folder_id]}
+
+    # Upload the file
+    media = MediaFileUpload(filepath, mimetype="application/pdf")
+    file = drive_service.files().create(body=file_metadata, media_body=media, fields="id").execute()
+    file_id = file.get("id")
+
+    # Make the file publicly viewable
+    permission = {"role": "reader", "type": "anyone"}
+    drive_service.permissions().create(fileId=file_id, body=permission).execute()
+
+    # Return shareable link
+    return f"https://drive.google.com/file/d/{file_id}/view"
         
-        # Define file metadata
-        file_metadata = {"name": filename}
-        
-        # If uploading to a specific folder
-        if folder_id:
-            file_metadata["parents"] = [folder_id]
-        
-        # Prepare the file for upload
-        media = MediaFileUpload(filepath, mimetype="application/pdf")
+   # 📌 Save Report Metadata
+metadata_file = "report_metadata.csv"
+
+def save_metadata(report_name, creator_role, file_id, folder_name):
+    """Save report metadata (name, role, file ID, folder) for tracking."""
+    metadata = pd.DataFrame([[report_name, creator_role, file_id, folder_name]], 
+                            columns=["Report Name", "Role", "File ID", "Folder Name"])
     
-        # Upload the file
-        file = drive_service.files().create(body=file_metadata, media_body=media).execute()
+    if os.path.exists(metadata_file):
+        existing_metadata = pd.read_csv(metadata_file)
+        metadata = pd.concat([existing_metadata, metadata], ignore_index=True)
     
-        return file.get("id")  # Return the file ID
-        
-    # 📌 Save Report Metadata
-    metadata_file = "report_metadata.csv"
-    
-    def save_metadata(report_name, creator_role, file_id):
-        metadata = pd.DataFrame([[report_name, creator_role, file_id]], columns=["Report Name", "Role", "File ID"])
-        if os.path.exists(metadata_file):
-            existing_metadata = pd.read_csv(metadata_file)
-            metadata = pd.concat([existing_metadata, metadata], ignore_index=True)
-        metadata.to_csv(metadata_file, index=False)
-    
-    # 📌 Download & Upload Buttons
-    if st.button("Generate & Download Report as PDF"):
+    metadata.to_csv(metadata_file, index=False)
+
+# 📌 Download & Upload Buttons
+report_name = st.text_input("Enter Report Name", "BoxOfficeReport.pdf")
+
+if st.button("Generate & Download Report as PDF"):
+    generate_pdf()
+    with open("report.pdf", "rb") as f:
+        st.download_button("📄 Download Report", f, file_name=report_name, mime="application/pdf")
+
+if st.button("Upload Report to Google Drive"):
+    if report_name:
         generate_pdf()
-        with open("report.pdf", "rb") as f:
-            st.download_button("📄 Download Report", f, file_name="report.pdf", mime="application/pdf")
-    
-    if st.button("Upload Report to Google Drive"):
-        generate_pdf()
-        report_id = upload_to_drive("BoxOfficeReport.pdf", "report.pdf")
-        save_metadata("Box Office Report", st.session_state.role, report_id)
-        st.success(f"✅ Report uploaded successfully! [🔗 View Report](https://drive.google.com/file/d/{report_id}/view)")
-        
+        user_role = st.session_state.role
+        report_link = upload_to_drive(report_name, "report.pdf", user_role)
+
+        # Get role-based folder name
+        role_folders = {
+            "Executive": "Executive_Reports",
+            "Finance Analyst": "Finance_Reports",
+            "Data Science Team": "DataScience_Reports"
+        }
+        folder_name = role_folders.get(user_role, "General_Reports")
+
+        save_metadata(report_name, user_role, report_link.split("/")[-2], folder_name)
+        st.success(f"✅ Report uploaded successfully! [🔗 View Report]({report_link})")
+    else:
+        st.error("⚠ Please enter a report name before uploading.")
