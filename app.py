@@ -135,16 +135,14 @@ from googleapiclient.discovery import build
 
 def authenticate_google_drive():
     """Authenticate with Google Drive using service account credentials from Streamlit secrets."""
-
+    
     # Load credentials from Streamlit secrets
     creds_dict = dict(st.secrets["gcp_service_account"])
-
-    # Authenticate using google-auth (correct method for service accounts)
-    creds = service_account.Credentials.from_service_account_info(
-        creds_dict, scopes=["https://www.googleapis.com/auth/drive"]
-    )
-
-    # Create a Google Drive service instance
+    
+    # Create credentials object
+    creds = service_account.Credentials.from_service_account_info(creds_dict)
+    
+    # Build the Drive service
     drive_service = build("drive", "v3", credentials=creds)
 
     return drive_service
