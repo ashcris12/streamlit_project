@@ -15,5 +15,11 @@ bcrypt
 streamlit-authenticator
 pyotp
 qrcode
-cryptography
 pydrive2
+cryptography<44
+pyOpenSSL<=24.2.1
+pydrive2==1.21.3
+google-api-python-client
+google-auth
+google-auth-httplib2
+google-auth-oauthlib
