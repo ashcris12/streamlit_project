@@ -134,12 +134,19 @@ from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 from google.oauth2.service_account import Credentials
 
-# Authenticate Google Drive
 def authenticate_google_drive():
+    # Load credentials from Streamlit secrets
+    creds_dict = st.secrets["gdrive"]  # Access stored secrets
+    creds = Credentials.from_service_account_info(creds_dict)  # Create credentials object
+    
+    # Authenticate with PyDrive2
     gauth = GoogleAuth()
-    gauth.LocalWebserverAuth()  # Opens a browser for authentication
-    return GoogleDrive(gauth)
+    gauth.credentials = creds
+    drive = GoogleDrive(gauth)
 
+    return drive
+
+# Authenticate and create a drive instance
 drive = authenticate_google_drive()
 
 # Initialize session state variables if they don't exist
