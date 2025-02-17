@@ -142,19 +142,13 @@ def authenticate_google_drive():
     # 🔹 Load credentials from Streamlit secrets
     creds_dict = dict(st.secrets["gcp_service_account"])
 
-    # 🔹 Save credentials to a temporary JSON file (PyDrive2 requires a file)
-    temp_json_path = "service_account.json"
-    with open(temp_json_path, "w") as temp_json:
-        json.dump(creds_dict, temp_json)
+    # 🔹 Create Google-auth credentials
+    creds = service_account.Credentials.from_service_account_info(creds_dict)
 
-    # 🔹 Configure PyDrive2 authentication for service account
+    # 🔹 Authenticate PyDrive2 manually
     gauth = GoogleAuth()
-    gauth.LoadCredentialsFile(temp_json_path)  # Load credentials from file
-    gauth.ServiceAuth()  # Authenticate with service account
+    gauth.credentials = creds  # Directly set credentials (no `LoadCredentialsFile()`)
     drive = GoogleDrive(gauth)
-
-    # 🔹 Remove the temporary JSON file for security
-    os.remove(temp_json_path)
 
     return drive
     
