@@ -361,7 +361,7 @@ with tabs[0]:  # Upload Data
         st.info("No file uploaded or URL entered yet.")  
 
 with tabs[1]:  # EDA
-    if st.session_state.role in ["data_science", "finance"]:
+    if st.session_state.role in ["data_science"]:
         st.header("Exploratory Data Analysis (EDA)")
 
         # Ensure df exists before accessing it
@@ -431,7 +431,7 @@ with tabs[1]:  # EDA
         st.warning("🚫 You do not have permission to access EDA.")
 
 with tabs[2]:  # Data Cleaning
-    if st.session_state.role == "data_science":
+     if st.session_state.role in ["data_science"]:
         st.header("Data Cleaning")
         st.write("You can clean and preprocess data here.")
 
@@ -554,7 +554,7 @@ with tabs[2]:  # Data Cleaning
         st.warning("🚫 You do not have permission to access data cleaning.")
 
 with tabs[3]:  # Feature Engineering
-    if st.session_state.role in ["data_science"]:
+    if st.session_state.role in ["data_science", "finance"]:
         st.header("Feature Engineering")
 
     # Ensure cleaned_df exists before accessing it
@@ -622,7 +622,7 @@ with tabs[3]:  # Feature Engineering
         st.pyplot(fig)
 
 with tabs[4]:  # Model Training
-    if st.session_state.role in ["data_science"]:
+    if st.session_state.role in ["data_science", "finance"]:
         st.title("Train a Model")
 
     # Ensure train-test data exists in session state
@@ -709,7 +709,8 @@ with tabs[4]:  # Model Training
         train_model(model_option, model)
 
 with tabs[5]: # Predictions & Performance
-    st.title("Evaluate Model Performance")
+    if st.session_state.role in ["data_science", "finance"]:
+        st.title("Evaluate Model Performance")
 
 # Ensure required session state variables exist
     if "trained_model" not in st.session_state or st.session_state.trained_model is None:
@@ -777,7 +778,8 @@ with tabs[5]: # Predictions & Performance
         st.error(f"Prediction failed: {str(e)}")
 
 with tabs[6]:  # Download Report
-    st.title("Download Report")
+    if st.session_state.role in ["data_science", "finance", "executive"]:
+        st.title("Download Report")
 
     # Ensure a directory for saving plots
     plot_dir = "report_plots"
