@@ -317,7 +317,7 @@ if st.session_state.authenticated:
             st.write("In the **Data Cleaning** tab, handle missing values, remove duplicates, and preprocess data.")
     
         with st.sidebar.expander("⚙️ Feature Engineering"):
-            st.write("Use the **Feature Engineering** tab to create new predictive features.")
+            st.write("Use the **Feature Engineering** tab to create new predictive features and choose which features to include in your model.")
     
         with st.sidebar.expander("🤖 Model Training"):
             st.write("Train machine learning models under the **Model Training** tab.")
