@@ -294,37 +294,39 @@ if st.session_state.authenticated:
     # Help Section in Sidebar
     st.sidebar.title("Help & Documentation")
     
-    with st.sidebar.expander("📌 How to Use This App"):
-        st.markdown(
-            """
-            **Welcome to the Box Office Prediction Tool!**  
-            This app allows you to analyze movie data, train models, and generate reports.
+    if st.session_state.role == "executive":
+        with st.sidebar.expander("📊 Viewing Reports"):
+            st.write("Navigate to the **Download Report** tab to access reports created by the data science team.")
+        with st.sidebar.expander("📁 Understanding Report Content"):
+            st.write("Reports include model summaries, financial projections, and performance evaluations.")
     
-            **Steps to Use:**
-            1. **Upload Data**: Load your dataset in CSV format.
-            2. **Explore & Clean Data**: View statistics, handle missing values.
-            3. **Select Features & Models**: Choose predictors and machine learning models.
-            4. **Train & Evaluate**: Run models and check performance metrics.
-            5. **Visualize & Report**: Generate charts and download a report.
+    elif st.session_state.role == "finance":
+        with st.sidebar.expander("📊 Viewing Reports"):
+            st.write("Access financial reports and performance summaries under **Download Report**.")
+        with st.sidebar.expander("📈 Running Predictive Models"):
+            st.write("Use the **Predictions & Performance** tab to execute trained models and analyze results.")
     
-            **For detailed guidance, hover over tooltips or check feature-specific help below.**
-            """
-        )
+    elif st.session_state.role == "data_science":
+        with st.sidebar.expander("📂 Upload Data"):
+            st.write("Go to the **Upload Data** tab to load a CSV file for analysis.")
     
-    with st.sidebar.expander("📂 Uploading Data"):
-        st.write("Upload a CSV file with relevant movie data to begin analysis.")
+        with st.sidebar.expander("🔍 Exploratory Data Analysis (EDA)"):
+            st.write("Use the **EDA** tab to explore data distributions and summary statistics.")
     
-    with st.sidebar.expander("🔍 Data Exploration & Cleaning"):
-        st.write("View summary statistics, handle missing values, and preprocess data.")
+        with st.sidebar.expander("🛠️ Data Cleaning"):
+            st.write("In the **Data Cleaning** tab, handle missing values, remove duplicates, and preprocess data.")
     
-    with st.sidebar.expander("⚙️ Model Selection & Training"):
-        st.write("Choose machine learning models and configure hyperparameters.")
+        with st.sidebar.expander("⚙️ Feature Engineering"):
+            st.write("Use the **Feature Engineering** tab to create new predictive features.")
     
-    with st.sidebar.expander("📊 Visualization & Reports"):
-        st.write("Generate plots and export results to a PDF report.")
+        with st.sidebar.expander("🤖 Model Training"):
+            st.write("Train machine learning models under the **Model Training** tab.")
     
-    with st.sidebar.expander("❓ Need More Help?"):
-        st.write("For additional support, refer to the documentation or contact support.")
+        with st.sidebar.expander("📊 Predictions & Performance"):
+            st.write("Evaluate model performance and make predictions in the **Predictions & Performance** tab.")
+    
+        with st.sidebar.expander("📄 Download Report"):
+            st.write("Generate and export reports from the **Download Report** tab.")
 
 # Main App Content After Authentication
 st.write("✅ You are securely logged in.")
