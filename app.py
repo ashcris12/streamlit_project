@@ -150,8 +150,11 @@ def authenticate_google_drive():
     # Authenticate with PyDrive2
     gauth = GoogleAuth()
     gauth.credentials = creds
-    drive = GoogleDrive(gauth)
 
+    # Force token refresh to avoid expiration issues
+    gauth.LocalWebserverAuth()  # Ensures the token remains valid
+
+    drive = GoogleDrive(gauth)
     return drive
     
 # Initialize session state variables if they don't exist
