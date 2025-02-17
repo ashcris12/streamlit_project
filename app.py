@@ -978,7 +978,7 @@ with tabs[6]:  # Download Report
         pdf.output("report.pdf")
 
     def get_or_create_folder(folder_name, parent_folder_id=None):
-    """Check if a folder exists; if not, create it and return its ID."""
+    # Check if a folder exists; if not, create it and return its ID.
     query = f"name='{folder_name}' and mimeType='application/vnd.google-apps.folder'"
     if parent_folder_id:
         query += f" and '{parent_folder_id}' in parents"
@@ -1030,7 +1030,7 @@ def upload_to_drive(report_name, filepath, user_role):
 metadata_file = "report_metadata.csv"
 
 def save_metadata(report_name, creator_role, file_id, folder_name):
-    """Save report metadata (name, role, file ID, folder) for tracking."""
+    # Save report metadata (name, role, file ID, folder) for tracking.
     metadata = pd.DataFrame([[report_name, creator_role, file_id, folder_name]], 
                             columns=["Report Name", "Role", "File ID", "Folder Name"])
     
