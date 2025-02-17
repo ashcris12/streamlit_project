@@ -327,7 +327,6 @@ if st.session_state.authenticated:
         st.write("For additional support, refer to the documentation or contact support.")
 
 # Main App Content After Authentication
-st.title("🎬 Box Office Revenue Prediction Dashboard")
 st.write("✅ You are securely logged in.")
 
 # Update last activity time on user interaction
@@ -337,7 +336,7 @@ if st.button("Refresh Session"):
 
 # Only show tabs if the user is authenticated
 if st.session_state.authenticated:
-    st.title("Box Office Revenue Prediction")
+    st.title("🎬 Box Office Revenue Prediction")
 
 # Define tabs
 tab_names = [
