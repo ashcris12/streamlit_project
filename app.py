@@ -140,25 +140,27 @@ from google.auth.transport.requests import Request
 def authenticate_google_drive():
     """Authenticate with Google Drive using service account credentials from Streamlit secrets."""
 
-    # 🔹 Load credentials from Streamlit secrets
+    # Load credentials from Streamlit secrets
     creds_dict = dict(st.secrets["gcp_service_account"])
 
-    # 🔹 Save creds_dict to a temporary JSON file
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as temp_json:
-        temp_json.write(json.dumps(creds_dict).encode())
-        temp_json_path = temp_json.name  # Store temp file path
+    # Create a temporary JSON file for PyDrive2
+    with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".json") as temp_file:
+        json.dump(creds_dict, temp_file)
+        temp_json_path = temp_file.name
 
-    # 🔹 Authenticate PyDrive2 using the temp JSON file
-    gauth = GoogleAuth()
-    gauth.LoadCredentialsFile(temp_json_path)  # Load credentials
-    gauth.LocalWebserverAuth()  # Authenticate (bypasses access_token_expired issue)
-    
-    drive = GoogleDrive(gauth)
-
-    # 🔹 Clean up temp file after authentication
-    os.remove(temp_json_path)
+    try:
+        # Authenticate with PyDrive2 using the correct service account method
+        gauth = GoogleAuth()
+        gauth.LoadCredentialsFile(temp_json_path)  # Load the service account credentials correctly
+        gauth.ServiceAuth()  # Correct method for service account authentication
+        drive = GoogleDrive(gauth)
+    finally:
+        os.remove(temp_json_path)  # Clean up the temp file
 
     return drive
+
+# Authenticate at the start of the script
+drive = authenticate_google_drive()
     
 # Initialize session state variables if they don't exist
 if "authenticated" not in st.session_state:
