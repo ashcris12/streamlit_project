@@ -150,7 +150,6 @@ def authenticate_google_drive():
 
     # 🔹 Authenticate PyDrive2 using the temp JSON file
     gauth = GoogleAuth()
-    gauth.LoadServiceConfig()  # Load default settings
     gauth.LoadCredentialsFile(temp_json_path)  # Load credentials
     gauth.LocalWebserverAuth()  # Authenticate (bypasses access_token_expired issue)
     
