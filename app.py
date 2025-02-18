@@ -838,7 +838,7 @@ with tabs[6]:  # Download Report
         st.stop()
 
     if "trained_model" not in st.session_state or "X_test" not in st.session_state:
-    st.warning("No trained model found. Please train a model before proceeding.")
+        st.warning("No trained model found. Please train a model before proceeding.")
     else:
         model = st.session_state["trained_model"]
         selected_features = st.session_state.get("selected_features", [])
