@@ -836,7 +836,20 @@ with tabs[6]:  # Download Report
     if "trained_model" not in st.session_state or st.session_state.trained_model is None:
         st.warning("❌ No trained model found. Please train a model first.")
         st.stop()
+
+    if "trained_model" not in st.session_state or "X_test" not in st.session_state:
+    st.warning("No trained model found. Please train a model before proceeding.")
+    else:
+        model = st.session_state["trained_model"]
+        selected_features = st.session_state.get("selected_features", [])
     
+        if selected_features and not st.session_state["X_test"].empty:
+            X_test_processed = st.session_state.X_test.reindex(columns=selected_features, fill_value=0)
+            y_pred = model.predict(X_test_processed)
+            # Continue with the rest of the process...
+        else:
+            st.warning("Model or features are missing. Retrain the model to proceed.")
+
     # Retrieve stored model and selections
     model = st.session_state.trained_model
     model_option = st.session_state.get("model_option", "Unknown Model")
