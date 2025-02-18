@@ -1038,7 +1038,7 @@ with tabs[6]:  # Download Report
             existing_metadata = pd.read_csv(metadata_file)
             metadata = pd.concat([existing_metadata, metadata], ignore_index=True)
         
-    metadata.to_csv(metadata_file, index=False)
+        metadata.to_csv(metadata_file, index=False)
 
     # 📌 Download & Upload Buttons
     report_name = st.text_input("Enter Report Name", "BoxOfficeReport.pdf")
