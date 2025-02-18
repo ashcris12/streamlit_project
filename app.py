@@ -786,7 +786,6 @@ with tabs[5]: # Predictions & Performance
     y_test = st.session_state.y_test
 
     # Debugging output
-    st.subheader("Debugging: Feature Order Check")
     train_features = list(st.session_state.X_train_selected.columns)
     test_features = list(X_test.columns)
 
