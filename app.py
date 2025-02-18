@@ -977,45 +977,43 @@ with tabs[6]:  # Download Report
     
         pdf.output("report.pdf")
 
+    # 📌 Metadata File for Tracking Reports
+    METADATA_FILE = "report_metadata.csv"
+    
+    # 📌 Role-Based Folder Mapping
+    ROLE_FOLDERS = {
+        "Executive": "Executive_Reports",
+        "Finance Analyst": "Finance_Reports",
+        "Data Science Team": "DataScience_Reports"
+    }
+    
     def get_or_create_folder(folder_name, parent_folder_id=None):
-        # Check if a folder exists; if not, create it and return its ID.
+        """Check if a folder exists in Google Drive; if not, create it."""
         query = f"name='{folder_name}' and mimeType='application/vnd.google-apps.folder'"
         if parent_folder_id:
             query += f" and '{parent_folder_id}' in parents"
-    
+        
         response = drive_service.files().list(q=query, fields="files(id)").execute()
         folders = response.get("files", [])
-    
+        
         if folders:
-            return folders[0]["id"]  # Folder already exists, return ID
-    
-        # Create a new folder
+            return folders[0]["id"]
+        
         metadata = {"name": folder_name, "mimeType": "application/vnd.google-apps.folder"}
         if parent_folder_id:
             metadata["parents"] = [parent_folder_id]
-    
+        
         folder = drive_service.files().create(body=metadata, fields="id").execute()
         return folder["id"]
-
+    
     def upload_to_drive(report_name, filepath, user_role):
-        # Upload a report to Google Drive under the correct role-based folder.
-    
-        # Define role-based folders
-        role_folders = {
-            "Executive": "Executive_Reports",
-            "Finance Analyst": "Finance_Reports",
-            "Data Science Team": "DataScience_Reports"
-        }
-        folder_name = role_folders.get(user_role, "General_Reports")
-    
-        # Get/Create the role-based folder
+        """Upload report to Google Drive under the correct role-based folder and return shareable link."""
+        folder_name = ROLE_FOLDERS.get(user_role, "General_Reports")
         folder_id = get_or_create_folder(folder_name)
     
-        # Prepare file metadata
         file_metadata = {"name": report_name, "parents": [folder_id]}
-    
-        # Upload the file
         media = MediaFileUpload(filepath, mimetype="application/pdf")
+        
         file = drive_service.files().create(body=file_metadata, media_body=media, fields="id").execute()
         file_id = file.get("id")
     
@@ -1023,46 +1021,66 @@ with tabs[6]:  # Download Report
         permission = {"role": "reader", "type": "anyone"}
         drive_service.permissions().create(fileId=file_id, body=permission).execute()
     
-        # Return shareable link
-        return f"https://drive.google.com/file/d/{file_id}/view"
-            
-           # 📌 Save Report Metadata
-        metadata_file = "report_metadata.csv"
+        report_link = f"https://drive.google.com/file/d/{file_id}/view"
         
+        # Save metadata
+        save_metadata(report_name, user_role, file_id, folder_name)
+        
+        return report_link
+    
     def save_metadata(report_name, creator_role, file_id, folder_name):
-        # Save report metadata (name, role, file ID, folder) for tracking.
+        """Save metadata (report name, role, file ID, folder name) in a CSV file."""
         metadata = pd.DataFrame([[report_name, creator_role, file_id, folder_name]], 
                                 columns=["Report Name", "Role", "File ID", "Folder Name"])
         
-        if os.path.exists(metadata_file):
-            existing_metadata = pd.read_csv(metadata_file)
+        if os.path.exists(METADATA_FILE):
+            existing_metadata = pd.read_csv(METADATA_FILE)
             metadata = pd.concat([existing_metadata, metadata], ignore_index=True)
         
-        metadata.to_csv(metadata_file, index=False)
-
-    # 📌 Download & Upload Buttons
+        metadata.to_csv(METADATA_FILE, index=False)
+    
+    def get_reports_by_role(user_role):
+        """Retrieve available reports based on user role from metadata file."""
+        if not os.path.exists(METADATA_FILE):
+            return pd.DataFrame(columns=["Report Name", "File ID", "Role", "Folder Name"])
+    
+        metadata = pd.read_csv(METADATA_FILE)
+    
+        if user_role == "Executive":
+            return metadata  # Executives see all reports
+        else:
+            return metadata[metadata["Role"] == user_role]  # Others see only their role's reports
+    
+    # 📌 UI - Report Upload & Viewing
+    st.title("Download Reports")
+    
+    # Assume user role is stored in session state
+    user_role = st.session_state.get("user_role", "Guest")
+    
+    # 📌 Upload Section
     report_name = st.text_input("Enter Report Name", "BoxOfficeReport.pdf")
     
     if st.button("Generate & Download Report as PDF"):
-        generate_pdf()
+        generate_pdf()  # Function to generate report
         with open("report.pdf", "rb") as f:
             st.download_button("📄 Download Report", f, file_name=report_name, mime="application/pdf")
     
     if st.button("Upload Report to Google Drive"):
         if report_name:
             generate_pdf()
-            user_role = st.session_state.role
             report_link = upload_to_drive(report_name, "report.pdf", user_role)
-    
-            # Get role-based folder name
-            role_folders = {
-                "Executive": "Executive_Reports",
-                "Finance Analyst": "Finance_Reports",
-                "Data Science Team": "DataScience_Reports"
-            }
-            folder_name = role_folders.get(user_role, "General_Reports")
-    
-            save_metadata(report_name, user_role, report_link.split("/")[-2], folder_name)
             st.success(f"✅ Report uploaded successfully! [🔗 View Report]({report_link})")
         else:
             st.error("⚠ Please enter a report name before uploading.")
+    
+    # 📌 Display Available Reports Based on User Role
+    st.subheader("Available Reports")
+    df_reports = get_reports_by_role(user_role)
+    
+    if not df_reports.empty:
+        st.dataframe(df_reports[["Report Name", "Folder Name"]])
+        for _, row in df_reports.iterrows():
+            report_link = f"https://drive.google.com/file/d/{row['File ID']}/view"
+            st.markdown(f"[📄 {row['Report Name']}]({report_link})")
+    else:
+        st.write("No reports available.")
