@@ -308,38 +308,50 @@ if st.session_state.authenticated:
         st.success("✅ Logged out successfully. Redirecting...")
         time.sleep(2)
         st.rerun()  
+        
     # Help Section in Sidebar
     st.sidebar.title("Help & Documentation")
     
     if st.session_state.role == "executive":
         with st.sidebar.expander("📊 Viewing Reports"):
             st.write("Navigate to the **Download Report** tab to access reports created by the data science team.")
+            st.write("If reports are not appearing, try refreshing the page or ensure you have the necessary permissions.")
         with st.sidebar.expander("📁 Understanding Report Content"):
             st.write("Reports include model summaries, financial projections, and performance evaluations.")
+            st.write("Each report provides key insights into predictive modeling outcomes.")
     
     elif st.session_state.role == "finance":
         with st.sidebar.expander("📂 Upload Data"):
-            st.write("Go to the **Upload Data** tab to load a CSV file for analysis.")
+            st.write("Navigate to the **Upload Data** tab, click on **Browse Files**, select a CSV file, and upload it.")
+            st.write("Alternatively, enter a URL and click **Load Data**.")
+            st.write("**Troubleshooting:** If your CSV file does not load, check that it is properly formatted and does not contain empty rows at the top.")
         with st.sidebar.expander("📈 Running Predictive Models"):
             st.write("Use the **Predictions & Performance** tab to execute trained models and analyze results.")
+            st.write("Ensure at least one model and a set of features are selected before running predictions.")
+            st.write("**Troubleshooting:** If the model training does not start, double-check your selections and try again.")
         with st.sidebar.expander("📊 Viewing Reports"):
             st.write("Access financial reports and performance summaries under **Download Report**.")
+            st.write("Generated reports include selected models, evaluation metrics, and visual insights.")
     
     elif st.session_state.role == "data_science":
         with st.sidebar.expander("📂 Upload Data"):
-            st.write("Go to the **Upload Data** tab to load a CSV file for analysis.")
+            st.write("Navigate to the **Upload Data** tab, click **Browse Files**, select a dataset, and upload it.")
         with st.sidebar.expander("🔍 Exploratory Data Analysis (EDA)"):
-            st.write("Use the **EDA** tab to explore data distributions and summary statistics.")
+            st.write("Use the **EDA** tab to explore data distributions, summary statistics, and visualizations.")
         with st.sidebar.expander("🛠️ Data Cleaning"):
             st.write("In the **Data Cleaning** tab, handle missing values, remove duplicates, and preprocess data.")
         with st.sidebar.expander("⚙️ Feature Engineering"):
             st.write("Use the **Feature Engineering** tab to create new predictive features and choose which features to include in your model.")
         with st.sidebar.expander("🤖 Model Training"):
             st.write("Train machine learning models under the **Model Training** tab.")
+            st.write("**Troubleshooting:** If training does not start, ensure that at least one model and feature set are selected.")
         with st.sidebar.expander("📊 Predictions & Performance"):
             st.write("Evaluate model performance and make predictions in the **Predictions & Performance** tab.")
+            st.write("Users can compare models, view feature importance, and analyze residuals.")
         with st.sidebar.expander("📄 Download Report"):
             st.write("Generate and export reports from the **Download Report** tab.")
+            st.write("Users can customize report content before exporting as a PDF.")
+            st.write("**Troubleshooting:** If reports are not appearing in storage, refresh the page or verify user permissions.")
 
 # Main App Content After Authentication
 st.write("✅ You are securely logged in.")
