@@ -1039,6 +1039,20 @@ with tabs[6]:  # Download Report
         save_metadata(report_name, user_role, file_id, folder_name)
         
         return report_link
+    def set_drive_permissions(file_id, user_role):
+    """Set Google Drive permissions based on user role."""
+    role_permissions = {
+        "Executive": "reader",
+        "Finance Analyst": "reader",
+        "Data Science Team": "writer"  # Can upload & manage reports
+    }
+
+    permission = {
+        "type": "domain",  # Restrict to organization users if using G Suite
+        "role": role_permissions.get(user_role, "reader")
+    }
+
+    drive_service.permissions().create(fileId=file_id, body=permission).execute()
     
     def save_metadata(report_name, creator_role, file_id, folder_name):
         """Save metadata (report name, role, file ID, folder name) in a CSV file."""
