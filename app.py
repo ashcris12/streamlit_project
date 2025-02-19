@@ -652,7 +652,7 @@ with tabs[2]:  # Data Cleaning
 with tabs[3]:  # Feature Engineering
     if st.session_state.role in ["data_science", "finance"]:
         st.header("Feature Engineering")
-
+        
     # Ensure cleaned_df exists before accessing it
     if "cleaned_df" not in st.session_state or st.session_state.cleaned_df is None:
         st.warning("No data uploaded yet. Please upload a CSV file or URL in the 'Upload Data' tab.")
@@ -814,6 +814,9 @@ with tabs[4]:  # Model Training
         st.info(f"Training {model_option}... Please wait.")
         train_model(model_option, model)
 
+    else:
+        st.warning("🚫 You do not have permission to access data cleaning.")
+
 with tabs[5]: # Predictions & Performance
     if st.session_state.role in ["data_science", "finance"]:
         st.title("Evaluate Model Performance")
@@ -883,8 +886,11 @@ with tabs[5]: # Predictions & Performance
         st.error(f"Prediction failed: {str(e)}")
 
 with tabs[6]:  # Download Report
-    if st.session_state.role in ["data_science", "finance", "executive"]:
-        st.title("Download Report")
+    if st.session_state.role not in ["data_science", "finance", "executive"]:
+        st.warning("❌ You do not have permission to access this tab.")
+        st.stop()
+    
+    st.title("Download Report")
 
     # Ensure a directory for saving plots
     plot_dir = "report_plots"
