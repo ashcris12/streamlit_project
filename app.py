@@ -375,7 +375,7 @@ tab_names = [
 tabs = st.tabs(tab_names)
 
 with tabs[0]:  # Upload Data
-    if st.session_state.role in ["data_science", "finance"]:
+    if st.session_state.role in ["data_user", "finance"]:
         st.header("Upload Your Data")
 
         # Ensure df exists in session state
