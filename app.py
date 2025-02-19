@@ -738,162 +738,162 @@ with tabs[4]:  # Model Training
     if st.session_state.role in ["data_science", "finance"]:
         st.title("Train a Model")
 
-    # Ensure train-test data exists in session state
-    if "X_train" not in st.session_state or "y_train" not in st.session_state:
-        st.warning("Train-test split data is missing. Please complete feature selection in the previous tab.")
-        st.stop()  # 🚀 Stops execution if data isn't available
+        # Ensure train-test data exists in session state
+        if "X_train" not in st.session_state or "y_train" not in st.session_state:
+            st.warning("Train-test split data is missing. Please complete feature selection in the previous tab.")
+            st.stop()  # 🚀 Stops execution if data isn't available
 
-    # ✅ Load data from session state
-    X_train = st.session_state.X_train
-    X_test = st.session_state.X_test
-    y_train = st.session_state.y_train
-    y_test = st.session_state.y_test
+        # ✅ Load data from session state
+        X_train = st.session_state.X_train
+        X_test = st.session_state.X_test
+        y_train = st.session_state.y_train
+        y_test = st.session_state.y_test
 
-    # Select model type (user option)
-    model_option = st.selectbox("Select a Model to Train", ["XGBoost", "Random Forest", "Decision Tree", "Linear Regression"])
+        # Select model type (user option)
+        model_option = st.selectbox("Select a Model to Train", ["XGBoost", "Random Forest", "Decision Tree", "Linear Regression"])
 
-    # Hyperparameter selection
-    if model_option == "XGBoost":
-        n_estimators = st.slider("Number of Estimators", 50, 300, 100)
-        learning_rate = st.slider("Learning Rate", 0.01, 0.3, 0.1)
-        max_depth = st.slider("Max Depth", 3, 10, 6)
-        model = XGBRegressor(n_estimators=n_estimators, learning_rate=learning_rate, max_depth=max_depth)
+        # Hyperparameter selection
+        if model_option == "XGBoost":
+            n_estimators = st.slider("Number of Estimators", 50, 300, 100)
+            learning_rate = st.slider("Learning Rate", 0.01, 0.3, 0.1)
+            max_depth = st.slider("Max Depth", 3, 10, 6)
+            model = XGBRegressor(n_estimators=n_estimators, learning_rate=learning_rate, max_depth=max_depth)
 
-    elif model_option == "Random Forest":
-        n_estimators = st.slider("Number of Trees", 50, 300, 100)
-        max_depth = st.slider("Max Depth", 3, 20, None)
-        model = RandomForestRegressor(n_estimators=n_estimators, max_depth=max_depth, random_state=42)
+        elif model_option == "Random Forest":
+            n_estimators = st.slider("Number of Trees", 50, 300, 100)
+            max_depth = st.slider("Max Depth", 3, 20, None)
+            model = RandomForestRegressor(n_estimators=n_estimators, max_depth=max_depth, random_state=42)
 
-    elif model_option == "Decision Tree":
-        max_depth = st.slider("Max Depth", 3, 20, None)
-        model = DecisionTreeRegressor(max_depth=max_depth, random_state=42)
+        elif model_option == "Decision Tree":
+            max_depth = st.slider("Max Depth", 3, 20, None)
+            model = DecisionTreeRegressor(max_depth=max_depth, random_state=42)
 
-    elif model_option == "Linear Regression":
-        model = LinearRegression()
+        elif model_option == "Linear Regression":
+            model = LinearRegression()
 
-    def train_model(model_option, model):
-        st.session_state["training_status"] = "Training in progress..."
-        progress_bar = st.progress(0)  
-        status_text = st.empty()
+        def train_model(model_option, model):
+            st.session_state["training_status"] = "Training in progress..."
+            progress_bar = st.progress(0)  
+            status_text = st.empty()
 
-        # Ensure selected features exist
-        if "selected_features" not in st.session_state or not st.session_state.selected_features:
-            st.error("No selected features found. Please select features before training.")
-            return  
+            # Ensure selected features exist
+            if "selected_features" not in st.session_state or not st.session_state.selected_features:
+                st.error("No selected features found. Please select features before training.")
+                return  
 
-        selected_features = st.session_state.selected_features
+            selected_features = st.session_state.selected_features
 
-        # Ensure feature order consistency
-        X_train_selected = st.session_state.X_train[selected_features]
-        X_test_selected = st.session_state.X_test[selected_features]
+            # Ensure feature order consistency
+            X_train_selected = st.session_state.X_train[selected_features]
+            X_test_selected = st.session_state.X_test[selected_features]
 
-        st.session_state.X_train_selected = X_train_selected  # Ensure it's saved
+            st.session_state.X_train_selected = X_train_selected  # Ensure it's saved
 
-        try:
-            # ✅ Train model synchronously (without threading)
-            model.fit(X_train_selected, st.session_state.y_train)
-            
-            # ✅ Save trained model type to session state
-            st.session_state.model_option = model_option
+            try:
+                # ✅ Train model synchronously (without threading)
+                model.fit(X_train_selected, st.session_state.y_train)
 
-            # ✅ Save trained model to session state
-            st.session_state.trained_model = model  
+                # ✅ Save trained model type to session state
+                st.session_state.model_option = model_option
 
-            # ✅ Save test data with correct feature order
-            st.session_state.X_test_selected = X_test_selected.reindex(columns=X_train_selected.columns)
+                # ✅ Save trained model to session state
+                st.session_state.trained_model = model  
 
-            for i in range(1, 101, 10):  
-                progress_bar.progress(i / 100)  # Streamlit expects a value between 0 and 1
-                status_text.text(f"Training in progress... {i}%")  # Show percentage
-                time.sleep(0.1)  
+                # ✅ Save test data with correct feature order
+                st.session_state.X_test_selected = X_test_selected.reindex(columns=X_train_selected.columns)
 
-            st.success(f"{model_option} has been trained successfully! ✅")
+                for i in range(1, 101, 10):  
+                    progress_bar.progress(i / 100)  # Streamlit expects a value between 0 and 1
+                    status_text.text(f"Training in progress... {i}%")  # Show percentage
+                    time.sleep(0.1)  
 
-        except Exception as e:
-            st.error(f"Model training failed: {str(e)}")
+                st.success(f"{model_option} has been trained successfully! ✅")
 
-        finally:
-            progress_bar.progress(100)
-            status_text.text("")
+            except Exception as e:
+                st.error(f"Model training failed: {str(e)}")
 
-    # 🟢 Ensure the button is inside the tab block
-    if st.button("Train Model"):
-        st.info(f"Training {model_option}... Please wait.")
-        train_model(model_option, model)
+            finally:
+                progress_bar.progress(100)
+                status_text.text("")
+
+        # 🟢 Ensure the button is inside the tab block
+        if st.button("Train Model"):
+            st.info(f"Training {model_option}... Please wait.")
+            train_model(model_option, model)
 
     else:
         st.warning("🚫 You do not have permission to access model training.")
 
-with tabs[5]: # Predictions & Performance
+with tabs[5]:  # Predictions & Performance
     if st.session_state.role in ["data_science", "finance"]:
         st.title("Evaluate Model Performance")
 
-# Ensure required session state variables exist
-    if "trained_model" not in st.session_state or st.session_state.trained_model is None:
-        st.warning("❌ No trained model found. Please train a model first.")
-        st.stop()
+        # Ensure required session state variables exist
+        if "trained_model" not in st.session_state or st.session_state.trained_model is None:
+            st.warning("❌ No trained model found. Please train a model first.")
+            st.stop()
 
-    if "X_test" not in st.session_state or "y_test" not in st.session_state:
-        st.warning("❌ No test data found. Please train a model first.")
-        st.stop()
+        if "X_test" not in st.session_state or "y_test" not in st.session_state:
+            st.warning("❌ No test data found. Please train a model first.")
+            st.stop()
 
-    if "selected_features" not in st.session_state:
-        st.warning("❌ No feature selection found. Please select features before training.")
-        st.stop()
+        if "selected_features" not in st.session_state:
+            st.warning("❌ No feature selection found. Please select features before training.")
+            st.stop()
 
-    if "X_train_selected" not in st.session_state:
-        st.warning("❌ No selected train data found. Please train selected features first.")
-        st.stop()
+        if "X_train_selected" not in st.session_state:
+            st.warning("❌ No selected train data found. Please train selected features first.")
+            st.stop()
 
-    # Retrieve session state variables
-    model = st.session_state.trained_model 
-    X_train_selected = st.session_state.X_train_selected
+        # Retrieve session state variables
+        model = st.session_state.trained_model 
+        X_train_selected = st.session_state.X_train_selected
 
-    # Ensure X_test has the same columns as used in training
-    X_test = st.session_state.X_test.reindex(columns=X_train_selected.columns, fill_value=0)
-    y_test = st.session_state.y_test
+        # Ensure X_test has the same columns as used in training
+        X_test = st.session_state.X_test.reindex(columns=X_train_selected.columns, fill_value=0)
+        y_test = st.session_state.y_test
 
-    # Debugging output
-    train_features = list(st.session_state.X_train_selected.columns)
-    test_features = list(X_test.columns)
+        # Debugging output
+        train_features = list(st.session_state.X_train_selected.columns)
+        test_features = list(X_test.columns)
 
-    if train_features != test_features:
-        st.error("Feature order mismatch detected between X_train and X_test!")
+        if train_features != test_features:
+            st.error("Feature order mismatch detected between X_train and X_test!")
 
-        # Display mismatch details
-        mismatch_df = pd.DataFrame({"X_train Order": train_features, "X_test Order": test_features})
-        st.write(mismatch_df)
-        st.stop()
+            # Display mismatch details
+            mismatch_df = pd.DataFrame({"X_train Order": train_features, "X_test Order": test_features})
+            st.write(mismatch_df)
+            st.stop()
 
-    try:
-        y_pred = model.predict(X_test)
+        try:
+            y_pred = model.predict(X_test)
 
-        # Compute evaluation metrics
-        mae = mean_absolute_error(y_test, y_pred)
-        r2 = r2_score(y_test, y_pred)
-        rmse = mean_squared_error(y_test, y_pred) ** 0.5  # ✅ Manually compute RMSE
+            # Compute evaluation metrics
+            mae = mean_absolute_error(y_test, y_pred)
+            r2 = r2_score(y_test, y_pred)
+            rmse = mean_squared_error(y_test, y_pred) ** 0.5  # ✅ Manually compute RMSE
 
-        # Display results
-        st.subheader("Model Evaluation Metrics")
-        st.write(f"Mean Absolute Error (MAE): {mae:.2f}")
-        st.write(f"Root Mean Squared Error (RMSE): {rmse:.2f}")
-        st.write(f"R-squared (R²): {r2:.2f}")
+            # Display results
+            st.subheader("Model Evaluation Metrics")
+            st.write(f"Mean Absolute Error (MAE): {mae:.2f}")
+            st.write(f"Root Mean Squared Error (RMSE): {rmse:.2f}")
+            st.write(f"R-squared (R²): {r2:.2f}")
 
-        # Actual vs Predicted plot
-        results_df = pd.DataFrame({"Actual": y_test, "Predicted": y_pred})
-        fig = px.scatter(results_df, x="Actual", y="Predicted", title="Actual vs Predicted Revenue")
-        st.plotly_chart(fig)
+            # Actual vs Predicted plot
+            results_df = pd.DataFrame({"Actual": y_test, "Predicted": y_pred})
+            fig = px.scatter(results_df, x="Actual", y="Predicted", title="Actual vs Predicted Revenue")
+            st.plotly_chart(fig)
 
-        # Residual Plot
-        residuals = y_test - y_pred
-        fig_residuals = px.scatter(x=y_pred, y=residuals, title="Residual Plot", labels={"x": "Predicted", "y": "Residuals"})
-        st.plotly_chart(fig_residuals)
+            # Residual Plot
+            residuals = y_test - y_pred
+            fig_residuals = px.scatter(x=y_pred, y=residuals, title="Residual Plot", labels={"x": "Predicted", "y": "Residuals"})
+            st.plotly_chart(fig_residuals)
 
-    except Exception as e:
-        st.error(f"Prediction failed: {str(e)}")
+        except Exception as e:
+            st.error(f"Prediction failed: {str(e)}")
 
     else:
-        st.warning("🚫 You do not have permission to predictions and performance.")
+        st.warning("🚫 You do not have permission to access predictions and performance.")
 
 with tabs[6]:  # Download Report
     if st.session_state.role not in ["data_science", "finance", "executive"]:
