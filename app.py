@@ -116,6 +116,7 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 import seaborn as sns
 import matplotlib.pyplot as plt
+import io
 from io import BytesIO
 from fpdf import FPDF
 from reportlab.lib.pagesizes import letter
