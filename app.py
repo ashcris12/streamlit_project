@@ -662,9 +662,17 @@ with tabs[3]:  # Feature Engineering
     # Section: Data Overview
     st.header("Data Overview")
     if st.checkbox('Show Data Overview'):
+        st.subheader("Top Rows of the Data")
         st.write(df.head())  # Show top rows of the data
+        
+        st.subheader("Summary Statistics")
         st.write(df.describe())  # Display data statistics
-        st.write(df.info())  # Display data types and missing values
+        
+        st.subheader("Dataset Info (Data Types & Missing Values)")
+        buffer = io.StringIO()
+        df.info(buf=buffer)  # Capture df.info() output
+        info_str = buffer.getvalue()
+        st.text(info_str)  # Display properly formatted output
 
     # Ensure the target variable is defined
     target = 'Domestic Gross (USD)'
