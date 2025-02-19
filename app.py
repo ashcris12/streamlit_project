@@ -667,7 +667,8 @@ with tabs[3]:  # Feature Engineering
         st.write(df.head())  # Show top rows of the data
         st.subheader("Summary Statistics")
         st.write(df.describe())  # Display data statistics
-         with st.expander("Show Dataset Info (Data Types & Missing Values)"):
+        
+        with st.expander("Show Dataset Info (Data Types & Missing Values)"):
             # Capture df.info() output
             buffer = io.StringIO()
             df.info(buf=buffer)
