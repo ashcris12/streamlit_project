@@ -1052,7 +1052,7 @@ with tabs[6]:  # Download Report
         
         return report_link
     def set_drive_permissions(file_id, user_role):
-    """Set Google Drive permissions based on user role."""
+    # Set Google Drive permissions based on user role
     role_permissions = {
         "Executive": "reader",
         "Finance Analyst": "reader",
