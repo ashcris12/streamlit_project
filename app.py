@@ -896,6 +896,10 @@ with tabs[5]:  # Predictions & Performance
         st.warning("🚫 You do not have permission to access predictions and performance.")
 
 with tabs[6]:  # Download Report
+    
+    # Display the detected role at the top
+    st.write(f"**Detected Role:** {st.session_state.get('role', 'Not Set')}")
+    
     if st.session_state.role not in ["data_science", "finance", "executive"]:
         st.warning("❌ You do not have permission to access this tab.")
         st.stop()
