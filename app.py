@@ -375,75 +375,79 @@ tab_names = [
 tabs = st.tabs(tab_names)
 
 with tabs[0]:  # Upload Data
-    st.header("Upload Your Data")
+    if st.session_state.role in ["data_science", "finance"]:
+        st.header("Upload Your Data")
 
-    # Ensure df exists in session state
-    if "df" not in st.session_state:
-        st.session_state.df = None
+        # Ensure df exists in session state
+        if "df" not in st.session_state:
+            st.session_state.df = None
 
-# Always show file upload options
-    uploaded_file = st.file_uploader("Upload a CSV file", type=["csv"])
-    url_input = st.text_input("Or enter a URL to fetch the data")
+        # Always show file upload options
+        uploaded_file = st.file_uploader("Upload a CSV file", type=["csv"])
+        url_input = st.text_input("Or enter a URL to fetch the data")
 
-# Reset data if user removes file
-    if uploaded_file is None and not url_input:
-        st.session_state.df = None
-        st.session_state.cleaned_df = None
-        st.session_state.processed_df = None  # Clear other stored versions if needed
+        # Reset data if user removes file
+        if uploaded_file is None and not url_input:
+            st.session_state.df = None
+            st.session_state.cleaned_df = None
+            st.session_state.processed_df = None  # Clear other stored versions if needed
 
-    # Define required columns
-    required_columns = ["Domestic Gross (USD)", "Production Budget (USD)", "Opening Weekend (USD)"]
-    
-    # File Upload Handling
-    if uploaded_file is not None:
-        try:
-            df = pd.read_csv(uploaded_file)
-    
-            # Check for required columns
-            missing_cols = [col for col in required_columns if col not in df.columns]
-    
-            if missing_cols:
-                st.error(f"The uploaded dataset is missing required columns: {', '.join(missing_cols)}. "
-                         "Please upload a correctly formatted CSV.")
+        # Define required columns
+        required_columns = ["Domestic Gross (USD)", "Production Budget (USD)", "Opening Weekend (USD)"]
+
+        # File Upload Handling
+        if uploaded_file is not None:
+            try:
+                df = pd.read_csv(uploaded_file)
+
+                # Check for required columns
+                missing_cols = [col for col in required_columns if col not in df.columns]
+
+                if missing_cols:
+                    st.error(f"The uploaded dataset is missing required columns: {', '.join(missing_cols)}. "
+                             "Please upload a correctly formatted CSV.")
+                    st.session_state.df = None  # Reset dataframe
+                else:
+                    st.session_state.df = df  # Save to session state
+                    st.success("File uploaded successfully.")
+                    st.dataframe(df.head())
+
+            except Exception as e:
+                st.error(f"An error occurred while reading the file: {e}")
+                st.session_state.df = None  # Ensure df is reset
+
+        # URL Input Handling
+        elif url_input:
+            try:
+                df = pd.read_csv(url_input)
+
+                # Check for required columns
+                missing_cols = [col for col in required_columns if col not in df.columns]
+
+                if missing_cols:
+                    st.error(f"The dataset loaded from the URL is missing required columns: {', '.join(missing_cols)}. "
+                             "Please provide a valid dataset.")
+                    st.session_state.df = None  # Reset dataframe
+                else:
+                    st.session_state.df = df  # Save to session state
+                    st.success("Data loaded successfully from URL.")
+                    st.dataframe(df.head())
+
+            except Exception as e:
+                st.error(f"An error occurred while reading the URL: {e}")
                 st.session_state.df = None  # Reset dataframe
-            else:
-                st.session_state.df = df  # Save to session state
-                st.success("File uploaded successfully.")
-                st.dataframe(df.head())
-    
-        except Exception as e:
-            st.error(f"An error occurred while reading the file: {e}")
-            st.session_state.df = None  # Ensure df is reset
-    
-    # URL Input Handling
-    elif url_input:
-        try:
-            df = pd.read_csv(url_input)
-    
-            # Check for required columns
-            missing_cols = [col for col in required_columns if col not in df.columns]
-    
-            if missing_cols:
-                st.error(f"The dataset loaded from the URL is missing required columns: {', '.join(missing_cols)}. "
-                         "Please provide a valid dataset.")
-                st.session_state.df = None  # Reset dataframe
-            else:
-                st.session_state.df = df  # Save to session state
-                st.success("Data loaded successfully from URL.")
-                st.dataframe(df.head())
 
-        except Exception as e:
-            st.error(f"An error occurred while reading the URL: {e}")
-            st.session_state.df = None  # Reset dataframe
+        # Retrieve df from session state
+        if st.session_state.df is not None:
+            df = st.session_state.df
 
-    # Retrieve df from session state
-    if st.session_state.df is not None:
-        df = st.session_state.df
+            if df.empty:
+                st.error("The uploaded dataset is empty. Please check your file or URL.")
+        else:
+            st.info("No file uploaded or URL entered yet.")
 
-        if df.empty:
-            st.error("The uploaded dataset is empty. Please check your file or URL.")
     else:
-        st.info("No file uploaded or URL entered yet.")  
+        st.warning("🚫 You do not have permission to access this section.")
 
 with tabs[1]:  # EDA
     if st.session_state.role in ["data_science"]:
@@ -727,6 +731,9 @@ with tabs[3]:  # Feature Engineering
         sns.heatmap(corr, annot=True, cmap='seismic', ax=ax)
         st.pyplot(fig)
 
+    else:
+        st.warning("🚫 You do not have permission to access feature engineering.")
+
 with tabs[4]:  # Model Training
     if st.session_state.role in ["data_science", "finance"]:
         st.title("Train a Model")
@@ -815,7 +822,7 @@ with tabs[4]:  # Model Training
         train_model(model_option, model)
 
     else:
-        st.warning("🚫 You do not have permission to access data cleaning.")
+        st.warning("🚫 You do not have permission to access model training.")
 
 with tabs[5]: # Predictions & Performance
     if st.session_state.role in ["data_science", "finance"]:
@@ -884,6 +891,9 @@ with tabs[5]: # Predictions & Performance
 
     except Exception as e:
         st.error(f"Prediction failed: {str(e)}")
+
+    else:
+        st.warning("🚫 You do not have permission to predictions and performance.")
 
 with tabs[6]:  # Download Report
     if st.session_state.role not in ["data_science", "finance", "executive"]:
