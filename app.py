@@ -389,27 +389,50 @@ with tabs[0]:  # Upload Data
         st.session_state.cleaned_df = None
         st.session_state.processed_df = None  # Clear other stored versions if needed
 
-    # Handle File Upload
+    # Define required columns
+    required_columns = ["Domestic Gross (USD)", "Production Budget (USD)", "Opening Weekend (USD)"]
+    
+    # File Upload Handling
     if uploaded_file is not None:
         try:
             df = pd.read_csv(uploaded_file)
-            st.session_state.df = df  # Save to session state
-            st.success("File uploaded successfully.")
-            st.dataframe(df.head())
+    
+            # Check for required columns
+            missing_cols = [col for col in required_columns if col not in df.columns]
+    
+            if missing_cols:
+                st.error(f"The uploaded dataset is missing required columns: {', '.join(missing_cols)}. "
+                         "Please upload a correctly formatted CSV.")
+                st.session_state.df = None  # Reset dataframe
+            else:
+                st.session_state.df = df  # Save to session state
+                st.success("File uploaded successfully.")
+                st.dataframe(df.head())
+    
         except Exception as e:
             st.error(f"An error occurred while reading the file: {e}")
             st.session_state.df = None  # Ensure df is reset
-
-    # Handle URL Input
-    elif url_input:  
+    
+    # URL Input Handling
+    elif url_input:
         try:
             df = pd.read_csv(url_input)
-            st.session_state.df = df  # Save to session state
-            st.success("Data loaded successfully from URL.")
-            st.dataframe(df.head())
+    
+            # Check for required columns
+            missing_cols = [col for col in required_columns if col not in df.columns]
+    
+            if missing_cols:
+                st.error(f"The dataset loaded from the URL is missing required columns: {', '.join(missing_cols)}. "
+                         "Please provide a valid dataset.")
+                st.session_state.df = None  # Reset dataframe
+            else:
+                st.session_state.df = df  # Save to session state
+                st.success("Data loaded successfully from URL.")
+                st.dataframe(df.head())
+
         except Exception as e:
             st.error(f"An error occurred while reading the URL: {e}")
-            st.session_state.df = None
+            st.session_state.df = None  # Reset dataframe
 
     # Retrieve df from session state
     if st.session_state.df is not None:
