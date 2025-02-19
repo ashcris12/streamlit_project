@@ -447,7 +447,7 @@ with tabs[0]:  # Upload Data
             st.info("No file uploaded or URL entered yet.")
 
     else:
-        st.warning("🚫 You do not have permission to access this section.")
+        st.warning("🚫 You do not have permission to access upload data.")
 
 with tabs[1]:  # EDA
     if st.session_state.role in ["data_science"]:
