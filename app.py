@@ -1052,22 +1052,22 @@ with tabs[6]:  # Download Report
         
         return report_link
     def set_drive_permissions(file_id, user_role):
-    # Set Google Drive permissions based on user role
-    role_permissions = {
-        "Executive": "reader",
-        "Finance Analyst": "reader",
-        "Data Science Team": "writer"  # Can upload & manage reports
-    }
-
-    permission = {
-        "type": "domain",  # Restrict to organization users if using G Suite
-        "role": role_permissions.get(user_role, "reader")
-    }
-
-    drive_service.permissions().create(fileId=file_id, body=permission).execute()
+        # Set Google Drive permissions based on user role
+        role_permissions = {
+            "Executive": "reader",
+            "Finance Analyst": "reader",
+            "Data Science Team": "writer"  # Can upload & manage reports
+        }
+    
+        permission = {
+            "type": "domain",  # Restrict to organization users if using G Suite
+            "role": role_permissions.get(user_role, "reader")
+        }
+    
+        drive_service.permissions().create(fileId=file_id, body=permission).execute()
     
     def save_metadata(report_name, creator_role, file_id, folder_name):
-        """Save metadata (report name, role, file ID, folder name) in a CSV file."""
+        # Save metadata (report name, role, file ID, folder name) in a CSV file
         metadata = pd.DataFrame([[report_name, creator_role, file_id, folder_name]], 
                                 columns=["Report Name", "Role", "File ID", "Folder Name"])
         
@@ -1078,7 +1078,7 @@ with tabs[6]:  # Download Report
         metadata.to_csv(METADATA_FILE, index=False)
     
     def get_reports_by_role(user_role):
-        """Retrieve available reports based on user role from metadata file."""
+        # Retrieve available reports based on user role from metadata file
         if not os.path.exists(METADATA_FILE):
             return pd.DataFrame(columns=["Report Name", "File ID", "Role", "Folder Name"])
     
