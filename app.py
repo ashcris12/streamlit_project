@@ -816,14 +816,13 @@ with tabs[4]:  # Model Training
                 progress_bar.progress(100)
                 status_text.text("")
 
-        # 🟢 Ensure the button is inside the tab block
+        # Ensure the button is inside the tab block
         if st.button("Train Model"):
             st.info(f"Training {model_option}... Please wait.")
             train_model(model_option, model)
 
-    # 🚨 Warning message is now outside the if block, ensuring visibility for unauthorized users
     else:
-        st.warning("🚫 You 
+        st.warning("🚫 You do not have permission to access predictions and performance.")
 
 with tabs[5]:  # Predictions & Performance
     if st.session_state.role in ["data_science", "finance"]:
