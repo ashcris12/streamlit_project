@@ -624,7 +624,7 @@ with tabs[2]:  # Data Cleaning
                     cleaned_df[high_skew] = cleaned_df[high_skew].fillna(0)  # Fill NaNs before log transform
                     cleaned_df[high_skew] = cleaned_df[high_skew].apply(lambda x: np.log1p(x))  # Apply log1p(x)
 
-                 st.session_state.cleaned_df = cleaned_df
+                st.session_state.cleaned_df = cleaned_df
 
             ### Step 6: Winsorization (Optional)
             with st.expander("Winsorization (Optional)"):
