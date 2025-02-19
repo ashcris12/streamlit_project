@@ -896,7 +896,6 @@ with tabs[5]:  # Predictions & Performance
         st.warning("🚫 You do not have permission to access predictions and performance.")
 
  with tabs[6]:  # Download Report
-    
     st.write(st.session_state)
     
     if st.session_state.role not in ["data_science", "finance", "executive"]:
