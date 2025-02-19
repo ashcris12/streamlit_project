@@ -107,6 +107,7 @@ from xgboost import XGBRegressor
 import plotly.express as px
 import holidays
 import numpy as np
+from scipy.stats.mstats import winsorize
 from sklearn.preprocessing import LabelEncoder
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
@@ -622,6 +623,17 @@ with tabs[2]:  # Data Cleaning
                     high_skew = skewed_cols[skewed_cols > 0.75].index
                     cleaned_df[high_skew] = cleaned_df[high_skew].fillna(0)  # Fill NaNs before log transform
                     cleaned_df[high_skew] = cleaned_df[high_skew].apply(lambda x: np.log1p(x))  # Apply log1p(x)
+
+                 st.session_state.cleaned_df = cleaned_df
+
+            ### Step 6: Winsorization (Optional)
+            with st.expander("Winsorization (Optional)"):
+                apply_winsorization = st.checkbox("Apply Winsorization to Reduce Outliers")
+                
+                if apply_winsorization:
+                    numeric_cols = cleaned_df.select_dtypes(include=['float64', 'int64']).columns
+                    for col in numeric_cols:
+                        cleaned_df[col] = winsorize(cleaned_df[col], limits=[0.01, 0.01])  # Caps extreme values at 1st & 99th percentile
 
                 st.session_state.cleaned_df = cleaned_df
 
