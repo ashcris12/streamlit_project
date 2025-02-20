@@ -135,9 +135,6 @@ import json
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
-
-if "selected_tab" not in st.session_state:
-    st.session_state.selected_tab = "Upload Data"  # Default to the first tab
     
 def authenticate_google_drive():
     """Authenticate with Google Drive using service account credentials from Streamlit secrets."""
@@ -378,9 +375,20 @@ tab_names = [
 tabs = st.tabs(tab_names)
 
 with tabs[0]:  # Upload Data
-    if st.session_state.role in ["data_science", "finance"]:
+   if st.session_state.role == "Executive":
+        st.header("View Reports")
+        st.write("As an Executive, you can only view the available reports.")
+        # Display a list of available reports for Executives (if needed)
+        df_reports = get_reports_by_role(st.session_state.role, st.session_state.username)
+        if not df_reports.empty:
+            st.dataframe(df_reports[["Report Name", "Folder Name"]])
+            for _, row in df_reports.iterrows():
+                report_link = f"https://drive.google.com/file/d/{row['File ID']}/view"
+                st.markdown(f"[📄 {row['Report Name']}]({report_link})")
+        else:
+            st.write("No reports available for your role.")
+    else:
         st.header("Upload Your Data")
-
         # Ensure df exists in session state
         if "df" not in st.session_state:
             st.session_state.df = None
@@ -448,9 +456,6 @@ with tabs[0]:  # Upload Data
                 st.error("The uploaded dataset is empty. Please check your file or URL.")
         else:
             st.info("No file uploaded or URL entered yet.")
-
-    else:
-        st.warning("🚫 You do not have permission to access upload data.")
 
 with tabs[1]:  # EDA
     if st.session_state.role in ["data_science"]:
