@@ -664,8 +664,8 @@ with tabs[3]:  # Feature Engineering
 
     df = st.session_state.cleaned_df
 
-        # Section: Data Overview
-        st.header("Data Overview")
+    # Section: Data Overview
+    st.header("Data Overview")
         if st.checkbox('Show Data Overview'):
             st.subheader("Top Rows of the Data")
             st.write(df.head())  # Show top rows of the data
