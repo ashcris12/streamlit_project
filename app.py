@@ -467,8 +467,9 @@ def get_reports_by_role(username, role):
     
     return df_reports
     
-with tabs[0]:  # Upload Data
-    if st.session_state.role == "executive":
+if st.session_state.role == "executive":
+    # Only show the "View Reports" tab to executives
+    with tabs[0]:  # View Reports
         st.header("View Reports")
         st.write("As an Executive, you can only view the available reports.")
         
@@ -482,8 +483,9 @@ with tabs[0]:  # Upload Data
                 st.markdown(f"[📄 {row['Report Name']}]({report_link})")
         else:
             st.write("No reports available for your role.")
-        
-    else:
+else:
+    # Show the regular tabs for non-executive users
+    with tabs[0]:  # Upload Data
         st.header("Upload Your Data")
         # Ensure df exists in session state
         if "df" not in st.session_state:
