@@ -139,12 +139,22 @@ from googleapiclient.http import MediaFileUpload
 if "selected_tab" not in st.session_state:
     st.session_state.selected_tab = "Upload Data"  # Default to the first tab
 
-# Ensure df exists and has data before using it
-if "df" not in st.session_state or st.session_state.df is None or st.session_state.df.empty:
-    df = None  # Set df to None if no data is available
-else:
-    df = st.session_state.df  # Use uploaded dataset if available
+if st.session_state.role == "Executive":
+    st.title("📊 Executive Reports")
+    st.subheader("Available Reports")
 
+    df_reports = get_reports_by_role(st.session_state.role)
+
+    if not df_reports.empty:
+        st.dataframe(df_reports[["Report Name", "Folder Name"]])
+        for _, row in df_reports.iterrows():
+            report_link = f"https://drive.google.com/file/d/{row['File ID']}/view"
+            st.markdown(f"[📄 {row['Report Name']}]({report_link})")
+    else:
+        st.write("📂 No reports available.")
+
+    st.stop()  # 🔥 THIS STOPS THE REST OF THE APP FROM LOADING FOR EXECUTIVES
+    
 def authenticate_google_drive():
     """Authenticate with Google Drive using service account credentials from Streamlit secrets."""
     
