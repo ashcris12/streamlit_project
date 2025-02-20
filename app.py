@@ -452,24 +452,21 @@ def save_metadata(report_name, creator_role, creator_username, file_id, folder_n
     metadata.to_csv(METADATA_FILE, index=False)
 
 def get_reports_by_role(role, username):
+    # Check if the metadata file exists; if not, create an empty DataFrame and return
     if not os.path.exists(METADATA_FILE):
-        # If the metadata file doesn't exist, create an empty DataFrame
         df = pd.DataFrame(columns=["Report Name", "Role", "Creator", "File ID", "Folder Name"])
         df.to_csv(METADATA_FILE, index=False)
-        return df  # Return empty DataFrame
+        return df  # Return empty DataFrame if file doesn't exist
 
-    # Otherwise, load the metadata
+    # Otherwise, load the metadata CSV into a DataFrame
     df = pd.read_csv(METADATA_FILE)
 
+    # If the role is "Executive", show all reports, no filtering by role or creator
     if role == "Executive":
-        # Executives can see all reports
         return df
-    elif role == "Guest":
-        # Guests should only see reports created by themselves (based on username)
-        return df[df['Creator'] == username]
-    else:
-        # For other roles, filter by creator (username)
-        return df_reports[df_reports['Creator'] == username]
+    
+    # If the role is not "Executive", filter only by Creator (username)
+    return df[df['Creator'] == username]
 
 with tabs[0]:  # Upload Data
     if st.session_state.role == "executive":
@@ -477,6 +474,7 @@ with tabs[0]:  # Upload Data
         st.write("As an Executive, you can only view the available reports.")
         # Display a list of available reports for Executives (if needed)
         df_reports = get_reports_by_role(st.session_state.role, st.session_state.username)
+
         if not df_reports.empty:
             st.dataframe(df_reports[["Report Name", "Folder Name"]])
             for _, row in df_reports.iterrows():
@@ -484,6 +482,7 @@ with tabs[0]:  # Upload Data
                 st.markdown(f"[📄 {row['Report Name']}]({report_link})")
         else:
             st.write("No reports available for your role.")
+        
     else:
         st.header("Upload Your Data")
         # Ensure df exists in session state
