@@ -990,17 +990,18 @@ with tabs[6]:  # Download Report
     
     def get_reports_by_role(role, username):
         if not os.path.exists(METADATA_FILE):
-            # If the metadata file doesn't exist, create an empty DataFrame
             df = pd.DataFrame(columns=["Report Name", "Role", "Creator", "File ID", "Folder Name"])
             df.to_csv(METADATA_FILE, index=False)
         else:
-            # Otherwise, load the metadata
             df = pd.read_csv(METADATA_FILE)
-            
-        # Filter the reports based on the role and creator_username (if provided)
-        df_reports = df[df['Role'] == role]  # Filter by role first
+        
+        # Filter reports based on role and creator_username (if provided)
+        df_reports = df[df['Role'] == role]
         if username:
-            df_reports = df_reports[df_reports['Creator'] == username]  # Further filter by creator's username
+            df_reports = df_reports[df_reports['Creator'] == username]
+        
+        # Print out the filtered reports
+        st.write(df_reports)
         
         return df_reports
         
