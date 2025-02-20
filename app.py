@@ -737,7 +737,7 @@ with tabs[4]:  # Model Training
    if st.session_state.role not in ["data_science", "finance"]:
         st.warning("🚫 You do not have permission to access feature engineering.")
         st.stop()
-    st.header("Model Training")
+   st.header("Model Training")
 
     # Ensure train-test data exists in session state
     if "X_train" not in st.session_state or "y_train" not in st.session_state:
