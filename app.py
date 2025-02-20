@@ -474,7 +474,7 @@ with tabs[0]:  # Upload Data
         st.header("View Reports")
         st.write("As an Executive, you can only view the available reports.")
         # Display a list of available reports for Executives (if needed)
-        df_reports = get_reports_by_role(st.session_state.username)
+        df_reports = get_reports_by_role(st.session_state.role, st.session_state.username)
         if not df_reports.empty:
             st.dataframe(df_reports[["Report Name", "Folder Name"]])
             for _, row in df_reports.iterrows():
