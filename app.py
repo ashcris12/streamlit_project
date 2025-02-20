@@ -1010,6 +1010,7 @@ elif selected_tab == "Predictions & Performance":
 
 elif selected_tab == "Download Report":
     if st.session_state.role in ["data_science", "finance"]:
+        
     creator_username = st.session_state.username
      # 📌 Metadata File for Tracking Reports
     METADATA_FILE = "report_metadata.csv"
