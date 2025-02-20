@@ -471,6 +471,7 @@ with tabs[0]:  # Upload Data
     if st.session_state.role == "executive":
         st.header("View Reports")
         st.write("As an Executive, you can only view the available reports.")
+        
         # Display a list of available reports for Executives (if needed)
         df_reports = get_reports_by_role(st.session_state.role, st.session_state.username)
 
