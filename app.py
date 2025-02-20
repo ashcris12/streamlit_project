@@ -986,7 +986,7 @@ with tabs[6]:  # Download Report
         
         metadata.to_csv(METADATA_FILE, index=False)
     
-   def get_reports_by_role(user_role, username):
+    def get_reports_by_role(user_role, username):
        if not os.path.exists(METADATA_FILE):
            df = pd.DataFrame(columns=["Report Name", "File ID", "Role", "Folder Name", "Creator"])
            df.to_csv(METADATA_FILE, index=False)
