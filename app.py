@@ -657,15 +657,15 @@ with tabs[3]:  # Feature Engineering
     if st.session_state.role in ["data_science", "finance"]:
        st.header("Feature Engineering")
         
-    # Ensure cleaned_df exists before accessing it
-    if "cleaned_df" not in st.session_state or st.session_state.cleaned_df is None:
-        st.warning("No data uploaded yet. Please upload a CSV file or URL in the 'Upload Data' tab.")
-        st.stop()  # 🚀 This prevents further execution when cleaned_df is missing
-
-    df = st.session_state.cleaned_df
-
-    # Section: Data Overview
-    st.header("Data Overview")
+        # Ensure cleaned_df exists before accessing it
+        if "cleaned_df" not in st.session_state or st.session_state.cleaned_df is None:
+            st.warning("No data uploaded yet. Please upload a CSV file or URL in the 'Upload Data' tab.")
+            st.stop()  # 🚀 This prevents further execution when cleaned_df is missing
+    
+        df = st.session_state.cleaned_df
+    
+        # Section: Data Overview
+        st.header("Data Overview")
         if st.checkbox('Show Data Overview'):
             st.subheader("Top Rows of the Data")
             st.write(df.head())  # Show top rows of the data
