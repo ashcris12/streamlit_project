@@ -974,10 +974,11 @@ with tabs[6]:  # Download Report
     
         drive_service.permissions().create(fileId=file_id, body=permission).execute()
     
-    def save_metadata(report_name, creator_role, file_id, folder_name):
-        # Save metadata (report name, role, file ID, folder name) in a CSV file
-        metadata = pd.DataFrame([[report_name, creator_role, file_id, folder_name]], 
-                                columns=["Report Name", "Role", "File ID", "Folder Name"])
+    def save_metadata(report_name, creator_role, file_id, folder_name, creator_username):
+        print(f"Saving Report - Name: {report_name}, Role: {creator_role}, Creator: {creator_username}")
+    
+        metadata = pd.DataFrame([[report_name, creator_role, file_id, folder_name, creator_username]], 
+                                columns=["Report Name", "Role", "File ID", "Folder Name", "Creator"])
         
         if os.path.exists(METADATA_FILE):
             existing_metadata = pd.read_csv(METADATA_FILE)
@@ -985,19 +986,19 @@ with tabs[6]:  # Download Report
         
         metadata.to_csv(METADATA_FILE, index=False)
     
-    def get_reports_by_role(user_role):
-        if not os.path.exists(METADATA_FILE):
-            # ✅ Create an empty metadata file so app doesn't break
-            df = pd.DataFrame(columns=["Report Name", "File ID", "Role", "Folder Name"])
-            df.to_csv(METADATA_FILE, index=False)
-            return df  # Return empty DataFrame
-        
-        metadata = pd.read_csv(METADATA_FILE)
+   def get_reports_by_role(user_role, username):
+       if not os.path.exists(METADATA_FILE):
+           df = pd.DataFrame(columns=["Report Name", "File ID", "Role", "Folder Name", "Creator"])
+           df.to_csv(METADATA_FILE, index=False)
+           return df  
     
+        metadata = pd.read_csv(METADATA_FILE)
+
         if user_role == "Executive":
             return metadata  # Executives see all reports
-        
-        return metadata[metadata["Role"] == user_role]  # Others see their own role’s reports
+
+    # Ensure only reports from the same role **AND** created by the user are shown
+    return metadata[(metadata["Role"] == user_role) & (metadata["Creator"] == username)]
         
     st.title("Generate Report")
 
