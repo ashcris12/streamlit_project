@@ -1211,11 +1211,11 @@ elif selected_tab == "Download Report":
         
         # Generate selected plots
         if include_actual_vs_pred:
-        plot_actual_vs_predicted(y_test, y_pred)
+            plot_actual_vs_predicted(y_test, y_pred)
         if include_residuals:
-        plot_residuals(y_test, y_pred)
+            plot_residuals(y_test, y_pred)
         if include_feature_importance:
-        plot_feature_importance(model, selected_features)
+            plot_feature_importance(model, selected_features)
     
     # 📌 Report Preview
     st.subheader("Report Preview")
