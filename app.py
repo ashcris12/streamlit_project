@@ -623,8 +623,8 @@ elif selected_tab == "EDA":
 
         scatter_fig = px.scatter(df, x=x_feature, y=y_feature, title=f"Scatter Plot: {x_feature} vs {y_feature}")
         st.plotly_chart(scatter_fig)
-else:
-    st.warning("🚫 You do not have permission to access EDA.")
+    else:
+        st.warning("🚫 You do not have permission to access EDA.")
 
 elif selected_tab == "Data Cleaning":
     if st.session_state.role in ["data_science"]:
