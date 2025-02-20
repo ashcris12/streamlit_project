@@ -738,7 +738,7 @@ with tabs[3]:  # Feature Engineering
         st.pyplot(fig)
 
 with tabs[4]:  # Model Training
-     if "role" not in st.session_state:
+    if "role" not in st.session_state:
         st.error("🚨 ERROR: Role is missing in session state!")
         st.session_state.role = "executive"  # Temporary fix
     if st.session_state.role not in ["data_science", "finance"]:
