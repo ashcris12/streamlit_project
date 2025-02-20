@@ -375,7 +375,7 @@ tab_names = [
 tabs = st.tabs(tab_names)
 
 with tabs[0]:  # Upload Data
-    if st.session_state.role == "Executive":
+    if st.session_state.role == "executive":
         st.header("View Reports")
         st.write("As an Executive, you can only view the available reports.")
         # Display a list of available reports for Executives (if needed)
