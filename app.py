@@ -655,7 +655,7 @@ with tabs[2]:  # Data Cleaning
 
 with tabs[3]:  # Feature Engineering
     if st.session_state.role in ["data_science", "finance"]:
-        st.header("Feature Engineering")
+       st.header("Feature Engineering")
         
     # Ensure cleaned_df exists before accessing it
     if "cleaned_df" not in st.session_state or st.session_state.cleaned_df is None:
