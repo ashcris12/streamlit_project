@@ -733,9 +733,6 @@ with tabs[3]:  # Feature Engineering
         sns.heatmap(corr, annot=True, cmap='seismic', ax=ax)
         st.pyplot(fig)
 
-    else:
-        st.warning("🚫 You do not have permission to access feature engineering.")
-
 with tabs[4]:  # Model Training
     if st.session_state.role in ["data_science", "finance"]:
         st.title("Train a Model")
