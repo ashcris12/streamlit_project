@@ -989,18 +989,18 @@ with tabs[6]:  # Download Report
         
         metadata.to_csv(METADATA_FILE, index=False)
     
-   def get_reports_by_role(user_role, username):
-       if not os.path.exists(METADATA_FILE):
-           df = pd.DataFrame(columns=["Report Name", "Role", "Creator", "File ID", "Folder Name"])
-           df.to_csv(METADATA_FILE, index=False)
-       return df  # Return empty DataFrame
-    
-       metadata = pd.read_csv(METADATA_FILE)
-    
-       if user_role == "Executive":
-           return metadata  # Executives see all reports
-    
-       return metadata[(metadata["Role"] == user_role) & (metadata["Creator"] == username)]
+    def get_reports_by_role(user_role, username):
+        if not os.path.exists(METADATA_FILE):
+            df = pd.DataFrame(columns=["Report Name", "Role", "Creator", "File ID", "Folder Name"])
+            df.to_csv(METADATA_FILE, index=False)
+        return df  # Return empty DataFrame
+        
+        metadata = pd.read_csv(METADATA_FILE)
+        
+        if user_role == "Executive":
+            return metadata  # Executives see all reports
+        
+        return metadata[(metadata["Role"] == user_role) & (metadata["Creator"] == username)]
         
     st.title("Generate Report")
 
