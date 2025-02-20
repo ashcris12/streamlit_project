@@ -1191,7 +1191,7 @@ with tabs[6]:  # Download Report
             st.error("⚠ Please enter a report name before uploading.")
     
     # Upload the report and save metadata
-    report_link = upload_to_drive(report_name, "report.pdf", user_role)
+    report_link = upload_to_drive(report_name, "report.pdf", user_role, creator_username)
 
     # Reload reports after saving metadata
     df_reports = get_reports_by_role(st.session_state.role, st.session_state.username)
