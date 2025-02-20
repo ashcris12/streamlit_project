@@ -1102,19 +1102,19 @@ elif selected_tab == "Download Report":
             return df_reports
             
     st.title("Generate Report")
-
+    
     # Ensure a directory for saving plots
     plot_dir = "report_plots"
     os.makedirs(plot_dir, exist_ok=True)
     
     # 📌 Check if a model has been trained and test data exists
     if "trained_model" not in st.session_state or st.session_state.trained_model is None:
-        st.warning("❌ No trained model found. Please train a model first.")
-        st.stop()
+    st.warning("❌ No trained model found. Please train a model first.")
+    st.stop()
     
     if "X_test" not in st.session_state or st.session_state.X_test is None:
-        st.warning("❌ Test data is missing. Retrain the model before proceeding.")
-        st.stop()
+    st.warning("❌ Test data is missing. Retrain the model before proceeding.")
+    st.stop()
     
     # Retrieve stored model and selections
     model = st.session_state.trained_model
@@ -1122,27 +1122,27 @@ elif selected_tab == "Download Report":
     selected_features = st.session_state.get("selected_features", [])
     
     if not selected_features:
-        st.warning("❌ No selected features found. Retrain the model with feature selection.")
-        st.stop()
+    st.warning("❌ No selected features found. Retrain the model with feature selection.")
+    st.stop()
     
     if st.session_state.X_test.empty:
-        st.warning("❌ Test data is empty. Retrain the model before proceeding.")
-        st.stop()
+    st.warning("❌ Test data is empty. Retrain the model before proceeding.")
+    st.stop()
     
     # Assuming y_test was part of the session state during the training phase
     if "y_test" not in st.session_state or st.session_state.y_test is None:
-        st.warning("❌ Test target values are missing. Retrain the model with correct data.")
-        st.stop()
+    st.warning("❌ Test target values are missing. Retrain the model with correct data.")
+    st.stop()
     
     # Process test data and make predictions
     X_test_processed = st.session_state.X_test.reindex(columns=selected_features, fill_value=0)
     
     try:
-        y_pred = model.predict(X_test_processed)
-        st.session_state.y_pred = y_pred  # Store predictions in session state
+    y_pred = model.predict(X_test_processed)
+    st.session_state.y_pred = y_pred  # Store predictions in session state
     except ValueError as e:
-        st.error(f"⚠️ Prediction error: {e}")
-        st.stop()
+    st.error(f"⚠️ Prediction error: {e}")
+    st.stop()
     
     # Retrieve the actual test values (y_test) from session state
     y_test = st.session_state.y_test  # Ensure y_test is loaded
@@ -1156,7 +1156,7 @@ elif selected_tab == "Download Report":
     st.write(f"MAE: {mae}")
     st.write(f"R²: {r2}")
     st.write(f"RMSE: {rmse}")
-        
+    
     # 📌 User selections for report sections
     st.subheader("Select Report Sections")
     include_summary = st.checkbox("Include Model Summary", True)
@@ -1173,153 +1173,153 @@ elif selected_tab == "Download Report":
     
     # 📌 Generate and Save Visualizations
     def plot_actual_vs_predicted(y_test, y_pred, filename="actual_vs_predicted.png"):
-        plt.figure(figsize=(6, 4))
-        sns.scatterplot(x=y_test, y=y_pred, alpha=0.7)
-        plt.plot(y_test, y_test, color='red', linestyle='--')  # Ideal line
-        plt.xlabel("Actual Values")
-        plt.ylabel("Predicted Values")
-        plt.title("Actual vs. Predicted")
-        plt.savefig(os.path.join(plot_dir, filename))
-        plt.close()
+    plt.figure(figsize=(6, 4))
+    sns.scatterplot(x=y_test, y=y_pred, alpha=0.7)
+    plt.plot(y_test, y_test, color='red', linestyle='--')  # Ideal line
+    plt.xlabel("Actual Values")
+    plt.ylabel("Predicted Values")
+    plt.title("Actual vs. Predicted")
+    plt.savefig(os.path.join(plot_dir, filename))
+    plt.close()
     
     def plot_residuals(y_test, y_pred, filename="residual_plot.png"):
-        residuals = y_test - y_pred
-        plt.figure(figsize=(6, 4))
-        sns.histplot(residuals, bins=30, kde=True)
-        plt.axvline(0, color='red', linestyle='--')
-        plt.xlabel("Residuals")
-        plt.ylabel("Frequency")
-        plt.title("Residuals Distribution")
-        plt.savefig(os.path.join(plot_dir, filename))
-        plt.close()
+    residuals = y_test - y_pred
+    plt.figure(figsize=(6, 4))
+    sns.histplot(residuals, bins=30, kde=True)
+    plt.axvline(0, color='red', linestyle='--')
+    plt.xlabel("Residuals")
+    plt.ylabel("Frequency")
+    plt.title("Residuals Distribution")
+    plt.savefig(os.path.join(plot_dir, filename))
+    plt.close()
     
     def plot_feature_importance(model, selected_features, filename="feature_importance.png"):
-        if hasattr(model, "feature_importances_"):
-            importance = model.feature_importances_
-            plt.figure(figsize=(6, 4))
-            sns.barplot(x=importance, y=selected_features)
-            plt.xlabel("Importance Score")
-            plt.ylabel("Features")
-            plt.title("Feature Importance")
+    if hasattr(model, "feature_importances_"):
+        importance = model.feature_importances_
+        plt.figure(figsize=(6, 4))
+        sns.barplot(x=importance, y=selected_features)
+        plt.xlabel("Importance Score")
+        plt.ylabel("Features")
+        plt.title("Feature Importance")
     
-            # 🔹 Fix: Rotate feature names & adjust layout
-            plt.yticks(rotation=0)  # Keep y-axis labels horizontal
-            plt.tight_layout()  # Prevent labels from being cut off
+        # 🔹 Fix: Rotate feature names & adjust layout
+        plt.yticks(rotation=0)  # Keep y-axis labels horizontal
+        plt.tight_layout()  # Prevent labels from being cut off
     
-            plt.savefig(os.path.join(plot_dir, filename))
-            plt.close()
+        plt.savefig(os.path.join(plot_dir, filename))
+        plt.close()
     
     # Generate selected plots
     if include_actual_vs_pred:
-        plot_actual_vs_predicted(y_test, y_pred)
+    plot_actual_vs_predicted(y_test, y_pred)
     if include_residuals:
-        plot_residuals(y_test, y_pred)
+    plot_residuals(y_test, y_pred)
     if include_feature_importance:
-        plot_feature_importance(model, selected_features)
+    plot_feature_importance(model, selected_features)
     
     # 📌 Report Preview
     st.subheader("Report Preview")
     report_content = ""
     if include_summary:
-        report_content += f"**Model Summary:**\n\n- Model: {model_option}\n\n"
+    report_content += f"**Model Summary:**\n\n- Model: {model_option}\n\n"
     if include_features:
-        report_content += f"**Feature Selection:**\n\n- Features used: {', '.join(selected_features)}\n\n"
+    report_content += f"**Feature Selection:**\n\n- Features used: {', '.join(selected_features)}\n\n"
     if include_metrics:
-        report_content += (f"**Performance Metrics:**\n\n- MAE: {mae:.2f}\n"
-                            f"- RMSE: {rmse:.2f}\n"
-                            f"- R²: {r2:.2f}\n\n")
+    report_content += (f"**Performance Metrics:**\n\n- MAE: {mae:.2f}\n"
+                        f"- RMSE: {rmse:.2f}\n"
+                        f"- R²: {r2:.2f}\n\n")
     if include_predictions:
-        sample_predictions = pd.DataFrame({"Actual": y_test[:5], "Predicted": y_pred[:5]})
-        st.dataframe(sample_predictions)
+    sample_predictions = pd.DataFrame({"Actual": y_test[:5], "Predicted": y_pred[:5]})
+    st.dataframe(sample_predictions)
     
     st.markdown(report_content)
     
     # 📌 Generate PDF Report with Visuals
     def generate_pdf():
-        pdf = FPDF()
-        pdf.set_auto_page_break(auto=True, margin=15)
-        pdf.add_page()
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    
+    # Add Model Summary
+    if include_summary:
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(200, 10, "Model Summary", ln=True, align="C")
         pdf.set_font("Arial", size=12)
+        pdf.multi_cell(0, 10, f"Model: {model_option}\n\n")
     
-        # Add Model Summary
-        if include_summary:
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(200, 10, "Model Summary", ln=True, align="C")
-            pdf.set_font("Arial", size=12)
-            pdf.multi_cell(0, 10, f"Model: {model_option}\n\n")
+    # Add Feature Selection
+    if include_features:
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(200, 10, "Feature Selection", ln=True, align="C")
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(0, 10, f"Features Used: {', '.join(selected_features)}\n\n")
     
-        # Add Feature Selection
-        if include_features:
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(200, 10, "Feature Selection", ln=True, align="C")
-            pdf.set_font("Arial", size=12)
-            pdf.multi_cell(0, 10, f"Features Used: {', '.join(selected_features)}\n\n")
+    # Add Performance Metrics
+    if include_metrics:
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(200, 10, "Performance Metrics", ln=True, align="C")
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(0, 10, f"MAE: {mae:.2f}\nRMSE: {rmse:.2f}\nR²: {r2:.2f}\n\n")
     
-        # Add Performance Metrics
-        if include_metrics:
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(200, 10, "Performance Metrics", ln=True, align="C")
-            pdf.set_font("Arial", size=12)
-            pdf.multi_cell(0, 10, f"MAE: {mae:.2f}\nRMSE: {rmse:.2f}\nR²: {r2:.2f}\n\n")
+    # Add Sample Predictions
+    if include_predictions:
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(200, 10, "Sample Predictions", ln=True, align="C")
+        pdf.set_font("Arial", size=12)
+        for i in range(5):
+            pdf.cell(0, 10, f"Actual: {y_test.iloc[i]:.2f}, Predicted: {y_pred[i]:.2f}", ln=True)
     
-        # Add Sample Predictions
-        if include_predictions:
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(200, 10, "Sample Predictions", ln=True, align="C")
-            pdf.set_font("Arial", size=12)
-            for i in range(5):
-                pdf.cell(0, 10, f"Actual: {y_test.iloc[i]:.2f}, Predicted: {y_pred[i]:.2f}", ln=True)
+    # Add Visualizations
+    if include_visuals:
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(200, 10, "Visualizations", ln=True, align="C")
+        
+        if include_actual_vs_pred:
+            pdf.image(os.path.join(plot_dir, "actual_vs_predicted.png"), x=10, w=180)
+        if include_residuals:
+            pdf.image(os.path.join(plot_dir, "residual_plot.png"), x=10, w=180)
+        if include_feature_importance and hasattr(model, "feature_importances_"):
+            pdf.image(os.path.join(plot_dir, "feature_importance.png"), x=10, w=180)
     
-        # Add Visualizations
-        if include_visuals:
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(200, 10, "Visualizations", ln=True, align="C")
-            
-            if include_actual_vs_pred:
-                pdf.image(os.path.join(plot_dir, "actual_vs_predicted.png"), x=10, w=180)
-            if include_residuals:
-                pdf.image(os.path.join(plot_dir, "residual_plot.png"), x=10, w=180)
-            if include_feature_importance and hasattr(model, "feature_importances_"):
-                pdf.image(os.path.join(plot_dir, "feature_importance.png"), x=10, w=180)
+    pdf.output("report.pdf")
     
-        pdf.output("report.pdf")
-        
-        # 📌 UI - Report Upload & Viewing
-        st.title("Download Reports")
-        
-        # Assume user role is stored in session state
-        user_role = st.session_state.get("user_role", "Guest")
-        
-        # 📌 Upload Section
-        report_name = st.text_input("Enter Report Name", "BoxOfficeReport.pdf")
-        
-        if st.button("Generate & Download Report as PDF"):
-            generate_pdf()  # Function to generate report
-            with open("report.pdf", "rb") as f:
-                st.download_button("📄 Download Report", f, file_name=report_name, mime="application/pdf")
-        
-        if st.button("Upload Report to Google Drive"):
-            if report_name:
-                generate_pdf()
-                report_link = upload_to_drive(report_name, "report.pdf", user_role, creator_username)
-                st.success(f"✅ Report uploaded successfully! [🔗 View Report]({report_link})")
-            else:
-                st.error("⚠ Please enter a report name before uploading.")
-        
-        # Upload the report and save metadata
-        report_link = upload_to_drive(report_name, "report.pdf", user_role, creator_username)
+    # 📌 UI - Report Upload & Viewing
+    st.title("Download Reports")
     
-        # Display available reports
-        st.subheader("Available Reports")
-        
-        # Reload reports after saving metadata
-        df_reports = get_reports_by_role(st.session_state.username)
-        
-        if not df_reports.empty:
-            st.dataframe(df_reports[["Report Name", "Folder Name"]])
-        
-            for _, row in df_reports.iterrows():
-                report_link = f"https://drive.google.com/file/d/{row['File ID']}/view"
-                st.markdown(f"[📄 {row['Report Name']}]({report_link})")
+    # Assume user role is stored in session state
+    user_role = st.session_state.get("user_role", "Guest")
+    
+    # 📌 Upload Section
+    report_name = st.text_input("Enter Report Name", "BoxOfficeReport.pdf")
+    
+    if st.button("Generate & Download Report as PDF"):
+        generate_pdf()  # Function to generate report
+        with open("report.pdf", "rb") as f:
+            st.download_button("📄 Download Report", f, file_name=report_name, mime="application/pdf")
+    
+    if st.button("Upload Report to Google Drive"):
+        if report_name:
+            generate_pdf()
+            report_link = upload_to_drive(report_name, "report.pdf", user_role, creator_username)
+            st.success(f"✅ Report uploaded successfully! [🔗 View Report]({report_link})")
         else:
-            st.write("No reports available for your role.")
+            st.error("⚠ Please enter a report name before uploading.")
+    
+    # Upload the report and save metadata
+    report_link = upload_to_drive(report_name, "report.pdf", user_role, creator_username)
+    
+    # Display available reports
+    st.subheader("Available Reports")
+    
+    # Reload reports after saving metadata
+    df_reports = get_reports_by_role(st.session_state.username)
+    
+    if not df_reports.empty:
+        st.dataframe(df_reports[["Report Name", "Folder Name"]])
+    
+        for _, row in df_reports.iterrows():
+            report_link = f"https://drive.google.com/file/d/{row['File ID']}/view"
+            st.markdown(f"[📄 {row['Report Name']}]({report_link})")
+    else:
+        st.write("No reports available for your role.")
