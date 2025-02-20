@@ -902,7 +902,7 @@ with tabs[6]:  # Download Report
         st.warning("❌ You do not have permission to access this tab.")
         st.stop()
 
-    if selected_tab == "Download Report":
+    if st.session_state.selected_tab == "Download Report":
         st.header("Download Report")
     
         # Show the saved reports FIRST before checking for uploaded data
