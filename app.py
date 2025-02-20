@@ -988,7 +988,7 @@ with tabs[6]:  # Download Report
         # Print the metadata after saving to confirm
         st.write(metadata)
     
-    def get_reports_by_role(role, username):
+    def get_reports_by_role(username):
         if not os.path.exists(METADATA_FILE):
             df = pd.DataFrame(columns=["Report Name", "Role", "Creator", "File ID", "Folder Name"])
             df.to_csv(METADATA_FILE, index=False)
@@ -998,13 +998,9 @@ with tabs[6]:  # Download Report
         # Print the loaded data to confirm
         st.write("Loaded Metadata:", df)
     
-        # Filter reports based on role and creator_username (if provided)
-        df_reports = df[df['Role'] == role]
-        st.write(f"Reports after filtering by role ({role}):", df_reports)
-    
-        if username:
-            df_reports = df_reports[df_reports['Creator'] == username]
-            st.write(f"Reports after filtering by creator ({username}):", df_reports)
+        # Filter reports based on creator (username)
+        df_reports = df[df['Creator'] == username]
+        st.write(f"Reports after filtering by creator ({username}):", df_reports)
     
         return df_reports
         
@@ -1206,7 +1202,7 @@ with tabs[6]:  # Download Report
     st.subheader("Available Reports")
     
     # Reload reports after saving metadata
-    df_reports = get_reports_by_role(st.session_state.role, st.session_state.username)
+    df_reports = get_reports_by_role(st.session_state.username)
     
     if not df_reports.empty:
         st.dataframe(df_reports[["Report Name", "Folder Name"]])
