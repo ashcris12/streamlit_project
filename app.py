@@ -734,7 +734,7 @@ with tabs[3]:  # Feature Engineering
     else:
         st.warning("🚫 You do not have permission to access feature engineering.")
 
-tabs[4]:  # Model Training
+with tabs[4]:  # Model Training
     if st.session_state.role in ["data_science", "finance"]:
         st.title("Train a Model")
 
