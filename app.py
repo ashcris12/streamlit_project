@@ -911,11 +911,6 @@ with tabs[6]:  # Download Report
      # 📌 Metadata File for Tracking Reports
     METADATA_FILE = "report_metadata.csv"
 
-    # Delete the old metadata file if it exists
-    if os.path.exists(METADATA_FILE):
-        os.remove(METADATA_FILE)
-        print("✅ Deleted old report metadata file. Restart the app to regenerate it.")
-    
     # 📌 Role-Based Folder Mapping
     ROLE_FOLDERS = {
         "Executive": "Executive_Reports",
