@@ -935,35 +935,35 @@ def get_reports_by_role(user_role):
     else:
         return metadata[metadata["Role"] == user_role]  # Others see only their role's reports
 
-# ✅ Ensure this section is **NOT** indented under another block (like an `if` or `with` statement)
-st.header("Download Report")
-
-# ✅ Show saved reports FIRST
-st.subheader("Saved Reports")
-saved_reports = get_reports_by_role(st.session_state.role)
-
-if saved_reports.empty:
-    st.info("📂 No saved reports available.")
-else:
-    for _, report in saved_reports.iterrows():
-        st.write(f"**{report['Report Name']}** - stored in folder: {report['Folder Name']}")
-        st.download_button(
-            label="Download",
-            data=fetch_report_from_drive(report['File ID']),
-            file_name=f"{report['Report Name']}.pdf",
-            mime="application/pdf"
-        )
-    if st.session_state.selected_tab == "Download Report":
-        st.header("Download Report")
+    # ✅ Ensure this section is **NOT** indented under another block (like an `if` or `with` statement)
+    st.header("Download Report")
     
-        # Show the saved reports FIRST before checking for uploaded data
-        st.subheader("Saved Reports")
+    # ✅ Show saved reports FIRST
+    st.subheader("Saved Reports")
+    saved_reports = get_reports_by_role(st.session_state.role)
     
-        # Fetch saved reports based on user role
-        saved_reports = get_reports_by_role(st.session_state.role)
-
-        # Convert DataFrame to a list of dictionaries for iteration
-        saved_reports = saved_reports.to_dict(orient="records") if not saved_reports.empty else []
+    if saved_reports.empty:
+        st.info("📂 No saved reports available.")
+    else:
+        for _, report in saved_reports.iterrows():
+            st.write(f"**{report['Report Name']}** - stored in folder: {report['Folder Name']}")
+            st.download_button(
+                label="Download",
+                data=fetch_report_from_drive(report['File ID']),
+                file_name=f"{report['Report Name']}.pdf",
+                mime="application/pdf"
+            )
+        if st.session_state.selected_tab == "Download Report":
+            st.header("Download Report")
+        
+            # Show the saved reports FIRST before checking for uploaded data
+            st.subheader("Saved Reports")
+        
+            # Fetch saved reports based on user role
+            saved_reports = get_reports_by_role(st.session_state.role)
+    
+            # Convert DataFrame to a list of dictionaries for iteration
+            saved_reports = saved_reports.to_dict(orient="records") if not saved_reports.empty else []
 
         if saved_reports:
             for report in saved_reports:
