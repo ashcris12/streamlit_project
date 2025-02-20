@@ -375,12 +375,7 @@ else:
     # Non-executives (like data science and finance) see all tabs
     tabs = ["Upload Data", "EDA", "Data Cleaning", "Feature Engineering", "Model Training", "Predictions & Performance", "Download Report"]
 
-# Define tabs
-tab_names = [
-    "View Reports", "Upload Data", "EDA", "Data Cleaning", "Feature Engineering",
-    "Model Training", "Predictions & Performance", "Download Report"
-]
-tabs = st.tabs(tab_names)
+selected_tab = st.selectbox("Select a tab", tabs)
 
 creator_username = st.session_state.username
  # 📌 Metadata File for Tracking Reports
@@ -563,7 +558,7 @@ else:
         else:
             st.info("No file uploaded or URL entered yet.")
 
-with tabs[1]:  # EDA
+elif selected_tab == "EDA":
     if st.session_state.role in ["data_science"]:
         st.header("Exploratory Data Analysis (EDA)")
 
@@ -630,8 +625,8 @@ with tabs[1]:  # EDA
 
         scatter_fig = px.scatter(df, x=x_feature, y=y_feature, title=f"Scatter Plot: {x_feature} vs {y_feature}")
         st.plotly_chart(scatter_fig)
-    else:
-        st.warning("🚫 You do not have permission to access EDA.")
+else:
+    st.warning("🚫 You do not have permission to access EDA.")
 
 with tabs[2]:  # Data Cleaning
      if st.session_state.role in ["data_science"]:
