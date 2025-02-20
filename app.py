@@ -902,38 +902,29 @@ with tabs[6]:  # Download Report
         st.warning("❌ You do not have permission to access this tab.")
         st.stop()
 
-    st.header("Download Report")
+    if selected_tab == "Download Report":
+        st.header("Download Report")
     
-    # Show the saved reports FIRST before checking for uploaded data
-    st.subheader("Saved Reports")
+        # Show the saved reports FIRST before checking for uploaded data
+        st.subheader("Saved Reports")
     
-    # Ensure function exists and correctly filters reports
-    def get_saved_reports(user_role, username):
-        """
-        Fetch saved reports from the database, filtering based on user role.
-        - Executives see all reports.
-        - Analysts & Data Scientists see only their own reports.
-        """
-        reports = db.fetch_reports()  # Replace with actual DB query function
+        # Fetch saved reports based on user role
+        saved_reports = get_reports_by_role(st.session_state.role)
 
-        if user_role in ["data_science", "finance"]:
-            return [r for r in reports if r["creator"] == username]
-        return reports  # Executives see all reports
+        # Convert DataFrame to a list of dictionaries for iteration
+        saved_reports = saved_reports.to_dict(orient="records") if not saved_reports.empty else []
 
-    # Fetch saved reports based on user role
-    saved_reports = get_saved_reports(st.session_state.role, st.session_state.username)
-
-    if saved_reports:
-        for report in saved_reports:
-            st.write(f"**{report['name']}** - {report['date']} by {report['creator']}")
-            st.download_button(
-                label="Download",
-                data=fetch_report_from_drive(report['file_id']),
-                file_name=f"{report['name']}.pdf",
-                mime="application/pdf"
-            )
-    else:
-        st.info("📂 No saved reports available.")
+        if saved_reports:
+            for report in saved_reports:
+                st.write(f"**{report['Report Name']}** - Stored in {report['Folder Name']} (Created by {report['Role']})")
+                st.download_button(
+                    label="Download",
+                    data=fetch_report_from_drive(report['File ID']),
+                    file_name=f"{report['Report Name']}.pdf",
+                    mime="application/pdf"
+                )
+        else:
+            st.info("📂 No saved reports available.")
     
     # Now check for uploaded data before allowing new report generation
     if "df" in st.session_state and st.session_state.df is not None:
