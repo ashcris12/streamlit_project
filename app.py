@@ -997,8 +997,8 @@ with tabs[6]:  # Download Report
        if user_role == "Executive":
            return metadata  # Executives see all reports
 
-    # Ensure only reports from the same role **AND** created by the user are shown
-    return metadata[(metadata["Role"] == user_role) & (metadata["Creator"] == username)]
+        # Ensure only reports from the same role **AND** created by the user are shown
+       return metadata[(metadata["Role"] == user_role) & (metadata["Creator"] == username)]
         
     st.title("Generate Report")
 
