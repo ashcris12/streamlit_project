@@ -824,76 +824,76 @@ with tabs[4]:  # Model Training
     else:
         st.warning("🚫 You do not have permission to access model training.")
         
-with tabs[5]:  # Predictions & Performance
+with tabs[5]: # Predictions & Performance
     if st.session_state.role in ["data_science", "finance"]:
         st.title("Evaluate Model Performance")
 
-        # Ensure required session state variables exist
-        if "trained_model" not in st.session_state or st.session_state.trained_model is None:
-            st.warning("❌ No trained model found. Please train a model first.")
-            st.stop()
+    # Ensure required session state variables exist
+    if "trained_model" not in st.session_state or st.session_state.trained_model is None:
+        st.warning("❌ No trained model found. Please train a model first.")
+        st.stop()
 
-        if "X_test" not in st.session_state or "y_test" not in st.session_state:
-            st.warning("❌ No test data found. Please train a model first.")
-            st.stop()
+    if "X_test" not in st.session_state or "y_test" not in st.session_state:
+        st.warning("❌ No test data found. Please train a model first.")
+        st.stop()
 
-        if "selected_features" not in st.session_state:
-            st.warning("❌ No feature selection found. Please select features before training.")
-            st.stop()
+    if "selected_features" not in st.session_state:
+        st.warning("❌ No feature selection found. Please select features before training.")
+        st.stop()
 
-        if "X_train_selected" not in st.session_state:
-            st.warning("❌ No selected train data found. Please train selected features first.")
-            st.stop()
+    if "X_train_selected" not in st.session_state:
+        st.warning("❌ No selected train data found. Please train selected features first.")
+        st.stop()
 
-        # Retrieve session state variables
-        model = st.session_state.trained_model 
-        X_train_selected = st.session_state.X_train_selected
+    # Retrieve session state variables
+    model = st.session_state.trained_model 
+    X_train_selected = st.session_state.X_train_selected
 
-        # Ensure X_test has the same columns as used in training
-        X_test = st.session_state.X_test.reindex(columns=X_train_selected.columns, fill_value=0)
-        y_test = st.session_state.y_test
+    # Ensure X_test has the same columns as used in training
+    X_test = st.session_state.X_test.reindex(columns=X_train_selected.columns, fill_value=0)
+    y_test = st.session_state.y_test
 
-        # Debugging output
-        train_features = list(st.session_state.X_train_selected.columns)
-        test_features = list(X_test.columns)
+    # Debugging output
+    train_features = list(st.session_state.X_train_selected.columns)
+    test_features = list(X_test.columns)
 
-        if train_features != test_features:
-            st.error("Feature order mismatch detected between X_train and X_test!")
+    if train_features != test_features:
+        st.error("Feature order mismatch detected between X_train and X_test!")
 
-            # Display mismatch details
-            mismatch_df = pd.DataFrame({"X_train Order": train_features, "X_test Order": test_features})
-            st.write(mismatch_df)
-            st.stop()
+        # Display mismatch details
+        mismatch_df = pd.DataFrame({"X_train Order": train_features, "X_test Order": test_features})
+        st.write(mismatch_df)
+        st.stop()
 
-        try:
-            y_pred = model.predict(X_test)
+    try:
+        y_pred = model.predict(X_test)
 
-            # Compute evaluation metrics
-            mae = mean_absolute_error(y_test, y_pred)
-            r2 = r2_score(y_test, y_pred)
-            rmse = mean_squared_error(y_test, y_pred) ** 0.5  # ✅ Manually compute RMSE
+        # Compute evaluation metrics
+        mae = mean_absolute_error(y_test, y_pred)
+        r2 = r2_score(y_test, y_pred)
+        rmse = mean_squared_error(y_test, y_pred) ** 0.5  # ✅ Manually compute RMSE
 
-            # Display results
-            st.subheader("Model Evaluation Metrics")
-            st.write(f"Mean Absolute Error (MAE): {mae:.2f}")
-            st.write(f"Root Mean Squared Error (RMSE): {rmse:.2f}")
-            st.write(f"R-squared (R²): {r2:.2f}")
+        # Display results
+        st.subheader("Model Evaluation Metrics")
+        st.write(f"Mean Absolute Error (MAE): {mae:.2f}")
+        st.write(f"Root Mean Squared Error (RMSE): {rmse:.2f}")
+        st.write(f"R-squared (R²): {r2:.2f}")
 
-            # Actual vs Predicted plot
-            results_df = pd.DataFrame({"Actual": y_test, "Predicted": y_pred})
-            fig = px.scatter(results_df, x="Actual", y="Predicted", title="Actual vs Predicted Revenue")
-            st.plotly_chart(fig)
+        # Actual vs Predicted plot
+        results_df = pd.DataFrame({"Actual": y_test, "Predicted": y_pred})
+        fig = px.scatter(results_df, x="Actual", y="Predicted", title="Actual vs Predicted Revenue")
+        st.plotly_chart(fig)
 
-            # Residual Plot
-            residuals = y_test - y_pred
-            fig_residuals = px.scatter(x=y_pred, y=residuals, title="Residual Plot", labels={"x": "Predicted", "y": "Residuals"})
-            st.plotly_chart(fig_residuals)
+        # Residual Plot
+        residuals = y_test - y_pred
+        fig_residuals = px.scatter(x=y_pred, y=residuals, title="Residual Plot", labels={"x": "Predicted", "y": "Residuals"})
+        st.plotly_chart(fig_residuals)
 
-        except Exception as e:
-            st.error(f"Prediction failed: {str(e)}")
+    except Exception as e:
+        st.error(f"Prediction failed: {str(e)}")
 
     else:
-        st.warning("🚫 You do not have permission to access predictions and performance.")
+        st.warning("🚫 You do not have permission to predictions and performance.")
 
 with tabs[6]:  # Download Report
     if st.session_state.role not in ["data_science", "finance", "executive"]:
