@@ -1198,11 +1198,11 @@ with tabs[6]:  # Download Report
     # Upload the report and save metadata
     report_link = upload_to_drive(report_name, "report.pdf", user_role, creator_username)
 
-    # Reload reports after saving metadata
-    df_reports = get_reports_by_role(st.session_state.role, st.session_state.username)
-
     # Display available reports
     st.subheader("Available Reports")
+    
+    # Reload reports after saving metadata
+    df_reports = get_reports_by_role(st.session_state.role, st.session_state.username)
     
     if not df_reports.empty:
         st.dataframe(df_reports[["Report Name", "Folder Name"]])
