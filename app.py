@@ -367,9 +367,17 @@ if st.button("Refresh Session"):
 if st.session_state.authenticated:
     st.title("🎬 Box Office Revenue Prediction")
 
+# Check the role before setting up tabs
+if st.session_state.role == "executive":
+    # Executives only see the "View Reports" tab
+    tabs = ["View Reports"]  # Only show View Reports for executives
+else:
+    # Non-executives (like data science and finance) see all tabs
+    tabs = ["Upload Data", "EDA", "Data Cleaning", "Feature Engineering", "Model Training", "Predictions & Performance", "Download Report"]
+
 # Define tabs
 tab_names = [
-    "Upload Data", "EDA", "Data Cleaning", "Feature Engineering",
+    "View Reports", "Upload Data", "EDA", "Data Cleaning", "Feature Engineering",
     "Model Training", "Predictions & Performance", "Download Report"
 ]
 tabs = st.tabs(tab_names)
