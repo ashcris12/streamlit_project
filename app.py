@@ -663,8 +663,10 @@ with tabs[3]:  # Feature Engineering
         if st.session_state.role in ["data_science", "finance"]:  
             st.warning("No data uploaded yet. Please upload a CSV file or URL in the 'Upload Data' tab.")
             st.stop()  # 🚀 Stop only for Data Science & Finance roles
-
-    df = st.session_state.cleaned_df
+        else:
+            df = None  # 🔧 Prevents errors for executives
+    else:
+        df = st.session_state.cleaned_df
 
     # Section: Data Overview
     st.header("Data Overview")
@@ -733,11 +735,7 @@ with tabs[3]:  # Feature Engineering
         sns.heatmap(corr, annot=True, cmap='seismic', ax=ax)
         st.pyplot(fig)
 
-st.write(f"DEBUG: Current Role in Feature Engineering: {st.session_state.get('role', 'NOT FOUND')}")
-
 with tabs[4]:  # Model Training
-    st.write("✅ DEBUG: Inside Model Training tab")  # 🔍 Check if this prints
-    
     if st.session_state.role not in ["data_science", "finance"]:
         st.warning("🚫 You do not have permission to access feature engineering.")
         st.write(f"DEBUG: Role detected -> {st.session_state.role}")
