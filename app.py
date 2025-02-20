@@ -456,19 +456,19 @@ def get_reports_by_role(role, username):
         # If the metadata file doesn't exist, create an empty DataFrame
         df = pd.DataFrame(columns=["Report Name", "Role", "Creator", "File ID", "Folder Name"])
         df.to_csv(METADATA_FILE, index=False)
-    else:
-        # Otherwise, load the metadata
-        df = pd.read_csv(METADATA_FILE)
-    
+        return df  # Return empty DataFrame
+
+    # Otherwise, load the metadata
+    df = pd.read_csv(METADATA_FILE)
+
     if role == "Executive":
-        # Executives can see all reports, ignore the role filter
+        # Executives can see all reports
         return df
     elif role == "Guest":
-        # For "Guest" users, filter by username (creator) only
+        # Guests should only see reports created by themselves (based on username)
         return df[df['Creator'] == username]
     else:
-        # For other roles (e.g., "Finance Analyst", "Data Science Team"), filter by both role and creator
-        df_reports = df[df['Role'] == role]
+        # For other roles, filter by creator (username)
         return df_reports[df_reports['Creator'] == username]
 
 with tabs[0]:  # Upload Data
