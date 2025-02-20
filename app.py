@@ -626,8 +626,8 @@ elif selected_tab == "EDA":
 else:
     st.warning("🚫 You do not have permission to access EDA.")
 
-with tabs[2]:  # Data Cleaning
-     if st.session_state.role in ["data_science"]:
+elif selected_tab == "Data Cleaning":
+    if st.session_state.role in ["data_science"]:
         st.header("Data Cleaning")
         st.write("You can clean and preprocess data here.")
 
@@ -760,7 +760,7 @@ with tabs[2]:  # Data Cleaning
      else:
         st.warning("🚫 You do not have permission to access data cleaning.")
 
-with tabs[3]:  # Feature Engineering
+elif selected_tab == "Feature Engineering":
     if st.session_state.role in ["data_science", "finance"]:
         st.header("Feature Engineering")
         
@@ -852,7 +852,7 @@ with tabs[3]:  # Feature Engineering
         sns.heatmap(corr, annot=True, cmap='seismic', ax=ax)
         st.pyplot(fig)
 
-with tabs[4]:  # Model Training
+elif selected_tab == "Model Training":
     if st.session_state.role not in ["data_science", "finance"]:
         st.warning("🚫 You do not have permission to access model training.")
         st.stop()
@@ -941,7 +941,7 @@ with tabs[4]:  # Model Training
         st.info(f"Training {model_option}... Please wait.")
         train_model(model_option, model)
         
-with tabs[5]: # Predictions & Performance
+elif selected_tab == "Predictions & Performance":
     if st.session_state.role not in ["data_science", "finance"]:
         st.warning("🚫 You do not have permission to access predictions and performance.")
         st.stop()
@@ -1011,7 +1011,8 @@ with tabs[5]: # Predictions & Performance
     except Exception as e:
         st.error(f"Prediction failed: {str(e)}")
 
-with tabs[6]:  # Download Report
+elif selected_tab == "Download Report":
+    if st.session_state.role in ["data_science", "finance"]:
     creator_username = st.session_state.username
      # 📌 Metadata File for Tracking Reports
     METADATA_FILE = "report_metadata.csv"
