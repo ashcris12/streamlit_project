@@ -1121,6 +1121,7 @@ with tabs[6]:  # Download Report
         save_metadata(report_name, user_role, file_id, folder_name)
         
         return report_link
+        
     def set_drive_permissions(file_id, user_role):
         # Set Google Drive permissions based on user role
         role_permissions = {
@@ -1148,16 +1149,18 @@ with tabs[6]:  # Download Report
         metadata.to_csv(METADATA_FILE, index=False)
     
     def get_reports_by_role(user_role):
-        # Retrieve available reports based on user role from metadata file
         if not os.path.exists(METADATA_FILE):
-            return pd.DataFrame(columns=["Report Name", "File ID", "Role", "Folder Name"])
-    
+            # ✅ Create an empty metadata file so app doesn't break
+            df = pd.DataFrame(columns=["Report Name", "File ID", "Role", "Folder Name"])
+            df.to_csv(METADATA_FILE, index=False)
+            return df  # Return empty DataFrame
+        
         metadata = pd.read_csv(METADATA_FILE)
     
         if user_role == "Executive":
             return metadata  # Executives see all reports
-        else:
-            return metadata[metadata["Role"] == user_role]  # Others see only their role's reports
+        
+        return metadata[metadata["Role"] == user_role]  # Others see their own role’s reports
     
     # 📌 UI - Report Upload & Viewing
     st.title("Download Reports")
