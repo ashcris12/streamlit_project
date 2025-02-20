@@ -1193,7 +1193,8 @@ with tabs[6]:  # Download Report
     
     # 📌 Display Available Reports Based on User Role
     st.subheader("Available Reports")
-    df_reports = get_reports_by_role(user_role)
+    df_reports = get_reports_by_role(st.session_state.role, st.session_state.username)
+
     
     if not df_reports.empty:
         st.dataframe(df_reports[["Report Name", "Folder Name"]])
