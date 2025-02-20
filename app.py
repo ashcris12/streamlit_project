@@ -1103,9 +1103,9 @@ elif selected_tab == "Download Report":
             
     st.title("Generate Report")
     
-    # Ensure a directory for saving plots
-    plot_dir = "report_plots"
-    os.makedirs(plot_dir, exist_ok=True)
+# Ensure a directory for saving plots
+plot_dir = "report_plots"
+os.makedirs(plot_dir, exist_ok=True)
     
     # 📌 Check if a model has been trained and test data exists
     if "trained_model" not in st.session_state or st.session_state.trained_model is None:
