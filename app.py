@@ -734,8 +734,10 @@ with tabs[3]:  # Feature Engineering
         st.pyplot(fig)
 
 with tabs[4]:  # Model Training
-    if st.session_state.role in ["data_science", "finance"]:
-        st.title("Train a Model")
+    if st.session_state.role not in ["data_science", "finance"]:
+        st.warning("🚫 You do not have permission to access model training.")
+        st.stop()
+    st.title("Train a Model")
 
     # Ensure train-test data exists in session state
     if "X_train" not in st.session_state or "y_train" not in st.session_state:
@@ -819,13 +821,12 @@ with tabs[4]:  # Model Training
     if st.button("Train Model"):
         st.info(f"Training {model_option}... Please wait.")
         train_model(model_option, model)
-
-    else:
-        st.warning("🚫 You do not have permission to access model training.")
         
 with tabs[5]: # Predictions & Performance
-    if st.session_state.role in ["data_science", "finance"]:
-        st.title("Evaluate Model Performance")
+    if st.session_state.role not in ["data_science", "finance"]:
+        st.warning("🚫 You do not have permission to access predictions and performance.")
+        st.stop()
+    st.title("Evaluate Model Performance")
 
     # Ensure required session state variables exist
     if "trained_model" not in st.session_state or st.session_state.trained_model is None:
@@ -890,9 +891,6 @@ with tabs[5]: # Predictions & Performance
 
     except Exception as e:
         st.error(f"Prediction failed: {str(e)}")
-
-    else:
-        st.warning("🚫 You do not have permission to predictions and performance.")
 
 with tabs[6]:  # Download Report
     if st.session_state.role not in ["data_science", "finance", "executive"]:
