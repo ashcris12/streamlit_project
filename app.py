@@ -992,10 +992,10 @@ with tabs[6]:  # Download Report
            df.to_csv(METADATA_FILE, index=False)
            return df  
     
-        metadata = pd.read_csv(METADATA_FILE)
+       metadata = pd.read_csv(METADATA_FILE)
 
-        if user_role == "Executive":
-            return metadata  # Executives see all reports
+       if user_role == "Executive":
+           return metadata  # Executives see all reports
 
     # Ensure only reports from the same role **AND** created by the user are shown
     return metadata[(metadata["Role"] == user_role) & (metadata["Creator"] == username)]
