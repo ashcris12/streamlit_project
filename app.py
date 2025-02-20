@@ -899,31 +899,33 @@ with tabs[6]:  # Download Report
         st.warning("❌ You do not have permission to access this tab.")
         st.stop()
 
-    # Inside your "Download Report" tab
+    if selected_tab == "Download Report":
     st.header("Download Report")
-    
-    # Show the saved reports section FIRST
+
+    # Show the saved reports FIRST before checking for uploaded data
     st.subheader("Saved Reports")
-    
-    # Load saved reports from the database (filtered by user role/username)
-    saved_reports = load_saved_reports(username, role)  # Function that fetches reports
+
+    saved_reports = load_saved_reports(username, role)  # Function to fetch reports
+
     if saved_reports:
         for report in saved_reports:
             st.write(f"**{report['name']}** - {report['date']} by {report['creator']}")
             st.download_button(
                 label="Download",
-                data=fetch_report_from_drive(report['file_id']),  
+                data=fetch_report_from_drive(report['file_id']),
                 file_name=f"{report['name']}.pdf",
                 mime="application/pdf"
             )
     else:
         st.write("No saved reports available.")
 
-    # Allow the user to generate a new report 
-    st.subheader("Generate a New Report")
-    # Ensure a directory for saving plots
-    plot_dir = "report_plots"
-    os.makedirs(plot_dir, exist_ok=True)
+    # Now check for uploaded data before allowing new report generation
+    if "df" in st.session_state and st.session_state.df is not None:
+        st.subheader("Generate a New Report")
+    
+        # Ensure a directory for saving plots
+        plot_dir = "report_plots"
+        os.makedirs(plot_dir, exist_ok=True)
 
     # 📌 Check if a model has been trained and test data exists
     if "trained_model" not in st.session_state or st.session_state.trained_model is None:
