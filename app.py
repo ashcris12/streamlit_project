@@ -654,19 +654,15 @@ with tabs[2]:  # Data Cleaning
         st.warning("🚫 You do not have permission to access data cleaning.")
 
 with tabs[3]:  # Feature Engineering
-    if "role" not in st.session_state:
-        st.error("🚨 ERROR: Role is missing in session state!")
-        st.session_state.role = "executive"  # Temporary fix
     if st.session_state.role not in ["data_science", "finance"]:
         st.warning("🚫 You do not have permission to access feature engineering.")
-        st.write(f"DEBUG: Role detected -> {st.session_state.role}")
         st.stop()
     st.header("Feature Engineering")
         
-    # Ensure cleaned_df exists before accessing it
     if "cleaned_df" not in st.session_state or st.session_state.cleaned_df is None:
-        st.warning("No data uploaded yet. Please upload a CSV file or URL in the 'Upload Data' tab.")
-        st.stop()  # 🚀 This prevents further execution when cleaned_df is missing
+        if st.session_state.role in ["data_science", "finance"]:  
+            st.warning("No data uploaded yet. Please upload a CSV file or URL in the 'Upload Data' tab.")
+            st.stop()  # 🚀 Stop only for Data Science & Finance roles
 
     df = st.session_state.cleaned_df
 
