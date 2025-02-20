@@ -980,8 +980,8 @@ with tabs[6]:  # Download Report
         drive_service.permissions().create(fileId=file_id, body=permission).execute()
     
     def save_metadata(report_name, creator_role, creator_username, file_id, folder_name):
-    metadata = pd.DataFrame([[report_name, creator_role, creator_username, file_id, folder_name]], 
-                            columns=["Report Name", "Role", "Creator", "File ID", "Folder Name"])
+        metadata = pd.DataFrame([[report_name, creator_role, creator_username, file_id, folder_name]], 
+                                columns=["Report Name", "Role", "Creator", "File ID", "Folder Name"])
     
         if os.path.exists(METADATA_FILE):
             existing_metadata = pd.read_csv(METADATA_FILE)
