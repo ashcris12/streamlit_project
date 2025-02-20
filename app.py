@@ -721,7 +721,10 @@ with tabs[3]:  # Feature Engineering
         st.warning("Please select at least one feature.")
 
     # Define X and y after selection
-    X = df[selected_features]
+    if "df" in globals() and df is not None:
+        X = df[selected_features]
+    else:
+        X = None  # Or use an empty DataFrame: X = pd.DataFrame()
     y = df[target]
 
     # Split the data into training and testing sets (80/20)
