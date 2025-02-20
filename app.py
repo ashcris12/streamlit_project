@@ -451,15 +451,21 @@ def save_metadata(report_name, creator_role, creator_username, file_id, folder_n
     
     metadata.to_csv(METADATA_FILE, index=False)
 
-def get_reports_by_role(username):
+def get_reports_by_role(role, username):
     if not os.path.exists(METADATA_FILE):
+        # If the metadata file doesn't exist, create an empty DataFrame
         df = pd.DataFrame(columns=["Report Name", "Role", "Creator", "File ID", "Folder Name"])
         df.to_csv(METADATA_FILE, index=False)
     else:
+        # Otherwise, load the metadata
         df = pd.read_csv(METADATA_FILE)
 
-    # Filter reports based on creator (username)
-    df_reports = df[df['Creator'] == username]
+    # If the user is an executive, return all reports
+    if role == "Executive":
+        df_reports = df  # No filtering by creator for executives
+    else:
+        # Filter reports by the creator (username) for other roles
+        df_reports = df[df['Creator'] == username]
 
     return df_reports
 
