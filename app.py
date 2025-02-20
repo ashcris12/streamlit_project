@@ -1241,46 +1241,46 @@ elif selected_tab == "Download Report":
         pdf.add_page()
         pdf.set_font("Arial", size=12)
     
-    # Add Model Summary
-    if include_summary:
-        pdf.set_font("Arial", "B", 14)
-        pdf.cell(200, 10, "Model Summary", ln=True, align="C")
-        pdf.set_font("Arial", size=12)
-        pdf.multi_cell(0, 10, f"Model: {model_option}\n\n")
-    
-    # Add Feature Selection
-    if include_features:
-        pdf.set_font("Arial", "B", 14)
-        pdf.cell(200, 10, "Feature Selection", ln=True, align="C")
-        pdf.set_font("Arial", size=12)
-        pdf.multi_cell(0, 10, f"Features Used: {', '.join(selected_features)}\n\n")
-    
-    # Add Performance Metrics
-    if include_metrics:
-        pdf.set_font("Arial", "B", 14)
-        pdf.cell(200, 10, "Performance Metrics", ln=True, align="C")
-        pdf.set_font("Arial", size=12)
-        pdf.multi_cell(0, 10, f"MAE: {mae:.2f}\nRMSE: {rmse:.2f}\nR²: {r2:.2f}\n\n")
-    
-    # Add Sample Predictions
-    if include_predictions:
-        pdf.set_font("Arial", "B", 14)
-        pdf.cell(200, 10, "Sample Predictions", ln=True, align="C")
-        pdf.set_font("Arial", size=12)
-        for i in range(5):
-            pdf.cell(0, 10, f"Actual: {y_test.iloc[i]:.2f}, Predicted: {y_pred[i]:.2f}", ln=True)
-    
-    # Add Visualizations
-    if include_visuals:
-        pdf.set_font("Arial", "B", 14)
-        pdf.cell(200, 10, "Visualizations", ln=True, align="C")
+        # Add Model Summary
+        if include_summary:
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Model Summary", ln=True, align="C")
+            pdf.set_font("Arial", size=12)
+            pdf.multi_cell(0, 10, f"Model: {model_option}\n\n")
         
-        if include_actual_vs_pred:
-            pdf.image(os.path.join(plot_dir, "actual_vs_predicted.png"), x=10, w=180)
-        if include_residuals:
-            pdf.image(os.path.join(plot_dir, "residual_plot.png"), x=10, w=180)
-        if include_feature_importance and hasattr(model, "feature_importances_"):
-            pdf.image(os.path.join(plot_dir, "feature_importance.png"), x=10, w=180)
+        # Add Feature Selection
+        if include_features:
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Feature Selection", ln=True, align="C")
+            pdf.set_font("Arial", size=12)
+            pdf.multi_cell(0, 10, f"Features Used: {', '.join(selected_features)}\n\n")
+        
+        # Add Performance Metrics
+        if include_metrics:
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Performance Metrics", ln=True, align="C")
+            pdf.set_font("Arial", size=12)
+            pdf.multi_cell(0, 10, f"MAE: {mae:.2f}\nRMSE: {rmse:.2f}\nR²: {r2:.2f}\n\n")
+        
+        # Add Sample Predictions
+        if include_predictions:
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Sample Predictions", ln=True, align="C")
+            pdf.set_font("Arial", size=12)
+            for i in range(5):
+                pdf.cell(0, 10, f"Actual: {y_test.iloc[i]:.2f}, Predicted: {y_pred[i]:.2f}", ln=True)
+        
+        # Add Visualizations
+        if include_visuals:
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Visualizations", ln=True, align="C")
+            
+            if include_actual_vs_pred:
+                pdf.image(os.path.join(plot_dir, "actual_vs_predicted.png"), x=10, w=180)
+            if include_residuals:
+                pdf.image(os.path.join(plot_dir, "residual_plot.png"), x=10, w=180)
+            if include_feature_importance and hasattr(model, "feature_importances_"):
+                pdf.image(os.path.join(plot_dir, "feature_importance.png"), x=10, w=180)
     
     pdf.output("report.pdf")
     
