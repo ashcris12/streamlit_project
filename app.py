@@ -1190,18 +1190,20 @@ with tabs[6]:  # Download Report
         else:
             st.error("⚠ Please enter a report name before uploading.")
     
-    # 📌 Display Available Reports Based on User Role
-    st.subheader("Available Reports")
+    # Upload the report and save metadata
+    report_link = upload_to_drive(report_name, "report.pdf", user_role)
+
+    # Reload reports after saving metadata
     df_reports = get_reports_by_role(st.session_state.role, st.session_state.username)
 
+    # Display available reports
+    st.subheader("Available Reports")
+    
     if not df_reports.empty:
-        # Display the dataframe with selected columns
         st.dataframe(df_reports[["Report Name", "Folder Name"]])
-        
-        # Loop through each report and generate a link
+    
         for _, row in df_reports.iterrows():
             report_link = f"https://drive.google.com/file/d/{row['File ID']}/view"
             st.markdown(f"[📄 {row['Report Name']}]({report_link})")
     else:
-        # Display a message when there are no reports available
         st.write("No reports available for your role.")
