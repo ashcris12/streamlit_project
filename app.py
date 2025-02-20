@@ -553,8 +553,8 @@ elif selected_tab == "Upload Data":
 
             if df.empty:
                 st.error("The uploaded dataset is empty. Please check your file or URL.")
- else:
-    st.info("No file uploaded or URL entered yet.")
+        else:
+            st.info("No file uploaded or URL entered yet.")
 
 elif selected_tab == "EDA":
     if st.session_state.role in ["data_science"]:
