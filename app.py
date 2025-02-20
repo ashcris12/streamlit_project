@@ -937,6 +937,7 @@ elif selected_tab == "Model Training":
     if st.button("Train Model"):
         st.info(f"Training {model_option}... Please wait.")
         train_model(model_option, model)
+        model_option = st.session_state.model_option
         
 elif selected_tab == "Predictions & Performance":
     if st.session_state.role not in ["data_science", "finance"]:
@@ -1117,6 +1118,7 @@ elif selected_tab == "Download Report":
     
     # Retrieve stored model and selections
     model = st.session_state.trained_model
+    model_option = st.session_state.model_option
     selected_features = st.session_state.get("selected_features", [])
     
     if not selected_features:
