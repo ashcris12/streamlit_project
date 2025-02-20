@@ -470,9 +470,8 @@ def get_reports_by_role(username, role):
     
     return df_reports
     
-if st.session_state.role == "executive":
-    # Only show the "View Reports" tab to executives
-    with tabs[0]:  # View Reports
+if selected_tab == "View Reports":
+    # Logic for Executives to view reports
         st.header("View Reports")
         st.write("As an Executive, you can only view the available reports.")
         
@@ -486,9 +485,8 @@ if st.session_state.role == "executive":
                 st.markdown(f"[📄 {row['Report Name']}]({report_link})")
         else:
             st.write("No reports available for your role.")
-else:
-    # Show the regular tabs for non-executive users
-    with tabs[0]:  # Upload Data
+
+elif selected_tab == "Upload Data"
         st.header("Upload Your Data")
         # Ensure df exists in session state
         if "df" not in st.session_state:
@@ -555,8 +553,8 @@ else:
 
             if df.empty:
                 st.error("The uploaded dataset is empty. Please check your file or URL.")
-        else:
-            st.info("No file uploaded or URL entered yet.")
+ else:
+    st.info("No file uploaded or URL entered yet.")
 
 elif selected_tab == "EDA":
     if st.session_state.role in ["data_science"]:
