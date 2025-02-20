@@ -1082,7 +1082,7 @@ with tabs[6]:  # Download Report
     }
     
     def get_or_create_folder(folder_name, parent_folder_id=None):
-        """Check if a folder exists in Google Drive; if not, create it."""
+        # Check if a folder exists in Google Drive; if not, create it 
         query = f"name='{folder_name}' and mimeType='application/vnd.google-apps.folder'"
         if parent_folder_id:
             query += f" and '{parent_folder_id}' in parents"
@@ -1101,7 +1101,7 @@ with tabs[6]:  # Download Report
         return folder["id"]
     
     def upload_to_drive(report_name, filepath, user_role):
-        """Upload report to Google Drive under the correct role-based folder and return shareable link."""
+        # Upload report to Google Drive under the correct role-based folder and return shareable link
         folder_name = ROLE_FOLDERS.get(user_role, "General_Reports")
         folder_id = get_or_create_folder(folder_name)
     
