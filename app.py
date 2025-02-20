@@ -736,11 +736,8 @@ with tabs[3]:  # Feature Engineering
         st.pyplot(fig)
 
 with tabs[4]:  # Model Training
-    st.write("✅ DEBUG: Inside Model Training tab")
-    st.write(f"🔎 Role in session state: {st.session_state.get('role', 'ROLE NOT FOUND')}")
     if st.session_state.role not in ["data_science", "finance"]:
-        st.warning("🚫 You do not have permission to access feature engineering.")
-        st.write(f"DEBUG: Role detected -> {st.session_state.role}")
+        st.warning("🚫 You do not have permission to access model training.")
         st.stop()
     st.header("Model Training")
 
@@ -902,8 +899,28 @@ with tabs[6]:  # Download Report
         st.warning("❌ You do not have permission to access this tab.")
         st.stop()
 
-    st.title("Download Report")
+    # Inside your "Download Report" tab
+    st.header("Download Report")
+    
+    # Show the saved reports section FIRST
+    st.subheader("Saved Reports")
+    
+    # Load saved reports from the database (filtered by user role/username)
+    saved_reports = load_saved_reports(username, role)  # Function that fetches reports
+    if saved_reports:
+        for report in saved_reports:
+            st.write(f"**{report['name']}** - {report['date']} by {report['creator']}")
+            st.download_button(
+                label="Download",
+                data=fetch_report_from_drive(report['file_id']),  
+                file_name=f"{report['name']}.pdf",
+                mime="application/pdf"
+            )
+    else:
+        st.write("No saved reports available.")
 
+    # Allow the user to generate a new report 
+    st.subheader("Generate a New Report")
     # Ensure a directory for saving plots
     plot_dir = "report_plots"
     os.makedirs(plot_dir, exist_ok=True)
