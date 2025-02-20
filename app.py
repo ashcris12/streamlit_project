@@ -1155,132 +1155,132 @@ elif selected_tab == "Download Report":
     st.write(f"R²: {r2}")
     st.write(f"RMSE: {rmse}")
         
-        # 📌 User selections for report sections
-        st.subheader("Select Report Sections")
-        include_summary = st.checkbox("Include Model Summary", True)
-        include_features = st.checkbox("Include Feature Selection", True)
-        include_metrics = st.checkbox("Include Performance Metrics", True)
-        include_visuals = st.checkbox("Include Visualizations", True)
-        include_predictions = st.checkbox("Include Sample Predictions", False)
-        
-        # 📌 Select Visualizations
-        st.subheader("Select Visualizations")
-        include_actual_vs_pred = st.checkbox("Actual vs. Predicted", True)
-        include_residuals = st.checkbox("Residual Plot", True)
-        include_feature_importance = st.checkbox("Feature Importance", True)
-        
-        # 📌 Generate and Save Visualizations
-        def plot_actual_vs_predicted(y_test, y_pred, filename="actual_vs_predicted.png"):
+    # 📌 User selections for report sections
+    st.subheader("Select Report Sections")
+    include_summary = st.checkbox("Include Model Summary", True)
+    include_features = st.checkbox("Include Feature Selection", True)
+    include_metrics = st.checkbox("Include Performance Metrics", True)
+    include_visuals = st.checkbox("Include Visualizations", True)
+    include_predictions = st.checkbox("Include Sample Predictions", False)
+    
+    # 📌 Select Visualizations
+    st.subheader("Select Visualizations")
+    include_actual_vs_pred = st.checkbox("Actual vs. Predicted", True)
+    include_residuals = st.checkbox("Residual Plot", True)
+    include_feature_importance = st.checkbox("Feature Importance", True)
+    
+    # 📌 Generate and Save Visualizations
+    def plot_actual_vs_predicted(y_test, y_pred, filename="actual_vs_predicted.png"):
+        plt.figure(figsize=(6, 4))
+        sns.scatterplot(x=y_test, y=y_pred, alpha=0.7)
+        plt.plot(y_test, y_test, color='red', linestyle='--')  # Ideal line
+        plt.xlabel("Actual Values")
+        plt.ylabel("Predicted Values")
+        plt.title("Actual vs. Predicted")
+        plt.savefig(os.path.join(plot_dir, filename))
+        plt.close()
+    
+    def plot_residuals(y_test, y_pred, filename="residual_plot.png"):
+        residuals = y_test - y_pred
+        plt.figure(figsize=(6, 4))
+        sns.histplot(residuals, bins=30, kde=True)
+        plt.axvline(0, color='red', linestyle='--')
+        plt.xlabel("Residuals")
+        plt.ylabel("Frequency")
+        plt.title("Residuals Distribution")
+        plt.savefig(os.path.join(plot_dir, filename))
+        plt.close()
+    
+    def plot_feature_importance(model, selected_features, filename="feature_importance.png"):
+        if hasattr(model, "feature_importances_"):
+            importance = model.feature_importances_
             plt.figure(figsize=(6, 4))
-            sns.scatterplot(x=y_test, y=y_pred, alpha=0.7)
-            plt.plot(y_test, y_test, color='red', linestyle='--')  # Ideal line
-            plt.xlabel("Actual Values")
-            plt.ylabel("Predicted Values")
-            plt.title("Actual vs. Predicted")
+            sns.barplot(x=importance, y=selected_features)
+            plt.xlabel("Importance Score")
+            plt.ylabel("Features")
+            plt.title("Feature Importance")
+    
+            # 🔹 Fix: Rotate feature names & adjust layout
+            plt.yticks(rotation=0)  # Keep y-axis labels horizontal
+            plt.tight_layout()  # Prevent labels from being cut off
+    
             plt.savefig(os.path.join(plot_dir, filename))
             plt.close()
-        
-        def plot_residuals(y_test, y_pred, filename="residual_plot.png"):
-            residuals = y_test - y_pred
-            plt.figure(figsize=(6, 4))
-            sns.histplot(residuals, bins=30, kde=True)
-            plt.axvline(0, color='red', linestyle='--')
-            plt.xlabel("Residuals")
-            plt.ylabel("Frequency")
-            plt.title("Residuals Distribution")
-            plt.savefig(os.path.join(plot_dir, filename))
-            plt.close()
-        
-        def plot_feature_importance(model, selected_features, filename="feature_importance.png"):
-            if hasattr(model, "feature_importances_"):
-                importance = model.feature_importances_
-                plt.figure(figsize=(6, 4))
-                sns.barplot(x=importance, y=selected_features)
-                plt.xlabel("Importance Score")
-                plt.ylabel("Features")
-                plt.title("Feature Importance")
-        
-                # 🔹 Fix: Rotate feature names & adjust layout
-                plt.yticks(rotation=0)  # Keep y-axis labels horizontal
-                plt.tight_layout()  # Prevent labels from being cut off
-        
-                plt.savefig(os.path.join(plot_dir, filename))
-                plt.close()
-        
-        # Generate selected plots
-        if include_actual_vs_pred:
-            plot_actual_vs_predicted(y_test, y_pred)
-        if include_residuals:
-            plot_residuals(y_test, y_pred)
-        if include_feature_importance:
-            plot_feature_importance(model, selected_features)
-        
-        # 📌 Report Preview
-        st.subheader("Report Preview")
-        report_content = ""
+    
+    # Generate selected plots
+    if include_actual_vs_pred:
+        plot_actual_vs_predicted(y_test, y_pred)
+    if include_residuals:
+        plot_residuals(y_test, y_pred)
+    if include_feature_importance:
+        plot_feature_importance(model, selected_features)
+    
+    # 📌 Report Preview
+    st.subheader("Report Preview")
+    report_content = ""
+    if include_summary:
+        report_content += f"**Model Summary:**\n\n- Model: {model_option}\n\n"
+    if include_features:
+        report_content += f"**Feature Selection:**\n\n- Features used: {', '.join(selected_features)}\n\n"
+    if include_metrics:
+        report_content += (f"**Performance Metrics:**\n\n- MAE: {mae:.2f}\n"
+                            f"- RMSE: {rmse:.2f}\n"
+                            f"- R²: {r2:.2f}\n\n")
+    if include_predictions:
+        sample_predictions = pd.DataFrame({"Actual": y_test[:5], "Predicted": y_pred[:5]})
+        st.dataframe(sample_predictions)
+    
+    st.markdown(report_content)
+    
+    # 📌 Generate PDF Report with Visuals
+    def generate_pdf():
+        pdf = FPDF()
+        pdf.set_auto_page_break(auto=True, margin=15)
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
+    
+        # Add Model Summary
         if include_summary:
-            report_content += f"**Model Summary:**\n\n- Model: {model_option}\n\n"
-        if include_features:
-            report_content += f"**Feature Selection:**\n\n- Features used: {', '.join(selected_features)}\n\n"
-        if include_metrics:
-            report_content += (f"**Performance Metrics:**\n\n- MAE: {mae:.2f}\n"
-                                f"- RMSE: {rmse:.2f}\n"
-                                f"- R²: {r2:.2f}\n\n")
-        if include_predictions:
-            sample_predictions = pd.DataFrame({"Actual": y_test[:5], "Predicted": y_pred[:5]})
-            st.dataframe(sample_predictions)
-        
-        st.markdown(report_content)
-        
-        # 📌 Generate PDF Report with Visuals
-        def generate_pdf():
-            pdf = FPDF()
-            pdf.set_auto_page_break(auto=True, margin=15)
-            pdf.add_page()
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Model Summary", ln=True, align="C")
             pdf.set_font("Arial", size=12)
-        
-            # Add Model Summary
-            if include_summary:
-                pdf.set_font("Arial", "B", 14)
-                pdf.cell(200, 10, "Model Summary", ln=True, align="C")
-                pdf.set_font("Arial", size=12)
-                pdf.multi_cell(0, 10, f"Model: {model_option}\n\n")
-        
-            # Add Feature Selection
-            if include_features:
-                pdf.set_font("Arial", "B", 14)
-                pdf.cell(200, 10, "Feature Selection", ln=True, align="C")
-                pdf.set_font("Arial", size=12)
-                pdf.multi_cell(0, 10, f"Features Used: {', '.join(selected_features)}\n\n")
-        
-            # Add Performance Metrics
-            if include_metrics:
-                pdf.set_font("Arial", "B", 14)
-                pdf.cell(200, 10, "Performance Metrics", ln=True, align="C")
-                pdf.set_font("Arial", size=12)
-                pdf.multi_cell(0, 10, f"MAE: {mae:.2f}\nRMSE: {rmse:.2f}\nR²: {r2:.2f}\n\n")
-        
-            # Add Sample Predictions
-            if include_predictions:
-                pdf.set_font("Arial", "B", 14)
-                pdf.cell(200, 10, "Sample Predictions", ln=True, align="C")
-                pdf.set_font("Arial", size=12)
-                for i in range(5):
-                    pdf.cell(0, 10, f"Actual: {y_test.iloc[i]:.2f}, Predicted: {y_pred[i]:.2f}", ln=True)
-        
-            # Add Visualizations
-            if include_visuals:
-                pdf.set_font("Arial", "B", 14)
-                pdf.cell(200, 10, "Visualizations", ln=True, align="C")
-                
-                if include_actual_vs_pred:
-                    pdf.image(os.path.join(plot_dir, "actual_vs_predicted.png"), x=10, w=180)
-                if include_residuals:
-                    pdf.image(os.path.join(plot_dir, "residual_plot.png"), x=10, w=180)
-                if include_feature_importance and hasattr(model, "feature_importances_"):
-                    pdf.image(os.path.join(plot_dir, "feature_importance.png"), x=10, w=180)
-        
-            pdf.output("report.pdf")
+            pdf.multi_cell(0, 10, f"Model: {model_option}\n\n")
+    
+        # Add Feature Selection
+        if include_features:
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Feature Selection", ln=True, align="C")
+            pdf.set_font("Arial", size=12)
+            pdf.multi_cell(0, 10, f"Features Used: {', '.join(selected_features)}\n\n")
+    
+        # Add Performance Metrics
+        if include_metrics:
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Performance Metrics", ln=True, align="C")
+            pdf.set_font("Arial", size=12)
+            pdf.multi_cell(0, 10, f"MAE: {mae:.2f}\nRMSE: {rmse:.2f}\nR²: {r2:.2f}\n\n")
+    
+        # Add Sample Predictions
+        if include_predictions:
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Sample Predictions", ln=True, align="C")
+            pdf.set_font("Arial", size=12)
+            for i in range(5):
+                pdf.cell(0, 10, f"Actual: {y_test.iloc[i]:.2f}, Predicted: {y_pred[i]:.2f}", ln=True)
+    
+        # Add Visualizations
+        if include_visuals:
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Visualizations", ln=True, align="C")
+            
+            if include_actual_vs_pred:
+                pdf.image(os.path.join(plot_dir, "actual_vs_predicted.png"), x=10, w=180)
+            if include_residuals:
+                pdf.image(os.path.join(plot_dir, "residual_plot.png"), x=10, w=180)
+            if include_feature_importance and hasattr(model, "feature_importances_"):
+                pdf.image(os.path.join(plot_dir, "feature_importance.png"), x=10, w=180)
+    
+        pdf.output("report.pdf")
         
         # 📌 UI - Report Upload & Viewing
         st.title("Download Reports")
