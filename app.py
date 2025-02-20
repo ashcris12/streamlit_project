@@ -899,37 +899,43 @@ with tabs[6]:  # Download Report
     if st.session_state.role not in ["data_science", "finance", "executive"]:
         st.warning("❌ You do not have permission to access this tab.")
         st.stop()
-    
+
     st.title("Download Report")
 
     # Ensure a directory for saving plots
     plot_dir = "report_plots"
     os.makedirs(plot_dir, exist_ok=True)
-    
-    # 📌 Check if a model has been trained
+
+    # 📌 Check if a model has been trained and test data exists
     if "trained_model" not in st.session_state or st.session_state.trained_model is None:
         st.warning("❌ No trained model found. Please train a model first.")
         st.stop()
 
-    if "trained_model" not in st.session_state or "X_test" not in st.session_state:
-        st.warning("No trained model found. Please train a model before proceeding.")
-    else:
-        model = st.session_state["trained_model"]
-        selected_features = st.session_state.get("selected_features", [])
-    
-        if selected_features and not st.session_state["X_test"].empty:
-            X_test_processed = st.session_state.X_test.reindex(columns=selected_features, fill_value=0)
-            y_pred = model.predict(X_test_processed)
-            # Continue with the rest of the process...
-        else:
-            st.warning("Model or features are missing. Retrain the model to proceed.")
+    if "X_test" not in st.session_state or st.session_state.X_test is None:
+        st.warning("❌ Test data is missing. Retrain the model before proceeding.")
+        st.stop()
 
     # Retrieve stored model and selections
     model = st.session_state.trained_model
-    model_option = st.session_state.get("model_option", "Unknown Model")
     selected_features = st.session_state.get("selected_features", [])
-    y_test = st.session_state.y_test
-    y_pred = model.predict(st.session_state.X_test.reindex(columns=selected_features, fill_value=0))
+
+    if not selected_features:
+        st.warning("❌ No selected features found. Retrain the model with feature selection.")
+        st.stop()
+
+    if st.session_state.X_test.empty:
+        st.warning("❌ Test data is empty. Retrain the model before proceeding.")
+        st.stop()
+
+    # Process test data and make predictions
+    X_test_processed = st.session_state.X_test.reindex(columns=selected_features, fill_value=0)
+    
+    try:
+        y_pred = model.predict(X_test_processed)
+        st.session_state.y_pred = y_pred  # Store predictions in session state
+    except ValueError as e:
+        st.error(f"⚠️ Prediction error: {e}")
+        st.stop()
     
     # Compute evaluation metrics
     mae = mean_absolute_error(y_test, y_pred)
