@@ -659,8 +659,8 @@ with tabs[3]:  # Feature Engineering
         
     if "cleaned_df" in st.session_state and st.session_state.cleaned_df is not None:
         df = st.session_state.cleaned_df
-    elif "uploaded_df" in st.session_state and st.session_state.uploaded_df is not None:
-        df = st.session_state.uploaded_df
+    elif "df" in st.session_state and st.session_state.df is not None:
+        df = st.session_state.df
     else:
         if st.session_state.role in ["data_science", "finance"]:  
             st.warning("No data uploaded yet. Please upload a CSV file or URL in the 'Upload Data' tab.")
