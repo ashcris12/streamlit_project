@@ -999,35 +999,6 @@ with tabs[6]:  # Download Report
         
         return metadata[metadata["Role"] == user_role]  # Others see their own role’s reports
         
-    st.header("📊 Executive Reports")
-
-    # 🚨 EXECUTIVE FIX: If the user is an Executive, only show saved reports
-    if st.session_state.get("role") == "Executive":
-        st.subheader("Available Reports")
-    
-        def get_reports_by_role(user_role):
-            """Fetch saved reports from metadata file."""
-            if not os.path.exists("report_metadata.csv"):
-                return pd.DataFrame(columns=["Report Name", "Folder Name", "File ID"])
-            metadata = pd.read_csv("report_metadata.csv")
-            return metadata if user_role == "Executive" else metadata[metadata["Role"] == user_role]
-    
-        df_reports = get_reports_by_role(st.session_state.role)
-    
-        if not df_reports.empty:
-            st.dataframe(df_reports[["Report Name", "Folder Name"]])
-            for _, row in df_reports.iterrows():
-                report_link = f"https://drive.google.com/file/d/{row['File ID']}/view"
-                st.markdown(f"[📄 {row['Report Name']}]({report_link})")
-        else:
-            st.info("📂 No reports available.")
-    
-        st.stop()  # 🚨 PREVENT EXECUTIVES FROM SEEING OTHER TABS
-        
-        if st.session_state.role not in ["data_science", "finance", "executive"]:
-            st.warning("❌ You do not have permission to access this tab.")
-            st.stop()
-
     st.title("Generate Report")
 
     # Ensure a directory for saving plots
