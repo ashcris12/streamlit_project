@@ -1100,47 +1100,60 @@ elif selected_tab == "Download Report":
         
             return df_reports
             
-        st.title("Generate Report")
+      st.title("Generate Report")
+
+    # Ensure a directory for saving plots
+    plot_dir = "report_plots"
+    os.makedirs(plot_dir, exist_ok=True)
     
-        # Ensure a directory for saving plots
-        plot_dir = "report_plots"
-        os.makedirs(plot_dir, exist_ok=True)
+    # 📌 Check if a model has been trained and test data exists
+    if "trained_model" not in st.session_state or st.session_state.trained_model is None:
+        st.warning("❌ No trained model found. Please train a model first.")
+        st.stop()
     
-        # 📌 Check if a model has been trained and test data exists
-        if "trained_model" not in st.session_state or st.session_state.trained_model is None:
-            st.warning("❌ No trained model found. Please train a model first.")
-            st.stop()
+    if "X_test" not in st.session_state or st.session_state.X_test is None:
+        st.warning("❌ Test data is missing. Retrain the model before proceeding.")
+        st.stop()
     
-        if "X_test" not in st.session_state or st.session_state.X_test is None:
-            st.warning("❌ Test data is missing. Retrain the model before proceeding.")
-            st.stop()
+    # Retrieve stored model and selections
+    model = st.session_state.trained_model
+    selected_features = st.session_state.get("selected_features", [])
     
-        # Retrieve stored model and selections
-        model = st.session_state.trained_model
-        selected_features = st.session_state.get("selected_features", [])
+    if not selected_features:
+        st.warning("❌ No selected features found. Retrain the model with feature selection.")
+        st.stop()
     
-        if not selected_features:
-            st.warning("❌ No selected features found. Retrain the model with feature selection.")
-            st.stop()
+    if st.session_state.X_test.empty:
+        st.warning("❌ Test data is empty. Retrain the model before proceeding.")
+        st.stop()
     
-        if st.session_state.X_test.empty:
-            st.warning("❌ Test data is empty. Retrain the model before proceeding.")
-            st.stop()
+    # Assuming y_test was part of the session state during the training phase
+    if "y_test" not in st.session_state or st.session_state.y_test is None:
+        st.warning("❌ Test target values are missing. Retrain the model with correct data.")
+        st.stop()
     
-        # Process test data and make predictions
-        X_test_processed = st.session_state.X_test.reindex(columns=selected_features, fill_value=0)
-        
-        try:
-            y_pred = model.predict(X_test_processed)
-            st.session_state.y_pred = y_pred  # Store predictions in session state
-        except ValueError as e:
-            st.error(f"⚠️ Prediction error: {e}")
-            st.stop()
-        
-        # Compute evaluation metrics
-        mae = mean_absolute_error(y_test, y_pred)
-        r2 = r2_score(y_test, y_pred)
-        rmse = mean_squared_error(y_test, y_pred) ** 0.5
+    # Process test data and make predictions
+    X_test_processed = st.session_state.X_test.reindex(columns=selected_features, fill_value=0)
+    
+    try:
+        y_pred = model.predict(X_test_processed)
+        st.session_state.y_pred = y_pred  # Store predictions in session state
+    except ValueError as e:
+        st.error(f"⚠️ Prediction error: {e}")
+        st.stop()
+    
+    # Retrieve the actual test values (y_test) from session state
+    y_test = st.session_state.y_test  # Ensure y_test is loaded
+    
+    # Compute evaluation metrics
+    mae = mean_absolute_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
+    rmse = mean_squared_error(y_test, y_pred) ** 0.5
+    
+    # Display evaluation results
+    st.write(f"MAE: {mae}")
+    st.write(f"R²: {r2}")
+    st.write(f"RMSE: {rmse}")
         
         # 📌 User selections for report sections
         st.subheader("Select Report Sections")
