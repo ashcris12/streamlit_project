@@ -664,72 +664,72 @@ with tabs[3]:  # Feature Engineering
 
     df = st.session_state.cleaned_df
 
-    # Section: Data Overview
-    st.header("Data Overview")
-    if st.checkbox('Show Data Overview'):
-        st.subheader("Top Rows of the Data")
-        st.write(df.head())  # Show top rows of the data
-        st.subheader("Summary Statistics")
-        st.write(df.describe())  # Display data statistics
-        
-        with st.expander("Show Dataset Info (Data Types & Missing Values)"):
-            # Capture df.info() output
-            buffer = io.StringIO()
-            df.info(buf=buffer)
-            info_str = buffer.getvalue()
-        
-            # Format output as markdown for better readability
-            st.markdown(f"```{info_str}```")
-
-    # Ensure the target variable is defined
-    target = 'Domestic Gross (USD)'
-
-    # Dynamically generate a list of all features (excluding the target)
-    all_features = [col for col in df.columns if col != target]
-
-    # Section: Feature Engineering - Interaction Features
-    st.header("Interaction Features")
-    if st.checkbox("Create Interaction Features"):
-        df["budget_opening_ratio"] = df["Production Budget (USD)"] / df["Opening Weekend (USD)"].replace(0, 1)
-        df["popularity_vote_ratio"] = df["popularity"] / df["vote_count"].replace(0, 1)
-        st.success("Interaction features created successfully!")
-
-    # Section: Feature Selection
-    st.header("Select Features for Model")
-    all_features = [col for col in df.columns if col != target and col != "release_date"]  # Exclude original date column
-    selected_features = st.multiselect(
-        "Select the features you want to include in the model:",
-        options=all_features,  # Use all features except the target
-    )
-
-    # Ensure at least one feature is selected
-    if not selected_features:
-        st.warning("Please select at least one feature.")
-
-    # Define X and y after selection
-    X = df[selected_features]
-    y = df[target]
-
-    # Split the data into training and testing sets (80/20)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    # ✅ Ensure selected_features are stored in a consistent order
-    selected_features = list(X_train.columns)  # Preserves feature order
-
-    # ✅ Store split datasets in session state to access them in another tab
-    st.session_state.X_train = X_train
-    st.session_state.X_test = X_test
-    st.session_state.y_train = y_train
-    st.session_state.y_test = y_test
-    st.session_state.selected_features = list(X_train.columns)  # ✅ Ensure consistent feature ordery
-
-    # Section: Correlation Analysis
-    st.header("Correlation Analysis")
-    if st.checkbox('Show Correlation Heatmap'):
-        corr = df[selected_features + [target]].corr()  # Ensure correlation matches selected features
-        fig, ax = plt.subplots(figsize=(10, 6))
-        sns.heatmap(corr, annot=True, cmap='seismic', ax=ax)
-        st.pyplot(fig)
+        # Section: Data Overview
+        st.header("Data Overview")
+        if st.checkbox('Show Data Overview'):
+            st.subheader("Top Rows of the Data")
+            st.write(df.head())  # Show top rows of the data
+            st.subheader("Summary Statistics")
+            st.write(df.describe())  # Display data statistics
+            
+            with st.expander("Show Dataset Info (Data Types & Missing Values)"):
+                # Capture df.info() output
+                buffer = io.StringIO()
+                df.info(buf=buffer)
+                info_str = buffer.getvalue()
+            
+                # Format output as markdown for better readability
+                st.markdown(f"```{info_str}```")
+    
+        # Ensure the target variable is defined
+        target = 'Domestic Gross (USD)'
+    
+        # Dynamically generate a list of all features (excluding the target)
+        all_features = [col for col in df.columns if col != target]
+    
+        # Section: Interaction Features
+        st.header("Interaction Features")
+        if st.checkbox("Create Interaction Features"):
+            df["budget_opening_ratio"] = df["Production Budget (USD)"] / df["Opening Weekend (USD)"].replace(0, 1)
+            df["popularity_vote_ratio"] = df["popularity"] / df["vote_count"].replace(0, 1)
+            st.success("Interaction features created successfully!")
+    
+        # Section: Feature Selection
+        st.header("Select Features for Model")
+        all_features = [col for col in df.columns if col != target and col != "release_date"]  # Exclude original date column
+        selected_features = st.multiselect(
+            "Select the features you want to include in the model:",
+            options=all_features,  # Use all features except the target
+        )
+    
+        # Ensure at least one feature is selected
+        if not selected_features:
+            st.warning("Please select at least one feature.")
+    
+        # Define X and y after selection
+        X = df[selected_features]
+        y = df[target]
+    
+        # Split the data into training and testing sets (80/20)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+        # ✅ Ensure selected_features are stored in a consistent order
+        selected_features = list(X_train.columns)  # Preserves feature order
+    
+        # ✅ Store split datasets in session state to access them in another tab
+        st.session_state.X_train = X_train
+        st.session_state.X_test = X_test
+        st.session_state.y_train = y_train
+        st.session_state.y_test = y_test
+        st.session_state.selected_features = list(X_train.columns)  # ✅ Ensure consistent feature ordery
+    
+        # Section: Correlation Analysis
+        st.header("Correlation Analysis")
+        if st.checkbox('Show Correlation Heatmap'):
+            corr = df[selected_features + [target]].corr()  # Ensure correlation matches selected features
+            fig, ax = plt.subplots(figsize=(10, 6))
+            sns.heatmap(corr, annot=True, cmap='seismic', ax=ax)
+            st.pyplot(fig)
 
     else:
         st.warning("🚫 You do not have permission to access feature engineering.")
