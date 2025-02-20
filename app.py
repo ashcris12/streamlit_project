@@ -985,18 +985,19 @@ with tabs[6]:  # Download Report
         
         metadata.to_csv(METADATA_FILE, index=False)
     
-    def get_reports_by_role(user_role, username):
+    def get_reports_by_role(role, username):
         if not os.path.exists(METADATA_FILE):
+            # If the metadata file doesn't exist, create an empty DataFrame
             df = pd.DataFrame(columns=["Report Name", "Role", "Creator", "File ID", "Folder Name"])
             df.to_csv(METADATA_FILE, index=False)
-        return df  # Return empty DataFrame
+        else:
+            # Otherwise, load the metadata
+            df = pd.read_csv(METADATA_FILE)
         
-        metadata = pd.read_csv(METADATA_FILE)
+        # Filter the reports based on the role and other criteria if necessary
+        df_reports = df[df['Role'] == role]  # Example filtering by role
         
-        if user_role == "Executive":
-            return metadata  # Executives see all reports
-        
-        return metadata[(metadata["Role"] == user_role) & (metadata["Creator"] == username)]
+        return df_reports
         
     st.title("Generate Report")
 
@@ -1193,11 +1194,14 @@ with tabs[6]:  # Download Report
     st.subheader("Available Reports")
     df_reports = get_reports_by_role(st.session_state.role, st.session_state.username)
 
-    
     if not df_reports.empty:
+        # Display the dataframe with selected columns
         st.dataframe(df_reports[["Report Name", "Folder Name"]])
+        
+        # Loop through each report and generate a link
         for _, row in df_reports.iterrows():
             report_link = f"https://drive.google.com/file/d/{row['File ID']}/view"
             st.markdown(f"[📄 {row['Report Name']}]({report_link})")
     else:
-        st.write("No reports available.")
+        # Display a message when there are no reports available
+        st.write("No reports available for your role.")
