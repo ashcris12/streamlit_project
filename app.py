@@ -654,8 +654,12 @@ with tabs[2]:  # Data Cleaning
         st.warning("🚫 You do not have permission to access data cleaning.")
 
 with tabs[3]:  # Feature Engineering
+    if "role" not in st.session_state:
+        st.error("🚨 ERROR: Role is missing in session state!")
+        st.session_state.role = "executive"  # Temporary fix
     if st.session_state.role not in ["data_science", "finance"]:
         st.warning("🚫 You do not have permission to access feature engineering.")
+        st.write(f"DEBUG: Role detected -> {st.session_state.role}")
         st.stop()
     st.header("Feature Engineering")
         
