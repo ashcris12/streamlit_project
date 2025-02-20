@@ -908,6 +908,7 @@ with tabs[5]: # Predictions & Performance
         st.error(f"Prediction failed: {str(e)}")
 
 with tabs[6]:  # Download Report
+    creator_username = st.session_state.username
      # 📌 Metadata File for Tracking Reports
     METADATA_FILE = "report_metadata.csv"
 
@@ -937,25 +938,25 @@ with tabs[6]:  # Download Report
         folder = drive_service.files().create(body=metadata, fields="id").execute()
         return folder["id"]
     
-    def upload_to_drive(report_name, filepath, user_role):
+    def upload_to_drive(report_name, filepath, user_role, creator_username):
         # Upload report to Google Drive under the correct role-based folder and return shareable link
         folder_name = ROLE_FOLDERS.get(user_role, "General_Reports")
         folder_id = get_or_create_folder(folder_name)
-    
+        
         file_metadata = {"name": report_name, "parents": [folder_id]}
         media = MediaFileUpload(filepath, mimetype="application/pdf")
         
         file = drive_service.files().create(body=file_metadata, media_body=media, fields="id").execute()
         file_id = file.get("id")
-    
+        
         # Make the file publicly viewable
         permission = {"role": "reader", "type": "anyone"}
         drive_service.permissions().create(fileId=file_id, body=permission).execute()
-    
+        
         report_link = f"https://drive.google.com/file/d/{file_id}/view"
         
-        # Save metadata
-        save_metadata(report_name, user_role, file_id, folder_name)
+        # Save metadata with all required arguments
+        save_metadata(report_name, user_role, creator_username, file_id, folder_name)
         
         return report_link
         
@@ -1183,7 +1184,7 @@ with tabs[6]:  # Download Report
     if st.button("Upload Report to Google Drive"):
         if report_name:
             generate_pdf()
-            report_link = upload_to_drive(report_name, "report.pdf", user_role)
+            report_link = upload_to_drive(report_name, "report.pdf", user_role, creator_username)
             st.success(f"✅ Report uploaded successfully! [🔗 View Report]({report_link})")
         else:
             st.error("⚠ Please enter a report name before uploading.")
