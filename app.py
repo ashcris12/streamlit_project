@@ -1212,5 +1212,5 @@ with tabs[6]:  # Download Report
             else:
                 st.write("No reports available.")
 
-         else:
+        else:
             st.info("Upload a CSV file to generate a new report.")
