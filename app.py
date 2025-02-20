@@ -834,15 +834,15 @@ elif selected_tab == "Feature Engineering":
     # Split the data into training and testing sets (80/20)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # ✅ Ensure selected_features are stored in a consistent order
-    selected_features = list(X_train.columns)  # Preserves feature order
+    # Ensure selected_features are stored in a consistent order
+    selected_features = list(X_train.columns)  # Preserve feature order
 
-    # ✅ Store split datasets in session state to access them in another tab
+    # Store split datasets in session state to access them in another tab
     st.session_state.X_train = X_train
     st.session_state.X_test = X_test
     st.session_state.y_train = y_train
     st.session_state.y_test = y_test
-    st.session_state.selected_features = list(X_train.columns)  # ✅ Ensure consistent feature ordery
+    st.session_state.selected_features = list(X_train.columns)  # Ensure consistent feature order
 
     # Section: Correlation Analysis
     st.header("Correlation Analysis")
@@ -863,7 +863,7 @@ elif selected_tab == "Model Training":
         st.warning("Train-test split data is missing. Please complete feature selection in the previous tab.")
         st.stop()  # 🚀 Stops execution if data isn't available
 
-    # ✅ Load data from session state
+    # Load data from session state
     X_train = st.session_state.X_train
     X_test = st.session_state.X_test
     y_train = st.session_state.y_train
@@ -910,16 +910,16 @@ elif selected_tab == "Model Training":
         st.session_state.X_train_selected = X_train_selected  # Ensure it's saved
 
         try:
-            # ✅ Train model synchronously (without threading)
+            # Train model synchronously (without threading)
             model.fit(X_train_selected, st.session_state.y_train)
             
-            # ✅ Save trained model type to session state
+            # Save trained model type to session state
             st.session_state.model_option = model_option
 
-            # ✅ Save trained model to session state
+            # Save trained model to session state
             st.session_state.trained_model = model  
 
-            # ✅ Save test data with correct feature order
+            # Save test data with correct feature order
             st.session_state.X_test_selected = X_test_selected.reindex(columns=X_train_selected.columns)
 
             for i in range(1, 101, 10):  
@@ -936,7 +936,7 @@ elif selected_tab == "Model Training":
             progress_bar.progress(100)
             status_text.text("")
 
-    # 🟢 Ensure the button is inside the tab block
+    # Ensure the button is inside the tab block
     if st.button("Train Model"):
         st.info(f"Training {model_option}... Please wait.")
         train_model(model_option, model)
@@ -1110,7 +1110,7 @@ elif selected_tab == "Download Report":
     plot_dir = "report_plots"
     os.makedirs(plot_dir, exist_ok=True)
         
-    # 📌 Check if a model has been trained and test data exists
+    # Check if a model has been trained and test data exists
     if "trained_model" not in st.session_state or st.session_state.trained_model is None:
         st.warning("❌ No trained model found. Please train a model first.")
         st.stop()
@@ -1160,7 +1160,7 @@ elif selected_tab == "Download Report":
     st.write(f"R²: {r2}")
     st.write(f"RMSE: {rmse}")
     
-    # 📌 User selections for report sections
+    # User selections for report sections
     st.subheader("Select Report Sections")
     include_summary = st.checkbox("Include Model Summary", True)
     include_features = st.checkbox("Include Feature Selection", True)
@@ -1168,13 +1168,13 @@ elif selected_tab == "Download Report":
     include_visuals = st.checkbox("Include Visualizations", True)
     include_predictions = st.checkbox("Include Sample Predictions", False)
     
-    # 📌 Select Visualizations
+    # Select Visualizations
     st.subheader("Select Visualizations")
     include_actual_vs_pred = st.checkbox("Actual vs. Predicted", True)
     include_residuals = st.checkbox("Residual Plot", True)
     include_feature_importance = st.checkbox("Feature Importance", True)
     
-    # 📌 Generate and Save Visualizations
+    # Generate and Save Visualizations
     def plot_actual_vs_predicted(y_test, y_pred, filename="actual_vs_predicted.png"):
         plt.figure(figsize=(6, 4))
         sns.scatterplot(x=y_test, y=y_pred, alpha=0.7)
@@ -1220,7 +1220,7 @@ elif selected_tab == "Download Report":
         if include_feature_importance:
             plot_feature_importance(model, selected_features)
     
-    # 📌 Report Preview
+    # Report Preview
     st.subheader("Report Preview")
     report_content = ""
     if include_summary:
@@ -1237,7 +1237,7 @@ elif selected_tab == "Download Report":
     
     st.markdown(report_content)
     
-    # 📌 Generate PDF Report with Visuals
+    # Generate PDF Report with Visuals
     def generate_pdf():
         pdf = FPDF()
         pdf.set_auto_page_break(auto=True, margin=15)
@@ -1287,13 +1287,13 @@ elif selected_tab == "Download Report":
     
         pdf.output("report.pdf")
     
-    # 📌 UI - Report Upload & Viewing
+    # UI - Report Upload & Viewing
     st.title("Download Reports")
     
     # Assume user role is stored in session state
     user_role = st.session_state.get("user_role", "Guest")
     
-    # 📌 Upload Section
+    # Upload Section
     report_name = st.text_input("Enter Report Name", "BoxOfficeReport.pdf")
     
     if st.button("Generate & Download Report as PDF"):
