@@ -692,8 +692,12 @@ with tabs[3]:  # Feature Engineering
     target = 'Domestic Gross (USD)'
 
     # Dynamically generate a list of all features (excluding the target)
-    all_features = [col for col in df.columns if col != target]
-
+    # Make sure df exists before using it
+    if "df" in globals():
+        all_features = [col for col in df.columns if col != target]
+    else:
+        all_features = [] 
+        
     # Section: Interaction Features
     st.header("Interaction Features")
     if st.checkbox("Create Interaction Features"):
