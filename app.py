@@ -654,10 +654,8 @@ with tabs[2]:  # Data Cleaning
         st.warning("🚫 You do not have permission to access data cleaning.")
 
 with tabs[3]:  # Feature Engineering
-    if st.session_state.role not in ["data_science", "finance"]:
-        st.warning("🚫 You do not have permission to access feature engineering.")
-        st.stop()
-    st.header("Feature Engineering")
+    if st.session_state.role in ["data_science", "finance"]:
+        st.header("Feature Engineering")
         
     if "cleaned_df" not in st.session_state or st.session_state.cleaned_df is None:
         if st.session_state.role in ["data_science", "finance"]:  
