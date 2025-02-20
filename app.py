@@ -1282,7 +1282,7 @@ elif selected_tab == "Download Report":
             if include_feature_importance and hasattr(model, "feature_importances_"):
                 pdf.image(os.path.join(plot_dir, "feature_importance.png"), x=10, w=180)
     
-    pdf.output("report.pdf")
+        pdf.output("report.pdf")
     
     # 📌 UI - Report Upload & Viewing
     st.title("Download Reports")
