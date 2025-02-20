@@ -994,15 +994,18 @@ with tabs[6]:  # Download Report
             df.to_csv(METADATA_FILE, index=False)
         else:
             df = pd.read_csv(METADATA_FILE)
-        
+    
+        # Print the loaded data to confirm
+        st.write("Loaded Metadata:", df)
+    
         # Filter reports based on role and creator_username (if provided)
         df_reports = df[df['Role'] == role]
+        st.write(f"Reports after filtering by role ({role}):", df_reports)
+    
         if username:
             df_reports = df_reports[df_reports['Creator'] == username]
-        
-        # Print out the filtered reports
-        st.write(df_reports)
-        
+            st.write(f"Reports after filtering by creator ({username}):", df_reports)
+    
         return df_reports
         
     st.title("Generate Report")
