@@ -1188,7 +1188,7 @@ with tabs[6]:  # Download Report
     if st.button("Upload Report to Google Drive"):
         if report_name:
             generate_pdf()
-            report_link = upload_to_drive(report_name, "report.pdf", user_role)
+            report_link = upload_to_drive(report_name, "report.pdf", user_role, "Reports")
             st.success(f"✅ Report uploaded successfully! [🔗 View Report]({report_link})")
         else:
             st.error("⚠ Please enter a report name before uploading.")
