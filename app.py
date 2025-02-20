@@ -139,11 +139,11 @@ from googleapiclient.http import MediaFileUpload
 if "selected_tab" not in st.session_state:
     st.session_state.selected_tab = "Upload Data"  # Default to the first tab
 
-# Ensure df exists for all roles
-if "df" not in st.session_state or st.session_state.df is None:
-    df = pd.DataFrame()  # Empty DataFrame prevents attribute errors
+# Ensure df exists and has data before using it
+if "df" not in st.session_state or st.session_state.df is None or st.session_state.df.empty:
+    df = None  # Set df to None if no data is available
 else:
-    df = st.session_state.df  # Use the uploaded dataset if available
+    df = st.session_state.df  # Use uploaded dataset if available
 
 def authenticate_google_drive():
     """Authenticate with Google Drive using service account credentials from Streamlit secrets."""
