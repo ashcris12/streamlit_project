@@ -371,7 +371,10 @@ if st.session_state.authenticated:
 if st.session_state.role == "executive":
     # Executives only see the "View Reports" tab
     tabs = ["View Reports"]  # Only show View Reports for executives
-else:
+elif st.session_state.role == "finance":
+    # Executives only see the "View Reports" tab
+    tabs = ["Upload Data", "Feature Engineering", "Model Training", "Predictions & Performance", "Download Report"]
+elif st.session_state.role == "data_science"
     # Non-executives (like data science and finance) see all tabs
     tabs = ["Upload Data", "EDA", "Data Cleaning", "Feature Engineering", "Model Training", "Predictions & Performance", "Download Report"]
 
