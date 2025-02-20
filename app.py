@@ -486,7 +486,7 @@ if selected_tab == "View Reports":
         else:
             st.write("No reports available for your role.")
 
-elif selected_tab == "Upload Data"
+elif selected_tab == "Upload Data":
         st.header("Upload Your Data")
         # Ensure df exists in session state
         if "df" not in st.session_state:
