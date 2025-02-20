@@ -993,9 +993,11 @@ with tabs[6]:  # Download Report
         else:
             # Otherwise, load the metadata
             df = pd.read_csv(METADATA_FILE)
-        
-        # Filter the reports based on the role and other criteria if necessary
-        df_reports = df[df['Role'] == role]  # Example filtering by role
+            
+        # Filter the reports based on the role and creator_username (if provided)
+        df_reports = df[df['Role'] == role]  # Filter by role first
+        if username:
+            df_reports = df_reports[df_reports['Creator'] == username]  # Further filter by creator's username
         
         return df_reports
         
