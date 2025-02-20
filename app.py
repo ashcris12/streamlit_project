@@ -985,9 +985,6 @@ with tabs[6]:  # Download Report
         
         metadata.to_csv(METADATA_FILE, index=False)
     
-        # Print the metadata after saving to confirm
-        st.write(metadata)
-    
     def get_reports_by_role(username):
         if not os.path.exists(METADATA_FILE):
             df = pd.DataFrame(columns=["Report Name", "Role", "Creator", "File ID", "Folder Name"])
@@ -995,12 +992,8 @@ with tabs[6]:  # Download Report
         else:
             df = pd.read_csv(METADATA_FILE)
     
-        # Print the loaded data to confirm
-        st.write("Loaded Metadata:", df)
-    
         # Filter reports based on creator (username)
         df_reports = df[df['Creator'] == username]
-        st.write(f"Reports after filtering by creator ({username}):", df_reports)
     
         return df_reports
         
