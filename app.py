@@ -733,10 +733,9 @@ with tabs[3]:  # Feature Engineering
         sns.heatmap(corr, annot=True, cmap='seismic', ax=ax)
         st.pyplot(fig)
 
+st.write(f"DEBUG: Current Role in Feature Engineering: {st.session_state.get('role', 'NOT FOUND')}")
+
 with tabs[4]:  # Model Training
-    if "role" not in st.session_state:
-        st.error("🚨 ERROR: Role is missing in session state!")
-        st.session_state.role = "executive"  # Temporary fix
     if st.session_state.role not in ["data_science", "finance"]:
         st.warning("🚫 You do not have permission to access feature engineering.")
         st.write(f"DEBUG: Role detected -> {st.session_state.role}")
