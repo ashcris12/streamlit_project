@@ -978,12 +978,15 @@ with tabs[6]:  # Download Report
     def save_metadata(report_name, creator_role, creator_username, file_id, folder_name):
         metadata = pd.DataFrame([[report_name, creator_role, creator_username, file_id, folder_name]], 
                                 columns=["Report Name", "Role", "Creator", "File ID", "Folder Name"])
-    
+        
         if os.path.exists(METADATA_FILE):
             existing_metadata = pd.read_csv(METADATA_FILE)
             metadata = pd.concat([existing_metadata, metadata], ignore_index=True)
         
         metadata.to_csv(METADATA_FILE, index=False)
+    
+        # Print the metadata after saving to confirm
+        st.write(metadata)
     
     def get_reports_by_role(role, username):
         if not os.path.exists(METADATA_FILE):
