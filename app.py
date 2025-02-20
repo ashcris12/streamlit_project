@@ -451,23 +451,22 @@ def save_metadata(report_name, creator_role, creator_username, file_id, folder_n
     
     metadata.to_csv(METADATA_FILE, index=False)
 
-def get_reports_by_role(role, username):
-    # Check if the metadata file exists; if not, create an empty DataFrame and return
+def get_reports_by_role(username, role):
     if not os.path.exists(METADATA_FILE):
         df = pd.DataFrame(columns=["Report Name", "Role", "Creator", "File ID", "Folder Name"])
         df.to_csv(METADATA_FILE, index=False)
-        return df  # Return empty DataFrame if file doesn't exist
-
-    # Otherwise, load the metadata CSV into a DataFrame
-    df = pd.read_csv(METADATA_FILE)
-
-    # If the role is "Executive", show all reports, no filtering by role or creator
-    if role == "Executive":
-        return df
+    else:
+        df = pd.read_csv(METADATA_FILE)
     
-    # If the role is not "Executive", filter only by Creator (username)
-    return df[df['Creator'] == username]
-
+    # For Executives, return all reports
+    if role == "Executive":
+        df_reports = df
+    else:
+        # Filter reports based on creator (username) for other roles
+        df_reports = df[df['Creator'] == username]
+    
+    return df_reports
+    
 with tabs[0]:  # Upload Data
     if st.session_state.role == "executive":
         st.header("View Reports")
