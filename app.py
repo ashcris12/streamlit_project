@@ -459,15 +459,17 @@ def get_reports_by_role(role, username):
     else:
         # Otherwise, load the metadata
         df = pd.read_csv(METADATA_FILE)
-
-    # If the user is an executive, return all reports
+    
     if role == "Executive":
-        df_reports = df  # No filtering by creator for executives
+        # Executives can see all reports, ignore the role filter
+        return df
+    elif role == "Guest":
+        # For "Guest" users, filter by username (creator) only
+        return df[df['Creator'] == username]
     else:
-        # Filter reports by the creator (username) for other roles
-        df_reports = df[df['Creator'] == username]
-
-    return df_reports
+        # For other roles (e.g., "Finance Analyst", "Data Science Team"), filter by both role and creator
+        df_reports = df[df['Role'] == role]
+        return df_reports[df_reports['Creator'] == username]
 
 with tabs[0]:  # Upload Data
     if st.session_state.role == "executive":
