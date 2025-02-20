@@ -902,7 +902,7 @@ with tabs[6]:  # Download Report
         st.warning("❌ You do not have permission to access this tab.")
         st.stop()
 
-    st.title("Download Report")
+    st.title("Generate Report")
 
     # Ensure a directory for saving plots
     plot_dir = "report_plots"
