@@ -902,6 +902,24 @@ with tabs[6]:  # Download Report
         st.warning("❌ You do not have permission to access this tab.")
         st.stop()
 
+    st.header("Download Report")
+
+    # ✅ Show saved reports FIRST, before checking CSV uploads or models
+    st.subheader("Saved Reports")
+    saved_reports = get_reports_by_role(st.session_state.role)
+
+    if saved_reports.empty:
+        st.info("📂 No saved reports available.")
+    else:
+        for _, report in saved_reports.iterrows():
+            st.write(f"**{report['Report Name']}** - stored in folder: {report['Folder Name']}")
+            st.download_button(
+                label="Download",
+                data=fetch_report_from_drive(report['File ID']),
+                file_name=f"{report['Report Name']}.pdf",
+                mime="application/pdf"
+            )
+
     if st.session_state.selected_tab == "Download Report":
         st.header("Download Report")
     
