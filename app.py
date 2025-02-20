@@ -459,7 +459,7 @@ def get_reports_by_role(username, role):
         df = pd.read_csv(METADATA_FILE)
     
     # For Executives, return all reports
-    if role == "Executive":
+    if st.session_state.role == "executive":
         df_reports = df
     else:
         # Filter reports based on creator (username) for other roles
