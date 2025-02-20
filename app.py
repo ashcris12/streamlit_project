@@ -654,6 +654,15 @@ with tabs[2]:  # Data Cleaning
         st.warning("🚫 You do not have permission to access data cleaning.")
 
 with tabs[3]:  # Feature Engineering
+    st.write("✅ DEBUG: Inside Feature Engineering tab")
+
+    # Print session state keys to check if role exists
+    st.write(f"DEBUG: Current session state keys → {list(st.session_state.keys())}")
+
+    # Explicitly check role
+    role = st.session_state.get("role", "NOT FOUND")
+    st.write(f"DEBUG: Role before switching tabs → {role}")
+    
     if st.session_state.role not in ["data_science", "finance"]:
         st.warning("🚫 You do not have permission to access feature engineering.")
         st.stop()
