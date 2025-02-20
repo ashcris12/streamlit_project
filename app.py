@@ -706,7 +706,11 @@ with tabs[3]:  # Feature Engineering
 
     # Section: Feature Selection
     st.header("Select Features for Model")
-    all_features = [col for col in df.columns if col != target and col != "release_date"]  # Exclude original date column
+    # Ensure df is defined and not None before accessing columns
+    if "df" in globals() and df is not None:
+        all_features = [col for col in df.columns if col != target and col != "release_date"]  # Exclude original date column
+    else:
+        all_features = []
     selected_features = st.multiselect(
         "Select the features you want to include in the model:",
         options=all_features,  # Use all features except the target
