@@ -32,6 +32,18 @@ def init_db():
 
 # Add User (with encrypted MFA secret)
 def add_user(username, name, password, role):
+     """
+    Adds a new user to the database with a hashed password and assigned role.
+
+    Args:
+        username: str - The username of the new user.
+        name: str - The full name of the user.
+        password: str - The plaintext password to be hashed and stored securely.
+        role: str - The role assigned to the user (e.g., 'executive', 'finance', 'data_science').
+
+    Returns:
+        None
+    """
     # Load encryption key
     cipher_key = st.secrets["SECRET_KEY"].encode()  # Streamlit secrets management
     cipher = Fernet(cipher_key)
@@ -66,6 +78,15 @@ def add_user(username, name, password, role):
 
 # Decrypt MFA Secret 
 def decrypt_mfa_secret(username):
+     """
+    Decrypts the stored MFA secret for a user to enable multi-factor authentication.
+
+    Args:
+        username: str - The username whose MFA secret needs to be decrypted.
+
+    Returns:
+        str: The decrypted MFA secret.
+    """
     # Load encryption key
     cipher_key = st.secrets["SECRET_KEY"].encode()
     cipher = Fernet(cipher_key)
@@ -90,7 +111,15 @@ def decrypt_mfa_secret(username):
 
 # Example usage:
 init_db()  # Initialize the DB 
+ """
+    Initializes the SQLite database and creates a users table if it does not exist.
 
+    Args:
+        None
+
+    Returns:
+        None
+    """
 # Add example users based on role
 add_user("exec_user", "Executive User", "password123", "executive")
 add_user("finance_user", "Finance User", "securepass456", "finance")
@@ -137,8 +166,15 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
     
 def authenticate_google_drive():
-    """Authenticate with Google Drive using service account credentials from Streamlit secrets."""
-    
+        """
+    Authenticates the application with Google Drive to enable file uploads and retrieval.
+
+    Args:
+        None
+
+    Returns:
+        service: Google Drive API service instance.
+    """
     # Load credentials from Streamlit secrets
     creds_dict = dict(st.secrets["gcp_service_account"])
     
@@ -172,6 +208,15 @@ cipher = Fernet(cipher_key)
 
 # Database Connection & Fetch User Details
 def get_user(username):
+    """
+    Fetches user details, including their password hash and role, from the database.
+
+    Args:
+        username: str - The username to look up in the database.
+
+    Returns:
+        dict: A dictionary containing user details (name, password hash, role).
+    """
     conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
 
@@ -191,6 +236,15 @@ def get_user(username):
 
 # Check inactivity timeout (15 minutes)
 def check_timeout():
+     """
+    Checks if a user's session has timed out and logs them out if inactive.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
     if st.session_state.authenticated:
         current_time = time.time()
         if current_time - st.session_state.last_activity > 900:  # 900 seconds = 15 minutes
@@ -411,7 +465,18 @@ def get_or_create_folder(folder_name, parent_folder_id=None):
     return folder["id"]
 
 def upload_to_drive(report_name, filepath, user_role, creator_username):
-    # Upload report to Google Drive under the correct role-based folder and return shareable link
+    """
+    Uploads a report to Google Drive under the appropriate role-based folder.
+
+    Args:
+        report_name: str - The name of the report file.
+        filepath: str - The local path to the report file.
+        user_role: str - The role of the user uploading the report.
+        creator_username: str - The username of the report creator.
+
+    Returns:
+        str: The Google Drive file ID of the uploaded report.
+    """
     folder_name = ROLE_FOLDERS.get(user_role, "General_Reports")
     folder_id = get_or_create_folder(folder_name)
     
@@ -892,6 +957,16 @@ elif selected_tab == "Model Training":
         model = LinearRegression()
 
     def train_model(model_option, model):
+        """
+        Trains the selected machine learning model using preprocessed data.
+    
+        Args:
+            model_option: str - The type of model selected by the user.
+            model: sklearn model instance - The initialized machine learning model.
+    
+        Returns:
+            model: The trained machine learning model.
+        """
         st.session_state["training_status"] = "Training in progress..."
         progress_bar = st.progress(0)  
         status_text = st.empty()
@@ -1239,6 +1314,15 @@ elif selected_tab == "Download Report":
     
     # Generate PDF Report with Visuals
     def generate_pdf():
+         """
+        Generates a PDF report summarizing model performance and findings.
+    
+        Args:
+            None
+    
+        Returns:
+            None
+        """
         pdf = FPDF()
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.add_page()
