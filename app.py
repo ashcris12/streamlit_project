@@ -44,7 +44,6 @@ def add_user(username, name, password, role):
     Returns:
         None
     """
-    # Load encryption key
     cipher_key = st.secrets["SECRET_KEY"].encode()  # Streamlit secrets management
     cipher = Fernet(cipher_key)
 
