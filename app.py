@@ -32,7 +32,7 @@ def init_db():
 
 # Add User (with encrypted MFA secret)
 def add_user(username, name, password, role):
-     """
+    """
     Adds a new user to the database with a hashed password and assigned role.
 
     Args:
