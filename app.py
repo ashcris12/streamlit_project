@@ -77,7 +77,7 @@ def add_user(username, name, password, role):
 
 # Decrypt MFA Secret 
 def decrypt_mfa_secret(username):
-     """
+    """
     Decrypts the stored MFA secret for a user to enable multi-factor authentication.
 
     Args:
@@ -110,15 +110,7 @@ def decrypt_mfa_secret(username):
 
 # Example usage:
 init_db()  # Initialize the DB 
- """
-    Initializes the SQLite database and creates a users table if it does not exist.
 
-    Args:
-        None
-
-    Returns:
-        None
-    """
 # Add example users based on role
 add_user("exec_user", "Executive User", "password123", "executive")
 add_user("finance_user", "Finance User", "securepass456", "finance")
@@ -165,7 +157,7 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
     
 def authenticate_google_drive():
-        """
+    """
     Authenticates the application with Google Drive to enable file uploads and retrieval.
 
     Args:
@@ -235,7 +227,7 @@ def get_user(username):
 
 # Check inactivity timeout (15 minutes)
 def check_timeout():
-     """
+    """
     Checks if a user's session has timed out and logs them out if inactive.
 
     Args:
@@ -1313,7 +1305,7 @@ elif selected_tab == "Download Report":
     
     # Generate PDF Report with Visuals
     def generate_pdf():
-         """
+        """
         Generates a PDF report summarizing model performance and findings.
     
         Args:
