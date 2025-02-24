@@ -1260,13 +1260,13 @@ elif selected_tab == "Download Report":
             plt.savefig(os.path.join(plot_dir, filename))
             plt.close()
         
-        # Generate selected plots
-        if include_actual_vs_pred:
-            plot_actual_vs_predicted(y_test, y_pred)
-        if include_residuals:
-            plot_residuals(y_test, y_pred)
-        if include_feature_importance:
-            plot_feature_importance(model, selected_features)
+    # Generate selected plots
+    if include_actual_vs_pred:
+        plot_actual_vs_predicted(y_test, y_pred)
+    if include_residuals:
+        plot_residuals(y_test, y_pred)
+    if include_feature_importance:
+        plot_feature_importance(model, selected_features)
     
     # Report Preview
     st.subheader("Report Preview")
