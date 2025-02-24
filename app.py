@@ -466,26 +466,30 @@ def upload_to_drive(report_name, filepath, user_role, creator_username):
         creator_username: str - The username of the report creator.
 
     Returns:
-        str: The Google Drive file ID of the uploaded report.
+        str: The Google Drive file ID of the uploaded report or None if the file is missing.
     """
+    if not os.path.exists(filepath):
+        print(f"⚠️ Error: The file '{filepath}' does not exist. Skipping upload.")
+        return None  # Prevents further execution
+
     folder_name = ROLE_FOLDERS.get(user_role, "General_Reports")
     folder_id = get_or_create_folder(folder_name)
-    
+
     file_metadata = {"name": report_name, "parents": [folder_id]}
     media = MediaFileUpload(filepath, mimetype="application/pdf")
-    
+
     file = drive_service.files().create(body=file_metadata, media_body=media, fields="id").execute()
     file_id = file.get("id")
-    
+
     # Make the file publicly viewable
     permission = {"role": "reader", "type": "anyone"}
     drive_service.permissions().create(fileId=file_id, body=permission).execute()
-    
+
     report_link = f"https://drive.google.com/file/d/{file_id}/view"
-    
+
     # Save metadata with all required arguments
     save_metadata(report_name, user_role, creator_username, file_id, folder_name)
-    
+
     return report_link
     
 def set_drive_permissions(file_id, user_role):
