@@ -454,43 +454,6 @@ def get_or_create_folder(folder_name, parent_folder_id=None):
     
     folder = drive_service.files().create(body=metadata, fields="id").execute()
     return folder["id"]
-
-def upload_to_drive(report_name, filepath, user_role, creator_username):
-    """
-    Uploads a report to Google Drive under the appropriate role-based folder.
-
-    Args:
-        report_name: str - The name of the report file.
-        filepath: str - The local path to the report file.
-        user_role: str - The role of the user uploading the report.
-        creator_username: str - The username of the report creator.
-
-    Returns:
-        str: The Google Drive file ID of the uploaded report or None if the file is missing.
-    """
-    if not os.path.exists(filepath):
-        print(f"⚠️ Error: The file '{filepath}' does not exist. Skipping upload.")
-        return None  # Prevents further execution
-
-    folder_name = ROLE_FOLDERS.get(user_role, "General_Reports")
-    folder_id = get_or_create_folder(folder_name)
-
-    file_metadata = {"name": report_name, "parents": [folder_id]}
-    media = MediaFileUpload(filepath, mimetype="application/pdf")
-
-    file = drive_service.files().create(body=file_metadata, media_body=media, fields="id").execute()
-    file_id = file.get("id")
-
-    # Make the file publicly viewable
-    permission = {"role": "reader", "type": "anyone"}
-    drive_service.permissions().create(fileId=file_id, body=permission).execute()
-
-    report_link = f"https://drive.google.com/file/d/{file_id}/view"
-
-    # Save metadata with all required arguments
-    save_metadata(report_name, user_role, creator_username, file_id, folder_name)
-
-    return report_link
     
 def set_drive_permissions(file_id, user_role):
     # Set Google Drive permissions based on user role
@@ -1116,25 +1079,40 @@ elif selected_tab == "Download Report":
             return folder["id"]
         
         def upload_to_drive(report_name, filepath, user_role, creator_username):
-            # Upload report to Google Drive under the correct role-based folder and return shareable link
+            """
+            Uploads a report to Google Drive under the appropriate role-based folder.
+        
+            Args:
+                report_name: str - The name of the report file.
+                filepath: str - The local path to the report file.
+                user_role: str - The role of the user uploading the report.
+                creator_username: str - The username of the report creator.
+        
+            Returns:
+                str: The Google Drive file ID of the uploaded report or None if the file is missing.
+            """
+            if not os.path.exists(filepath):
+                print(f"⚠️ Error: The file '{filepath}' does not exist. Skipping upload.")
+                return None  # Prevents further execution
+        
             folder_name = ROLE_FOLDERS.get(user_role, "General_Reports")
             folder_id = get_or_create_folder(folder_name)
-            
+        
             file_metadata = {"name": report_name, "parents": [folder_id]}
             media = MediaFileUpload(filepath, mimetype="application/pdf")
-            
+        
             file = drive_service.files().create(body=file_metadata, media_body=media, fields="id").execute()
             file_id = file.get("id")
-            
+        
             # Make the file publicly viewable
             permission = {"role": "reader", "type": "anyone"}
             drive_service.permissions().create(fileId=file_id, body=permission).execute()
-            
+        
             report_link = f"https://drive.google.com/file/d/{file_id}/view"
-            
+        
             # Save metadata with all required arguments
             save_metadata(report_name, user_role, creator_username, file_id, folder_name)
-            
+        
             return report_link
             
         def set_drive_permissions(file_id, user_role):
