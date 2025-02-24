@@ -1365,10 +1365,7 @@ elif selected_tab == "Download Report":
             st.success(f"✅ Report uploaded successfully! [🔗 View Report]({report_link})")
         else:
             st.error("⚠ Please enter a report name before uploading.")
-    
-    # Upload the report and save metadata
-    report_link = upload_to_drive(report_name, "report.pdf", user_role, creator_username)
-    
+
     # Display available reports
     st.subheader("Available Reports")
     
