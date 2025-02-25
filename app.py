@@ -34,15 +34,7 @@ def init_db():
 def add_user(username, name, password, role):
     """
     Adds a new user to the database with a hashed password and assigned role.
-
-    Args:
-        username: str - The username of the new user.
-        name: str - The full name of the user.
-        password: str - The plaintext password to be hashed and stored securely.
-        role: str - The role assigned to the user (e.g., 'executive', 'finance', 'data_science').
-
-    Returns:
-        None
+    Prevents duplicate user entries.
     """
     cipher_key = st.secrets["SECRET_KEY"].encode()  # Streamlit secrets management
     cipher = Fernet(cipher_key)
@@ -50,28 +42,30 @@ def add_user(username, name, password, role):
     conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
 
-    # Check the password before hashing
-    print(f"Hashing password for {username}: {password}")
+    # Check if the user already exists
+    cursor.execute("SELECT 1 FROM users WHERE username = ?", (username,))
+    user_exists = cursor.fetchone()
 
-    # Hash password
-    password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(12)).decode('utf-8')
+    if user_exists:
+        print(f"User {username} already exists. Skipping insertion.")
+    else:
+        # Hash password
+        password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(12)).decode('utf-8')
 
-    # Encrypt MFA secret
-    mfa_secret = pyotp.random_base32()
-    encrypted_mfa = cipher.encrypt(mfa_secret.encode()).decode()
+        # Encrypt MFA secret
+        mfa_secret = pyotp.random_base32()
+        encrypted_mfa = cipher.encrypt(mfa_secret.encode()).decode()
 
-    # Print SQL query and values
-    print(f"Inserting user {username} into the database with role {role}")
-
-    try:
         # Insert user into the database
-        cursor.execute("""
-            INSERT INTO users (username, name, password_hash, mfa_secret, role) 
-            VALUES (?, ?, ?, ?, ?)
-        """, (username, name, password_hash, encrypted_mfa, role))
-        conn.commit()
-    except sqlite3.IntegrityError as e:
-        print(f"Error inserting user: {e}")
+        try:
+            cursor.execute("""
+                INSERT INTO users (username, name, password_hash, mfa_secret, role) 
+                VALUES (?, ?, ?, ?, ?)
+            """, (username, name, password_hash, encrypted_mfa, role))
+            conn.commit()
+            print(f"User {username} added successfully.")
+        except sqlite3.IntegrityError as e:
+            print(f"Error inserting user: {e}")
 
     conn.close()
 
@@ -115,7 +109,6 @@ init_db()  # Initialize the DB
 add_user("exec_user", "Executive User", "password123", "executive")
 add_user("finance_user", "Finance User", "securepass456", "finance")
 add_user("data_user", "Data User", "datapass789", "data_science")
-
 
 # In[252]:
 
