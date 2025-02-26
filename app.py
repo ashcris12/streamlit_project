@@ -712,7 +712,8 @@ elif selected_tab == "Data Cleaning":
                     custom_fill_value = st.text_input("Enter custom value for missing categorical data")
                     if custom_fill_value:
                         cleaned_df[categorical_cols] = cleaned_df[categorical_cols].fillna(custom_fill_value)
-
+                        
+                print(cleaned_df.isna().sum())  # or st.write(cleaned_df.isna().sum())
                 st.session_state.cleaned_df = cleaned_df
 
             ### Step 3: Feature Engineering
