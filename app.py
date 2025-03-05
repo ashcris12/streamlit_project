@@ -1161,7 +1161,7 @@ elif selected_tab == "Download Report":
         st.warning("❌ Test data is missing. Retrain the model before proceeding.")
         st.stop()
 
-     if "cleaned_df" in st.session_state and st.session_state.cleaned_df is not None:
+    if "cleaned_df" in st.session_state and st.session_state.cleaned_df is not None:
         df = st.session_state.cleaned_df
     elif "df" in st.session_state and st.session_state.df is not None:
         df = st.session_state.df
