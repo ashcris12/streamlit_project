@@ -1227,11 +1227,6 @@ elif selected_tab == "Download Report":
     r2 = r2_score(y_test, y_pred)
     rmse = mean_squared_error(y_test, y_pred) ** 0.5
     
-    # Display evaluation results
-    st.write(f"MAE: {mae}")
-    st.write(f"R²: {r2}")
-    st.write(f"RMSE: {rmse}")
-    
     # User selections for report sections
     st.subheader("Select Report Sections")
     include_statistics_report = st.checkbox("Include Statistics Report", True)
