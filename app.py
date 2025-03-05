@@ -1327,15 +1327,14 @@ elif selected_tab == "Download Report":
                 sns.histplot(st.session_state.X_test[col], bins=30, kde=True, ax=ax)
                 ax.set_title(f"Distribution of {col.capitalize()}")
 
-    # Display in Streamlit
-    st.pyplot(fig)
-
-    # Save figure for PDF report
-    histogram_path = "histograms.png"
-    fig.savefig(histogram_path, bbox_inches="tight")
-    plt.close(fig)
-
+        # Display in Streamlit
+        st.pyplot(fig)
     
+        # Save figure for PDF report
+        histogram_path = "histograms.png"
+        fig.savefig(histogram_path, bbox_inches="tight")
+        plt.close(fig)
+
     st.markdown(report_content)
 
     def table_from_dataframe(pdf, df, title):
