@@ -1324,7 +1324,29 @@ elif selected_tab == "Download Report":
         st.dataframe(sample_predictions)
     
     st.markdown(report_content)
+
+    def table_from_dataframe(pdf, df, title):
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(200, 10, title, ln=True, align="C")  # Title
+        pdf.ln(5)
     
+        pdf.set_font("Arial", "B", 10)
+    
+        # Print the header
+        for col in df.columns:
+            pdf.cell(30, 10, col, border=1, align="C")  # Column header
+        pdf.ln()
+    
+        pdf.set_font("Arial", size=10)
+    
+        # Print the table content
+        for index, row in df.iterrows():
+            for value in row:
+                pdf.cell(30, 10, str(value), border=1, align="C")  # Table content
+            pdf.ln()  # New row
+    
+        pdf.ln(5)  # Add spacing after the table
+
     # Generate PDF Report with Visuals
     def generate_pdf():
         """
@@ -1342,22 +1364,18 @@ elif selected_tab == "Download Report":
         pdf.set_font("Arial", size=12)
 
         # Add Statistics Report
-        if include_statistics_report:
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(200, 10, "Statistics Report", ln=True, align="C")
-            pdf.set_font("Arial", size=10)
-            
-            # Descriptive Statistics
-            descriptive_stats_text = descriptive_stats.to_string()
-            pdf.multi_cell(0, 10, f"Descriptive Statistics:\n{descriptive_stats_text}\n\n")
-            
-            # Skewness
-            skewness_text = skewness.to_string()
-            pdf.multi_cell(0, 10, f"Skewness:\n{skewness_text}\n\n")
-            
-            # Correlation Matrix
-            correlation_matrix_text = correlation_matrix.to_string()
-            pdf.multi_cell(0, 10, f"Correlation Matrix:\n{correlation_matrix_text}\n\n")
+       if include_statistics_report:
+            numeric_df = df.select_dtypes(include=['number'])  # Keep only numeric columns
+            descriptive_stats = numeric_df.describe().round(2).transpose()
+            skewness = numeric_df.skew(numeric_only=True).round(2).to_frame(name="Skewness")
+            correlation_matrix = numeric_df.corr(numeric_only=True).round(2)
+        
+            if not descriptive_stats.empty:
+                table_from_dataframe(pdf, descriptive_stats, "Descriptive Statistics")
+            if not skewness.empty:
+                table_from_dataframe(pdf, skewness, "Skewness")
+            if not correlation_matrix.empty:
+                table_from_dataframe(pdf, correlation_matrix, "Correlation Matrix")
 
         # Add Model Summary
         if include_summary:
