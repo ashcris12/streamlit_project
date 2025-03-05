@@ -1233,6 +1233,7 @@ elif selected_tab == "Download Report":
     
     # Select Visualizations
     st.subheader("Select Visualizations")
+    include_histograms = st.checkbox("Histograms", False)
     include_actual_vs_pred = st.checkbox("Actual vs. Predicted", True)
     include_residuals = st.checkbox("Residual Plot", True)
     include_feature_importance = st.checkbox("Feature Importance", True)
@@ -1317,6 +1318,23 @@ elif selected_tab == "Download Report":
     if include_predictions:
         sample_predictions = pd.DataFrame({"Actual": y_test[:5], "Predicted": y_pred[:5]})
         st.dataframe(sample_predictions)
+
+    if include_histograms:
+        fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+    
+        for ax, col in zip(axes, ['revenue', 'budget', 'runtime']):
+            if col in selected_features:
+                sns.histplot(st.session_state.X_test[col], bins=30, kde=True, ax=ax)
+                ax.set_title(f"Distribution of {col.capitalize()}")
+
+    # Display in Streamlit
+    st.pyplot(fig)
+
+    # Save figure for PDF report
+    histogram_path = "histograms.png"
+    fig.savefig(histogram_path, bbox_inches="tight")
+    plt.close(fig)
+
     
     st.markdown(report_content)
 
@@ -1381,14 +1399,7 @@ elif selected_tab == "Download Report":
                 table_from_dataframe(pdf, correlation_matrix, "Correlation Matrix")
 
         if include_histograms:
-            fig, axes = plt.subplots(1, 3, figsize=(18, 5))
-            
-            for ax, col in zip(axes, ['revenue', 'budget', 'runtime']):
-                if col in selected_features:
-                    sns.histplot(df[col], bins=30, kde=True, ax=ax)
-                    ax.set_title(f"Distribution of {col.capitalize()}")
-            
-            st.pyplot(fig)
+            pdf.image(histogram_path, x=10, w=180)  # Adjust x, w as needed
 
         # Add Model Summary
         if include_summary:
