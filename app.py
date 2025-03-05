@@ -1345,6 +1345,28 @@ elif selected_tab == "Download Report":
     
     st.markdown(report_content)
     
+    class PDF(FPDF):
+        def table_from_dataframe(self, df, title):
+            self.set_font("Arial", "B", 12)
+            self.cell(200, 10, title, ln=True, align="C")
+            self.ln(5)
+            self.set_font("Arial", "B", 10)
+    
+            # Table Header
+            col_width = 40  # Adjust width based on your data
+            for col in df.columns:
+                self.cell(col_width, 8, col, border=1, align="C")
+            self.ln()
+    
+            # Table Rows
+            self.set_font("Arial", size=9)
+            for index, row in df.iterrows():
+                self.cell(col_width, 8, str(index), border=1, align="C")  # Row name
+                for value in row:
+                    self.cell(col_width, 8, f"{value:.2f}", border=1, align="C")  # Format float values
+                self.ln()
+            self.ln(5)
+    
     # Generate PDF Report with Visuals
     def generate_pdf():
         """
@@ -1361,24 +1383,12 @@ elif selected_tab == "Download Report":
         pdf.add_page()
         pdf.set_font("Arial", size=12)
 
-       # Add Statistics Report
-        if include_statistics_report:
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(200, 10, "Statistics Report", ln=True, align="C")
-            pdf.set_font("Arial", size=10)
-            
-            # Descriptive Statistics
-            descriptive_stats_text = descriptive_stats.to_string()
-            pdf.multi_cell(0, 10, f"Descriptive Statistics:\n{descriptive_stats_text}\n\n")
-            
-            # Skewness
-            skewness_text = skewness.to_string()
-            pdf.multi_cell(0, 10, f"Skewness:\n{skewness_text}\n\n")
-            
-            # Correlation Matrix
-            correlation_matrix_text = correlation_matrix.to_string()
-            pdf.multi_cell(0, 10, f"Correlation Matrix:\n{correlation_matrix_text}\n\n")
-        
+       # Add Statistics Report with Tables
+       if include_statistics_report:
+           pdf.table_from_dataframe(descriptive_stats, "Descriptive Statistics")
+           pdf.table_from_dataframe(skewness, "Skewness")
+           pdf.table_from_dataframe(correlation_matrix, "Correlation Matrix")
+    
         # Add Model Summary
         if include_summary:
             pdf.set_font("Arial", "B", 14)
