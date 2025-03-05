@@ -1383,11 +1383,23 @@ elif selected_tab == "Download Report":
         pdf.add_page()
         pdf.set_font("Arial", size=12)
 
-        # Add Statistics Report with Tables
         if include_statistics_report:
-            pdf.table_from_dataframe(descriptive_stats, "Descriptive Statistics")
-            pdf.table_from_dataframe(skewness, "Skewness")
-            pdf.table_from_dataframe(correlation_matrix, "Correlation Matrix")
+            numeric_df = df.select_dtypes(include=['number'])  # Ensure only numeric data
+            descriptive_stats = numeric_df.describe().transpose()
+            skewness = numeric_df.skew(numeric_only=True).to_frame(name="Skewness")
+            correlation_matrix = numeric_df.corr(numeric_only=True)
+        
+            print("Descriptive Stats:\n", descriptive_stats)
+            print("Skewness:\n", skewness)
+            print("Correlation Matrix:\n", correlation_matrix)
+        
+            if not descriptive_stats.empty:
+                pdf.table_from_dataframe(descriptive_stats, "Descriptive Statistics")
+            if not skewness.empty:
+                pdf.table_from_dataframe(skewness, "Skewness")
+            if not correlation_matrix.empty:
+                pdf.table_from_dataframe(correlation_matrix, "Correlation Matrix")
+
             
         # Add Model Summary
         if include_summary:
