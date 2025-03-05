@@ -1236,10 +1236,6 @@ elif selected_tab == "Download Report":
     
     st.write("### Missing Values Summary:")
     st.write(statistics_report['Missing Values'])
-    
-    st.write(f"MAE: {mae}")
-    st.write(f"R²: {r2}")
-    st.write(f"RMSE: {rmse}")
 
     # Compute evaluation metrics
     mae = mean_absolute_error(y_test, y_pred)
