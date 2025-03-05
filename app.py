@@ -1289,17 +1289,17 @@ elif selected_tab == "Download Report":
         report_content += "**Statistics Report:**\n\n"
         
         # Compute descriptive statistics
-        descriptive_stats = df.describe().transpose()
+        descriptive_stats = st.session_state.X_test[selected_features].describe().transpose()
         st.write("Descriptive Statistics:")
         st.dataframe(descriptive_stats)  # Show it in Streamlit
     
         # Compute skewness
-        skewness = df.skew(numeric_only=True).to_frame(name="Skewness")
+        skewness = st.session_state.X_test[selected_features].skew(numeric_only=True).to_frame(name="Skewness")
         st.write("Skewness:")
         st.dataframe(skewness)
     
         # Compute correlation matrix
-        correlation_matrix = df.corr(numeric_only=True)
+        correlation_matrix = st.session_state.X_test[selected_features].corr(numeric_only=True)
         st.write("Correlation Matrix:")
         st.dataframe(correlation_matrix)
        
@@ -1375,7 +1375,7 @@ elif selected_tab == "Download Report":
 
         # Add Statistics Report
         if include_statistics_report:
-            numeric_df = df.select_dtypes(include=['number'])  # Keep only numeric columns
+            numeric_df = st.session_state.X_test[selected_features].select_dtypes(include=['number'])  # Keep only numeric columns
             descriptive_stats = numeric_df.describe().round(2).transpose()
             skewness = numeric_df.skew(numeric_only=True).round(2).to_frame(name="Skewness")
             correlation_matrix = numeric_df.corr(numeric_only=True).round(2)
