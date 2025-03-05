@@ -1221,21 +1221,6 @@ elif selected_tab == "Download Report":
         "Correlation Matrix": correlation_matrix,
         "Missing Values": missing_values
     }
-    
-    # Display Descriptive Statistics in Streamlit
-    st.header("Descriptive Statistics Overview")
-    st.write("### Summary Statistics:")
-    st.write(statistics_report['Descriptive Statistics'])
-    
-    st.write("### Skewness and Kurtosis:")
-    st.write(statistics_report['Skewness'])
-    st.write(statistics_report['Kurtosis'])
-    
-    st.write("### Correlation Matrix:")
-    st.write(statistics_report['Correlation Matrix'])
-    
-    st.write("### Missing Values Summary:")
-    st.write(statistics_report['Missing Values'])
 
     # Compute evaluation metrics
     mae = mean_absolute_error(y_test, y_pred)
