@@ -1192,6 +1192,47 @@ elif selected_tab == "Download Report":
     # Retrieve the actual test values (y_test) from session state
     y_test = st.session_state.y_test  # Ensure y_test is loaded
     
+    # Generate basic descriptive statistics
+    desc_stats = df.describe()
+    
+    # Skewness and Kurtosis
+    skewness = df.skew()
+    kurtosis = df.kurtosis()
+    
+    # Correlation matrix
+    correlation_matrix = df.corr()
+    
+    # Missing values summary
+    missing_values = df.isnull().sum()
+    
+    # Store the information to include in the report
+    statistics_report = {
+        "Descriptive Statistics": desc_stats,
+        "Skewness": skewness,
+        "Kurtosis": kurtosis,
+        "Correlation Matrix": correlation_matrix,
+        "Missing Values": missing_values
+    }
+    
+    # Display Descriptive Statistics in Streamlit
+    st.header("Descriptive Statistics Overview")
+    st.write("### Summary Statistics:")
+    st.write(statistics_report['Descriptive Statistics'])
+    
+    st.write("### Skewness and Kurtosis:")
+    st.write(statistics_report['Skewness'])
+    st.write(statistics_report['Kurtosis'])
+    
+    st.write("### Correlation Matrix:")
+    st.write(statistics_report['Correlation Matrix'])
+    
+    st.write("### Missing Values Summary:")
+    st.write(statistics_report['Missing Values'])
+    
+    st.write(f"MAE: {mae}")
+    st.write(f"R²: {r2}")
+    st.write(f"RMSE: {rmse}")
+
     # Compute evaluation metrics
     mae = mean_absolute_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
@@ -1204,6 +1245,7 @@ elif selected_tab == "Download Report":
     
     # User selections for report sections
     st.subheader("Select Report Sections")
+    include_statistics_report = st.checkbox("Include Statistics Report", True)
     include_summary = st.checkbox("Include Model Summary", True)
     include_features = st.checkbox("Include Feature Selection", True)
     include_metrics = st.checkbox("Include Performance Metrics", True)
