@@ -1200,9 +1200,12 @@ elif selected_tab == "Download Report":
     # Generate basic descriptive statistics
     desc_stats = df.describe()
     
-    # Skewness and Kurtosis
-    skewness = df.skew()
-    kurtosis = df.kurtosis()
+    # Select only numeric columns
+    numeric_df = df.select_dtypes(include=['number'])
+    
+    # Compute skewness only on numeric columns
+    skewness = numeric_df.skew()
+    kurtosis = numeric_df.kurtosis()
     
     # Correlation matrix
     correlation_matrix = df.corr()
