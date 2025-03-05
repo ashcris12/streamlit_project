@@ -1322,7 +1322,7 @@ elif selected_tab == "Download Report":
     if include_histograms:
         fig, axes = plt.subplots(1, 3, figsize=(18, 5))
     
-        for ax, col in zip(axes, ['Production Budget (USD)', 'IMDB Rating', 'vote_count']):
+        for ax, col in zip(axes, ['Production Budget (USD)', 'IMDb Rating', 'vote_count']):
             if col in selected_features:
                 sns.histplot(st.session_state.X_test[col], bins=30, kde=True, ax=ax)
                 ax.set_title(f"Distribution of {col.capitalize()}")
