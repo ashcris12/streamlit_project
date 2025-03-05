@@ -1310,23 +1310,23 @@ elif selected_tab == "Download Report":
     # Report Preview
     st.subheader("Report Preview")
     report_content = ""
-   if include_statistics_report:
-    report_content += "**Statistics Report:**\n\n"
+    if include_statistics_report:
+        report_content += "**Statistics Report:**\n\n"
+        
+        # Compute descriptive statistics
+        descriptive_stats = df.describe().transpose()
+        st.write("Descriptive Statistics:")
+        st.dataframe(descriptive_stats)  # Show it in Streamlit
     
-    # Compute descriptive statistics
-    descriptive_stats = df.describe().transpose()
-    st.write("Descriptive Statistics:")
-    st.dataframe(descriptive_stats)  # Show it in Streamlit
-
-    # Compute skewness
-    skewness = df.skew(numeric_only=True).to_frame(name="Skewness")
-    st.write("Skewness:")
-    st.dataframe(skewness)
-
-    # Compute correlation matrix
-    correlation_matrix = df.corr(numeric_only=True)
-    st.write("Correlation Matrix:")
-    st.dataframe(correlation_matrix)
+        # Compute skewness
+        skewness = df.skew(numeric_only=True).to_frame(name="Skewness")
+        st.write("Skewness:")
+        st.dataframe(skewness)
+    
+        # Compute correlation matrix
+        correlation_matrix = df.corr(numeric_only=True)
+        st.write("Correlation Matrix:")
+        st.dataframe(correlation_matrix)
        
     if include_summary:
         report_content += f"**Model Summary:**\n\n- Model: {model_option}\n\n"
