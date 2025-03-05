@@ -1325,19 +1325,19 @@ elif selected_tab == "Download Report":
     
     st.markdown(report_content)
 
-     def table_from_dataframe(pdf, df, title):
+    def table_from_dataframe(pdf, df, title):
         pdf.set_font("Arial", "B", 14)
         pdf.cell(200, 10, title, ln=True, align="C")  # Title
         pdf.ln(5)
-    
+        
         pdf.set_font("Arial", "B", 10)
-    
+        
         # Calculate column widths
         column_widths = []
         for col in df.columns:
             col_width = pdf.get_string_width(col) + 6  # Add some padding to the width
             column_widths.append(col_width)
-    
+        
         # Set maximum width to avoid columns going off the page
         max_width = 180  # Maximum allowed width for the whole table (adjust as needed)
         total_width = sum(column_widths)
@@ -1345,20 +1345,20 @@ elif selected_tab == "Download Report":
             # Scale down column widths proportionally
             scale_factor = max_width / total_width
             column_widths = [width * scale_factor for width in column_widths]
-    
+        
         # Print the header with wrapped text using multi_cell
         for i, col in enumerate(df.columns):
             pdf.multi_cell(column_widths[i], 10, col, border=1, align="C", max_line_height=10)
         pdf.ln()
-    
+        
         pdf.set_font("Arial", size=10)
-    
+        
         # Print the table content
         for index, row in df.iterrows():
             for i, value in enumerate(row):
                 pdf.cell(column_widths[i], 10, str(value), border=1, align="C")  # Table content
             pdf.ln()  # New row
-    
+        
         pdf.ln(5)  # Add spacing after the table
 
     # Generate PDF Report with Visuals
