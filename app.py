@@ -1347,25 +1347,27 @@ elif selected_tab == "Download Report":
     
     class PDF(FPDF):
         def table_from_dataframe(self, df, title):
-            self.set_font("Arial", "B", 12)
-            self.cell(200, 10, title, ln=True, align="C")
+            self.set_font("Arial", "B", 14)
+            self.cell(200, 10, title, ln=True, align="C")  # Title
             self.ln(5)
+        
             self.set_font("Arial", "B", 10)
-    
-            # Table Header
-            col_width = 40  # Adjust width based on your data
+            col_widths = [40] * len(df.columns)  # Adjust column width here
+        
+            # Print header row
             for col in df.columns:
-                self.cell(col_width, 8, col, border=1, align="C")
+                self.cell(col_widths[0], 8, col, border=1, align="C")
             self.ln()
-    
-            # Table Rows
-            self.set_font("Arial", size=9)
-            for index, row in df.iterrows():
-                self.cell(col_width, 8, str(index), border=1, align="C")  # Row name
-                for value in row:
-                    self.cell(col_width, 8, f"{value:.2f}", border=1, align="C")  # Format float values
+        
+            self.set_font("Arial", "", 10)
+        
+            # Print each row
+            for i in range(len(df)):
+                for col in df.columns:
+                    self.cell(col_widths[0], 8, str(df.iloc[i][col]), border=1, align="C")
                 self.ln()
-            self.ln(5)
+        
+            self.ln(5)  # Add spacing after the table
     
     # Generate PDF Report with Visuals
     def generate_pdf():
@@ -1384,14 +1386,10 @@ elif selected_tab == "Download Report":
         pdf.set_font("Arial", size=12)
 
         if include_statistics_report:
-            numeric_df = df.select_dtypes(include=['number'])  # Ensure only numeric data
-            descriptive_stats = numeric_df.describe().transpose()
-            skewness = numeric_df.skew(numeric_only=True).to_frame(name="Skewness")
-            correlation_matrix = numeric_df.corr(numeric_only=True)
-        
-            print("Descriptive Stats:\n", descriptive_stats)
-            print("Skewness:\n", skewness)
-            print("Correlation Matrix:\n", correlation_matrix)
+            numeric_df = df.select_dtypes(include=['number'])  # Only keep numeric columns
+            descriptive_stats = numeric_df.describe().round(2).transpose()  # Round for clarity
+            skewness = numeric_df.skew(numeric_only=True).round(2).to_frame(name="Skewness")
+            correlation_matrix = numeric_df.corr(numeric_only=True).round(2)
         
             if not descriptive_stats.empty:
                 pdf.table_from_dataframe(descriptive_stats, "Descriptive Statistics")
@@ -1400,7 +1398,6 @@ elif selected_tab == "Download Report":
             if not correlation_matrix.empty:
                 pdf.table_from_dataframe(correlation_matrix, "Correlation Matrix")
 
-            
         # Add Model Summary
         if include_summary:
             pdf.set_font("Arial", "B", 14)
