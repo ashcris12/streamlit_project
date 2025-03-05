@@ -1345,30 +1345,30 @@ elif selected_tab == "Download Report":
     
     st.markdown(report_content)
     
-    class PDF(FPDF):
-        def table_from_dataframe(self, df, title):
-            self.set_font("Arial", "B", 14)
-            self.cell(200, 10, title, ln=True, align="C")  # Title
-            self.ln(5)
-        
-            self.set_font("Arial", "B", 10)
-            col_widths = [40] * len(df.columns)  # Adjust column width here
-        
-            # Print header row
-            for col in df.columns:
-                self.cell(col_widths[0], 8, col, border=1, align="C")
-            self.ln()
-        
-            self.set_font("Arial", "", 10)
-        
-            # Print each row
-            for i in range(len(df)):
-                for col in df.columns:
-                    self.cell(col_widths[0], 8, str(df.iloc[i][col]), border=1, align="C")
-                self.ln()
-        
-            self.ln(5)  # Add spacing after the table
+class PDF(FPDF):
+    def table_from_dataframe(self, df, title):
+        self.set_font("Arial", "B", 14)
+        self.cell(200, 10, title, ln=True, align="C")  # Title
+        self.ln(5)
     
+        self.set_font("Arial", "B", 10)
+        col_widths = [40] * len(df.columns)  # Adjust column width here
+    
+        # Print header row
+        for col in df.columns:
+            self.cell(col_widths[0], 8, col, border=1, align="C")
+        self.ln()
+    
+        self.set_font("Arial", "", 10)
+    
+        # Print each row
+        for i in range(len(df)):
+            for col in df.columns:
+                self.cell(col_widths[0], 8, str(df.iloc[i][col]), border=1, align="C")
+            self.ln()
+    
+        self.ln(5)  # Add spacing after the table
+
     # Generate PDF Report with Visuals
     def generate_pdf():
         """
