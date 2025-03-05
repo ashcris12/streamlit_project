@@ -1146,7 +1146,7 @@ elif selected_tab == "Download Report":
         
             return df_reports
             
-  st.title("Generate Report")
+st.title("Generate Report")
     
 # Ensure a directory for saving plots
 plot_dir = "report_plots"
