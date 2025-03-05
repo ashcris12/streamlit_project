@@ -1323,8 +1323,8 @@ elif selected_tab == "Download Report":
         st.dataframe(sample_predictions)
 
     if include_histograms:
-    # Identify numeric features in selected_features
-    numeric_features = st.session_state.X_test[selected_features].select_dtypes(include=['number']).columns
+        # Identify numeric features in selected_features
+        numeric_features = st.session_state.X_test[selected_features].select_dtypes(include=['number']).columns
 
         if not numeric_features.empty:
             # Create a figure for the histograms
@@ -1350,8 +1350,8 @@ elif selected_tab == "Download Report":
             plt.close(fig)
 
     if include_bar_charts:
-    # Identify categorical features in selected_features
-    categorical_features = st.session_state.X_test[selected_features].select_dtypes(include=['object', 'category']).columns
+        # Identify categorical features in selected_features
+        categorical_features = st.session_state.X_test[selected_features].select_dtypes(include=['object', 'category']).columns
 
         if not categorical_features.empty:
             # Create a figure for the bar charts
@@ -1393,8 +1393,8 @@ elif selected_tab == "Download Report":
         plt.close(fig)
 
     if include_box_plots:
-    # Identify numerical features in selected_features
-    numeric_features = st.session_state.X_test[selected_features].select_dtypes(include=['number']).columns
+        # Identify numerical features in selected_features
+        numeric_features = st.session_state.X_test[selected_features].select_dtypes(include=['number']).columns
 
         if not numeric_features.empty:
             fig, axes = plt.subplots(1, len(numeric_features), figsize=(6 * len(numeric_features), 5))
