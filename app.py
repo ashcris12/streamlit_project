@@ -1193,10 +1193,10 @@ elif selected_tab == "Download Report":
     y_test = st.session_state.y_test  # Ensure y_test is loaded
     
     # Generate basic descriptive statistics
-    desc_stats = selected_features.describe()
+    desc_stats = st.session_state.X_test[selected_features].describe()
     
     # Select only numeric columns
-    numeric_df = selected_features.select_dtypes(include=['number'])
+    numeric_df = st.session_state.X_test[selected_features].select_dtypes(include=['number'])
     
     # Compute skewness only on numeric columns
     skewness = numeric_df.skew()
@@ -1206,7 +1206,7 @@ elif selected_tab == "Download Report":
     correlation_matrix = numeric_df.corr()
     
     # Missing values summary
-    missing_values = selected_features.isnull().sum()
+    missing_values = st.session_state.X_test[selected_features].isnull().sum()
     
     # Store the information to include in the report
     statistics_report = {
