@@ -1206,9 +1206,9 @@ elif selected_tab == "Download Report":
     # Compute skewness only on numeric columns
     skewness = numeric_df.skew()
     kurtosis = numeric_df.kurtosis()
-    
-    # Correlation matrix
-    correlation_matrix = df.corr()
+
+    # Compute correlation only on numeric columns
+    correlation_matrix = numeric_df.corr()
     
     # Missing values summary
     missing_values = df.isnull().sum()
