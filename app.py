@@ -1234,6 +1234,9 @@ elif selected_tab == "Download Report":
     # Select Visualizations
     st.subheader("Select Visualizations")
     include_histograms = st.checkbox("Histograms", False)
+    include_box_plots = st.checkbox("Box Plots", False)
+    include_heatmap = st.checkbox("Heatmap", False)
+    include_bar_charts = st.checkbox("Bar Charts", False)
     include_actual_vs_pred = st.checkbox("Actual vs. Predicted", True)
     include_residuals = st.checkbox("Residual Plot", True)
     include_feature_importance = st.checkbox("Feature Importance", True)
@@ -1320,20 +1323,99 @@ elif selected_tab == "Download Report":
         st.dataframe(sample_predictions)
 
     if include_histograms:
-        fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+    # Identify numeric features in selected_features
+    numeric_features = st.session_state.X_test[selected_features].select_dtypes(include=['number']).columns
+
+        if not numeric_features.empty:
+            # Create a figure for the histograms
+            fig, axes = plt.subplots(1, len(numeric_features), figsize=(6 * len(numeric_features), 5))
     
-        for ax, col in zip(axes, ['Production Budget (USD)', 'IMDb Rating', 'vote_count']):
-            if col in selected_features:
+            # If there's only one feature, ensure axes is iterable
+            if len(numeric_features) == 1:
+                axes = [axes]
+    
+            # Loop through selected numeric features and plot histograms
+            for ax, col in zip(axes, numeric_features):
+                # Plot a histogram for the numeric feature
                 sns.histplot(st.session_state.X_test[col], bins=30, kde=True, ax=ax)
                 ax.set_title(f"Distribution of {col.capitalize()}")
+                ax.set_xlabel(col.capitalize())  # Set axis label
+    
+            # Display in Streamlit
+            st.pyplot(fig)
+    
+            # Save figure for PDF report
+            histogram_path = "histograms.png"
+            fig.savefig(histogram_path, bbox_inches="tight")
+            plt.close(fig)
 
+    if include_bar_charts:
+    # Identify categorical features in selected_features
+    categorical_features = st.session_state.X_test[selected_features].select_dtypes(include=['object', 'category']).columns
+
+        if not categorical_features.empty:
+            # Create a figure for the bar charts
+            fig, axes = plt.subplots(1, len(categorical_features), figsize=(6 * len(categorical_features), 5))
+    
+            # If there's only one feature, ensure axes is iterable
+            if len(categorical_features) == 1:
+                axes = [axes]
+    
+            # Loop through selected categorical features and plot bar charts
+            for ax, col in zip(axes, categorical_features):
+                # Plot a bar chart for the categorical feature
+                sns.countplot(x=st.session_state.X_test[col], ax=ax)
+                ax.set_title(f"Distribution of {col.capitalize()}")
+                ax.set_xticklabels(ax.get_xticklabels(), rotation=45)  # Rotate x-tick labels if needed
+    
+            # Display in Streamlit
+            st.pyplot(fig)
+    
+            # Save figure for PDF report
+            barchart_path = "bar_charts.png"
+            fig.savefig(barchart_path, bbox_inches="tight")
+            plt.close(fig)
+
+    if include_heatmap:
+        numeric_df = st.session_state.X_test[selected_features].select_dtypes(include=['number'])  
+        correlation_matrix = numeric_df.corr(numeric_only=True)
+    
+        fig, ax = plt.subplots(figsize=(10, 6))
+        sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap="coolwarm", ax=ax)
+        ax.set_title("Feature Correlation Heatmap")
+    
         # Display in Streamlit
         st.pyplot(fig)
     
         # Save figure for PDF report
-        histogram_path = "histograms.png"
-        fig.savefig(histogram_path, bbox_inches="tight")
+        heatmap_path = "heatmap.png"
+        fig.savefig(heatmap_path, bbox_inches="tight")
         plt.close(fig)
+
+    if include_box_plots:
+    # Identify numerical features in selected_features
+    numeric_features = st.session_state.X_test[selected_features].select_dtypes(include=['number']).columns
+
+        if not numeric_features.empty:
+            fig, axes = plt.subplots(1, len(numeric_features), figsize=(6 * len(numeric_features), 5))
+    
+            # Ensure axes is iterable for a single feature case
+            if len(numeric_features) == 1:
+                axes = [axes]
+    
+            # Loop through selected numeric features and plot boxplots
+            for ax, col in zip(axes, numeric_features):
+                sns.boxplot(y=st.session_state.X_test[col], ax=ax)
+                ax.set_title(f"Box Plot of {col.capitalize()}")
+    
+            # Display in Streamlit
+            st.pyplot(fig)
+    
+            # Save figure for PDF report
+            boxplot_path = "boxplots.png"
+            fig.savefig(boxplot_path, bbox_inches="tight")
+            plt.close(fig)
+
 
     st.markdown(report_content)
 
@@ -1397,9 +1479,18 @@ elif selected_tab == "Download Report":
             if not correlation_matrix.empty:
                 table_from_dataframe(pdf, correlation_matrix, "Correlation Matrix")
 
-        if include_histograms:
-            pdf.image(histogram_path, x=10, w=180)  # Adjust x, w as needed
+        if include_histograms and not numeric_features.empty:
+            pdf.image(histogram_path, x=10, w=180)
 
+        if include_bar_charts and not categorical_features.empty:
+            pdf.image(barchart_path, x=10, w=180)
+        
+        if include_heatmap:
+            pdf.image(heatmap_path, x=10, w=180)
+        
+        if include_box_plots and not numeric_features.empty:
+            pdf.image(boxplot_path, x=10, w=180)
+            
         # Add Model Summary
         if include_summary:
             pdf.set_font("Arial", "B", 14)
