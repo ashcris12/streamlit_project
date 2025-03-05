@@ -1344,7 +1344,7 @@ elif selected_tab == "Download Report":
     
         # Print the header
         for i, col in enumerate(df.columns):
-            pdf.cell(column_widths[i+1], 10, col, border=1, align="C")  # Column header
+            pdf.cell(column_widths[i], 10, col, border=1, align="C")  # Column header
         pdf.ln()
     
         pdf.set_font("Arial", size=10)
