@@ -1325,35 +1325,28 @@ elif selected_tab == "Download Report":
         pdf.cell(200, 10, title, ln=True, align="C")  # Title
         pdf.ln(5)
     
-        # Reduce font size for column names to fit
         pdf.set_font("Arial", "B", 8)  # Smaller font for column headers
+        
+        # Set maximum table width
+        max_table_width = 180  # Keep within page margins
+        num_columns = len(df.columns)
     
-        # Calculate column widths
-        column_widths = []
-        for col in df.columns:
-            col_width = pdf.get_string_width(col) + 6  # Add some padding to the width
-            column_widths.append(col_width)
-    
-        # Set maximum width to avoid columns going off the page
-        max_width = 180  # Maximum allowed width for the whole table (adjust as needed)
-        total_width = sum(column_widths)
-        if total_width > max_width:
-            # Scale down column widths proportionally
-            scale_factor = max_width / total_width
-            column_widths = [width * scale_factor for width in column_widths]
+        # Compute column widths (evenly distribute if too many columns)
+        column_widths = [max_table_width / num_columns] * num_columns
     
         # Print the header
         for i, col in enumerate(df.columns):
-            pdf.cell(column_widths[i], 10, col, border=1, align="C")  # Column header
+            pdf.cell(column_widths[i], 8, col[:15], border=1, align="C")  # Limit column name length
         pdf.ln()
-    
-        pdf.set_font("Arial", size=10)
+
+        pdf.set_font("Arial", size=8)  # Reduce font for data readability
     
         # Print the table content
         for index, row in df.iterrows():
             for i, value in enumerate(row):
-                pdf.cell(column_widths[i], 10, str(value), border=1, align="C")  # Table content
-            pdf.ln()  # New row
+                text = str(value)[:15]  # Limit text length per cell
+                pdf.cell(column_widths[i], 8, text, border=1, align="C")
+            pdf.ln()
     
         pdf.ln(5)  # Add spacing after the table
 
