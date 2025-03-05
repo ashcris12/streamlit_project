@@ -1360,7 +1360,25 @@ elif selected_tab == "Download Report":
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.add_page()
         pdf.set_font("Arial", size=12)
-    
+
+       # Add Statistics Report
+        if include_statistics_report:
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Statistics Report", ln=True, align="C")
+            pdf.set_font("Arial", size=10)
+            
+            # Descriptive Statistics
+            descriptive_stats_text = descriptive_stats.to_string()
+            pdf.multi_cell(0, 10, f"Descriptive Statistics:\n{descriptive_stats_text}\n\n")
+            
+            # Skewness
+            skewness_text = skewness.to_string()
+            pdf.multi_cell(0, 10, f"Skewness:\n{skewness_text}\n\n")
+            
+            # Correlation Matrix
+            correlation_matrix_text = correlation_matrix.to_string()
+            pdf.multi_cell(0, 10, f"Correlation Matrix:\n{correlation_matrix_text}\n\n")
+        
         # Add Model Summary
         if include_summary:
             pdf.set_font("Arial", "B", 14)
