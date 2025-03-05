@@ -1383,12 +1383,12 @@ elif selected_tab == "Download Report":
         pdf.add_page()
         pdf.set_font("Arial", size=12)
 
-       # Add Statistics Report with Tables
-       if include_statistics_report:
-           pdf.table_from_dataframe(descriptive_stats, "Descriptive Statistics")
-           pdf.table_from_dataframe(skewness, "Skewness")
-           pdf.table_from_dataframe(correlation_matrix, "Correlation Matrix")
-    
+        # Add Statistics Report with Tables
+        if include_statistics_report:
+            pdf.table_from_dataframe(descriptive_stats, "Descriptive Statistics")
+            pdf.table_from_dataframe(skewness, "Skewness")
+            pdf.table_from_dataframe(correlation_matrix, "Correlation Matrix")
+            
         # Add Model Summary
         if include_summary:
             pdf.set_font("Arial", "B", 14)
