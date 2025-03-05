@@ -1332,17 +1332,31 @@ elif selected_tab == "Download Report":
     
         pdf.set_font("Arial", "B", 10)
     
-        # Print the header
+        # Calculate column widths
+        column_widths = []
         for col in df.columns:
-            pdf.cell(30, 10, col, border=1, align="C")  # Column header
+            col_width = pdf.get_string_width(col) + 6  # Add some padding to the width
+            column_widths.append(col_width)
+    
+        # Set maximum width to avoid columns going off the page
+        max_width = 180  # Maximum allowed width for the whole table (adjust as needed)
+        total_width = sum(column_widths)
+        if total_width > max_width:
+            # Scale down column widths proportionally
+            scale_factor = max_width / total_width
+            column_widths = [width * scale_factor for width in column_widths]
+    
+        # Print the header
+        for i, col in enumerate(df.columns):
+            pdf.cell(column_widths[i], 10, col, border=1, align="C")  # Column header
         pdf.ln()
     
         pdf.set_font("Arial", size=10)
     
         # Print the table content
         for index, row in df.iterrows():
-            for value in row:
-                pdf.cell(30, 10, str(value), border=1, align="C")  # Table content
+            for i, value in enumerate(row):
+                pdf.cell(column_widths[i], 10, str(value), border=1, align="C")  # Table content
             pdf.ln()  # New row
     
         pdf.ln(5)  # Add spacing after the table
