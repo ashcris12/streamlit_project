@@ -992,6 +992,11 @@ elif selected_tab == "Predictions & Performance":
         st.warning("❌ No selected train data found. Please train selected features first.")
         st.stop()
 
+    if "cleaned_df" in st.session_state and st.session_state.cleaned_df is not None:
+        df = st.session_state.cleaned_df
+    elif "df" in st.session_state and st.session_state.df is not None:
+        df = st.session_state.df
+
     # Retrieve session state variables
     model = st.session_state.trained_model 
     X_train_selected = st.session_state.X_train_selected
