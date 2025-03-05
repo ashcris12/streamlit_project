@@ -1380,6 +1380,16 @@ elif selected_tab == "Download Report":
             if not correlation_matrix.empty:
                 table_from_dataframe(pdf, correlation_matrix, "Correlation Matrix")
 
+        if include_histograms:
+            fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+            
+            for ax, col in zip(axes, ['revenue', 'budget', 'runtime']):
+                if col in selected_features:
+                    sns.histplot(df[col], bins=30, kde=True, ax=ax)
+                    ax.set_title(f"Distribution of {col.capitalize()}")
+            
+            st.pyplot(fig)
+
         # Add Model Summary
         if include_summary:
             pdf.set_font("Arial", "B", 14)
