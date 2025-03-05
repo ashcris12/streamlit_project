@@ -1325,7 +1325,7 @@ elif selected_tab == "Download Report":
     
     st.markdown(report_content)
 
-    def table_from_dataframe(pdf, df, title):
+     def table_from_dataframe(pdf, df, title):
         pdf.set_font("Arial", "B", 14)
         pdf.cell(200, 10, title, ln=True, align="C")  # Title
         pdf.ln(5)
@@ -1346,9 +1346,9 @@ elif selected_tab == "Download Report":
             scale_factor = max_width / total_width
             column_widths = [width * scale_factor for width in column_widths]
     
-        # Print the header
+        # Print the header with wrapped text using multi_cell
         for i, col in enumerate(df.columns):
-            pdf.cell(column_widths[i], 10, col, border=1, align="C")  # Column header
+            pdf.multi_cell(column_widths[i], 10, col, border=1, align="C", max_line_height=10)
         pdf.ln()
     
         pdf.set_font("Arial", size=10)
