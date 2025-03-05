@@ -1364,18 +1364,18 @@ elif selected_tab == "Download Report":
         pdf.set_font("Arial", size=12)
 
         # Add Statistics Report
-       if include_statistics_report:
-           numeric_df = df.select_dtypes(include=['number'])  # Keep only numeric columns
-           descriptive_stats = numeric_df.describe().round(2).transpose()
-           skewness = numeric_df.skew(numeric_only=True).round(2).to_frame(name="Skewness")
-           correlation_matrix = numeric_df.corr(numeric_only=True).round(2)
+        if include_statistics_report:
+            numeric_df = df.select_dtypes(include=['number'])  # Keep only numeric columns
+            descriptive_stats = numeric_df.describe().round(2).transpose()
+            skewness = numeric_df.skew(numeric_only=True).round(2).to_frame(name="Skewness")
+            correlation_matrix = numeric_df.corr(numeric_only=True).round(2)
            
-           if not descriptive_stats.empty:
-               table_from_dataframe(pdf, descriptive_stats, "Descriptive Statistics")
-           if not skewness.empty:
-               table_from_dataframe(pdf, skewness, "Skewness")
-           if not correlation_matrix.empty:
-               table_from_dataframe(pdf, correlation_matrix, "Correlation Matrix")
+            if not descriptive_stats.empty:
+                table_from_dataframe(pdf, descriptive_stats, "Descriptive Statistics")
+            if not skewness.empty:
+                table_from_dataframe(pdf, skewness, "Skewness")
+            if not correlation_matrix.empty:
+                table_from_dataframe(pdf, correlation_matrix, "Correlation Matrix")
 
         # Add Model Summary
         if include_summary:
