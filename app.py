@@ -1160,11 +1160,6 @@ elif selected_tab == "Download Report":
     if "X_test" not in st.session_state or st.session_state.X_test is None:
         st.warning("❌ Test data is missing. Retrain the model before proceeding.")
         st.stop()
-
-    if "cleaned_df" in st.session_state and st.session_state.cleaned_df is not None:
-        df = st.session_state.cleaned_df
-    elif "df" in st.session_state and st.session_state.df is not None:
-        df = st.session_state.df
         
     # Retrieve stored model and selections
     model = st.session_state.trained_model
@@ -1198,10 +1193,10 @@ elif selected_tab == "Download Report":
     y_test = st.session_state.y_test  # Ensure y_test is loaded
     
     # Generate basic descriptive statistics
-    desc_stats = df.describe()
+    desc_stats = selected_features.describe()
     
     # Select only numeric columns
-    numeric_df = df.select_dtypes(include=['number'])
+    numeric_df = selected_features.select_dtypes(include=['number'])
     
     # Compute skewness only on numeric columns
     skewness = numeric_df.skew()
@@ -1211,7 +1206,7 @@ elif selected_tab == "Download Report":
     correlation_matrix = numeric_df.corr()
     
     # Missing values summary
-    missing_values = df.isnull().sum()
+    missing_values = selected_features.isnull().sum()
     
     # Store the information to include in the report
     statistics_report = {
