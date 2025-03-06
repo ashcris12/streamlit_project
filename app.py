@@ -1484,7 +1484,7 @@ elif selected_tab == "Download Report":
             correlation_matrix = numeric_df.corr(numeric_only=True).round(2)
            
             if not descriptive_stats.empty:
-                table_from_dataframe(pdf, descriptive_stats, "Descriptive Statistics")
+                table_from_dataframe(pdf, descriptive_stats, "Box Office Revenue Analysis")
             if not skewness.empty:
                 table_from_dataframe(pdf, skewness, "Skewness")
             if not correlation_matrix.empty:
