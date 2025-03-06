@@ -1323,11 +1323,6 @@ elif selected_tab == "Download Report":
         st.dataframe(sample_predictions)
 
     if include_histograms:
-        # Add header/title for histograms in PDF
-        pdf.set_font("Arial", "B", 14)
-        pdf.cell(200, 10, "Histograms: Distribution of Numeric Features", ln=True, align="C")
-        pdf.ln(5)  # Add a little space after the title
-
         # Display a header/title for histograms in Streamlit
         st.subheader("Histograms: Distribution of Numeric Features")
 
@@ -1351,6 +1346,11 @@ elif selected_tab == "Download Report":
     
             # Display in Streamlit
             st.pyplot(fig)
+
+            # Add header/title for histograms in PDF
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Histograms: Distribution of Numeric Features", ln=True, align="C")
+            pdf.ln(5)  # Add a little space after the title
     
             # Save figure for PDF report
             histogram_path = "histograms.png"
