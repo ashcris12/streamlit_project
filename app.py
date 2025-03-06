@@ -1566,7 +1566,7 @@ elif selected_tab == "Download Report":
     report_name = st.text_input("Enter Report Name", "BoxOfficeReport.pdf")
     
     if st.button("Generate & Download Report as PDF"):
-        generate_pdf()  # Function to generate report
+        generate_pdf(report_name)  # Function to generate report
         with open("report.pdf", "rb") as f:
             st.download_button("📄 Download Report", f, file_name=report_name, mime="application/pdf")
     
