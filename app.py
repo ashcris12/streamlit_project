@@ -1472,14 +1472,18 @@ elif selected_tab == "Download Report":
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.add_page()
 
-        # Set a larger font for the title
-        pdf.set_font("Arial", 'B', 16)  # 'B' for bold, size 16 for the title
-        pdf.cell(200, 10, txt=f"Box Office Revenue Analysis Report - {report_name}", ln=True, align="C")
-    
-        # Add some space after the title
-        pdf.ln(10)  # Adds a line break
+        # Set font for the title (B for bold, large size)
+        pdf.set_font("Arial", 'B', 16)
         
-        pdf.set_font("Arial", size=10)
+        # Add title to the top of the page
+        title_text = f"Box Office Revenue Analysis Report - {report_name}"
+        pdf.cell(200, 10, txt=title_text, ln=True, align="C")
+        
+        # Add a line break after the title to ensure spacing
+        pdf.ln(10)
+    
+        # Set font for the rest of the content
+        pdf.set_font("Arial", size=12)
         
         # Add Statistics Report
         if include_statistics_report:
@@ -1497,52 +1501,53 @@ elif selected_tab == "Download Report":
 
         if include_histograms and not numeric_features.empty:
             # Add header/title for histograms in PDF
-            pdf.set_font("Arial", "B", 14)
+            pdf.set_font("Arial", "B", 12)
             pdf.cell(200, 10, "Histograms: Distribution of Numeric Features", ln=True, align="C")
             pdf.ln(5)  # Add a little space after the title
             pdf.image(histogram_path, x=10, w=180)
 
         if include_bar_charts and not categorical_features.empty:
             # Add header/title for bar charts in PDF
-            pdf.set_font("Arial", "B", 14)
+            pdf.set_font("Arial", "B", 12)
             pdf.cell(200, 10, "Bar Charts: Distribution of Categorical Features", ln=True, align="C")
             pdf.ln(5)  # Add a little space after the title
             pdf.image(barchart_path, x=10, w=180)
         
         if include_heatmap:
             pdf.image(heatmap_path, x=10, w=180)
+            pdf.ln(5)  # Add a little space after the title
         
         if include_box_plots and not numeric_features.empty:
             # Add header/title for box plots in PDF
-            pdf.set_font("Arial", "B", 14)
+            pdf.set_font("Arial", "B", 12)
             pdf.cell(200, 10, "Box Plots: Distribution of Numeric Features", ln=True, align="C")
             pdf.ln(5)  # Add a little space after the title
             pdf.image(boxplot_path, x=10, w=180)
             
         # Add Model Summary
         if include_summary:
-            pdf.set_font("Arial", "B", 14)
+            pdf.set_font("Arial", "B", 12)
             pdf.cell(200, 10, "Model Summary", ln=True, align="C")
             pdf.set_font("Arial", size=12)
             pdf.multi_cell(0, 10, f"Model: {model_option}\n\n")
     
         # Add Feature Selection
         if include_features:
-            pdf.set_font("Arial", "B", 14)
+            pdf.set_font("Arial", "B", 12)
             pdf.cell(200, 10, "Feature Selection", ln=True, align="C")
             pdf.set_font("Arial", size=12)
             pdf.multi_cell(0, 10, f"Features Used: {', '.join(selected_features)}\n\n")
     
         # Add Performance Metrics
         if include_metrics:
-            pdf.set_font("Arial", "B", 14)
+            pdf.set_font("Arial", "B", 12)
             pdf.cell(200, 10, "Performance Metrics", ln=True, align="C")
             pdf.set_font("Arial", size=12)
             pdf.multi_cell(0, 10, f"MAE: {mae:.2f}\nRMSE: {rmse:.2f}\nR²: {r2:.2f}\n\n")
     
         # Add Sample Predictions
         if include_predictions:
-            pdf.set_font("Arial", "B", 14)
+            pdf.set_font("Arial", "B", 12)
             pdf.cell(200, 10, "Sample Predictions", ln=True, align="C")
             pdf.set_font("Arial", size=12)
             for i in range(5):
@@ -1550,7 +1555,7 @@ elif selected_tab == "Download Report":
     
         # Add Visualizations
         if include_visuals:
-            pdf.set_font("Arial", "B", 14)
+            pdf.set_font("Arial", "B", 12)
             pdf.cell(200, 10, "Visualizations", ln=True, align="C")
             
             if include_actual_vs_pred:
