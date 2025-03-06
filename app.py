@@ -1473,6 +1473,10 @@ elif selected_tab == "Download Report":
         pdf.add_page()
         pdf.set_font("Arial", size=12)
 
+        # Dynamic title based on the report name entered by the user
+        pdf.cell(200, 10, txt=f"Box Office Revenue Prediction Report - {report_name}", ln=True, align="C")
+        pdf.set_font("Arial", size=12)
+
         # Add Statistics Report
         if include_statistics_report:
             numeric_df = st.session_state.X_test[selected_features].select_dtypes(include=['number'])  # Keep only numeric columns
