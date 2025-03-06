@@ -1468,7 +1468,7 @@ elif selected_tab == "Download Report":
         Returns:
             None
         """
-       pdf = FPDF()
+        pdf = FPDF()
         pdf.set_auto_page_break(auto=True, margin=15)
     
         # Add the first page
