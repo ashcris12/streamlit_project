@@ -1458,7 +1458,7 @@ elif selected_tab == "Download Report":
         pdf.ln(5)  # Add spacing after the table
 
     # Generate PDF Report with Visuals
-    def generate_pdf():
+    def generate_pdf(report_name):
         """
         Generates a PDF report summarizing model performance and findings.
     
@@ -1552,7 +1552,9 @@ elif selected_tab == "Download Report":
             if include_feature_importance and hasattr(model, "feature_importances_"):
                 pdf.image(os.path.join(plot_dir, "feature_importance.png"), x=10, w=180)
     
-        pdf.output("report.pdf")
+        # Save the PDF with the custom report name
+        pdf_output_path = f"report_{report_name}"  # Save with custom name entered by user
+        pdf.output(pdf_output_path)
     
     # UI - Report Upload & Viewing
     st.title("Download Reports")
