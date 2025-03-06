@@ -1468,22 +1468,27 @@ elif selected_tab == "Download Report":
         Returns:
             None
         """
-        pdf = FPDF()
+       pdf = FPDF()
         pdf.set_auto_page_break(auto=True, margin=15)
+    
+        # Add the first page
         pdf.add_page()
-
+    
         # Set font for the title (B for bold, large size)
         pdf.set_font("Arial", 'B', 16)
         
-        # Add title to the top of the page
+        # Title of the report
         title_text = f"Box Office Revenue Analysis Report - {report_name}"
         pdf.cell(200, 10, txt=title_text, ln=True, align="C")
         
         # Add a line break after the title to ensure spacing
         pdf.ln(10)
     
-        # Set font for the rest of the content
+        # Set font for the rest of the content (standard size for descriptive stats)
         pdf.set_font("Arial", size=12)
+    
+        # Add some placeholder content (this could be your descriptive stats or other report content)
+        pdf.cell(200, 10, txt="Summary statistics and analysis based on selected features.", ln=True)
         
         # Add Statistics Report
         if include_statistics_report:
