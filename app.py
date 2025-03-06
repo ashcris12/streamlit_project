@@ -1472,10 +1472,7 @@ elif selected_tab == "Download Report":
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.add_page()
         pdf.set_font("Arial", size=12)
-
-        # Dynamic title based on the report name entered by the user
-        pdf.cell(200, 10, txt=f"Box Office Revenue Prediction Report - {report_name}", ln=True, align="C")
-        pdf.set_font("Arial", size=12)
+        pdf.cell(200, 10, txt="Box Office Revenue Analysis Report", ln=True, align="C")
 
         # Add Statistics Report
         if include_statistics_report:
