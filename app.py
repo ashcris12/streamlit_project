@@ -1323,6 +1323,9 @@ elif selected_tab == "Download Report":
         st.dataframe(sample_predictions)
 
     if include_histograms:
+        # Display a header/title for histograms in Streamlit
+        st.subheader("Histograms: Distribution of Numeric Features")
+
         # Identify numeric features in selected_features
         numeric_features = st.session_state.X_test[selected_features].select_dtypes(include=['number']).columns
 
@@ -1350,6 +1353,9 @@ elif selected_tab == "Download Report":
             plt.close(fig)
 
     if include_bar_charts:
+        # Display a header/title for bar charts in Streamlit
+        st.subheader("Bar Charts: Distribution of Numeric Features")
+        
         # Identify categorical features in selected_features
         categorical_features = st.session_state.X_test[selected_features].select_dtypes(include=['object', 'category']).columns
 
@@ -1393,6 +1399,9 @@ elif selected_tab == "Download Report":
         plt.close(fig)
 
     if include_box_plots:
+        # Display a header/title for boxplots in Streamlit
+        st.subheader("Box Plots: Distribution of Numeric Features")
+        
         # Identify numerical features in selected_features
         numeric_features = st.session_state.X_test[selected_features].select_dtypes(include=['number']).columns
 
