@@ -1471,9 +1471,16 @@ elif selected_tab == "Download Report":
         pdf = FPDF()
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.add_page()
-        pdf.set_font("Arial", size=12)
-        pdf.cell(200, 10, txt="Box Office Revenue Analysis Report", ln=True, align="C")
 
+        # Set a larger font for the title
+        pdf.set_font("Arial", 'B', 16)  # 'B' for bold, size 16 for the title
+        pdf.cell(200, 10, txt=f"Box Office Revenue Analysis Report - {report_name}", ln=True, align="C")
+    
+        # Add some space after the title
+        pdf.ln(10)  # Adds a line break
+        
+        pdf.set_font("Arial", size=10)
+        
         # Add Statistics Report
         if include_statistics_report:
             numeric_df = st.session_state.X_test[selected_features].select_dtypes(include=['number'])  # Keep only numeric columns
