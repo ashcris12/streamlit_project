@@ -1358,7 +1358,7 @@ elif selected_tab == "Download Report":
 
         if not categorical_features.empty:
             # Display a header/title for bar charts in Streamlit
-            st.subheader("Bar Charts: Distribution of Numeric Features")
+            st.subheader("Bar Charts: Distribution of Categorical Features")
             # Create a figure for the bar charts
             fig, axes = plt.subplots(1, len(categorical_features), figsize=(6 * len(categorical_features), 5))
     
@@ -1495,12 +1495,20 @@ elif selected_tab == "Download Report":
             pdf.image(histogram_path, x=10, w=180)
 
         if include_bar_charts and not categorical_features.empty:
+            # Add header/title for bar charts in PDF
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Bar Charts: Distribution of Categorical Features", ln=True, align="C")
+            pdf.ln(5)  # Add a little space after the title
             pdf.image(barchart_path, x=10, w=180)
         
         if include_heatmap:
             pdf.image(heatmap_path, x=10, w=180)
         
         if include_box_plots and not numeric_features.empty:
+            # Add header/title for box plots in PDF
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Box Plots: Distribution of Numeric Features", ln=True, align="C")
+            pdf.ln(5)  # Add a little space after the title
             pdf.image(boxplot_path, x=10, w=180)
             
         # Add Model Summary
