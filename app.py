@@ -1294,6 +1294,7 @@ elif selected_tab == "Download Report":
         
         # Compute descriptive statistics
         descriptive_stats = st.session_state.X_test[selected_features].describe().transpose()
+        st.header("Box Office Revenue Analysis")
         st.write("Descriptive Statistics:")
         st.dataframe(descriptive_stats)  # Show it in Streamlit
     
@@ -1470,25 +1471,11 @@ elif selected_tab == "Download Report":
         """
         pdf = FPDF()
         pdf.set_auto_page_break(auto=True, margin=15)
-    
         # Add the first page
         pdf.add_page()
-    
-        # Set font for the title (B for bold, large size)
-        pdf.set_font("Arial", 'B', 16)
-        
-        # Title of the report
-        title_text = f"Box Office Revenue Analysis Report - {report_name}"
-        pdf.cell(200, 10, txt=title_text, ln=True, align="C")
-        
-        # Add a line break after the title to ensure spacing
-        pdf.ln(10)
-    
-        # Set font for the rest of the content (standard size for descriptive stats)
+
+        # Set font for document
         pdf.set_font("Arial", size=12)
-    
-        # Add some placeholder content (this could be your descriptive stats or other report content)
-        pdf.cell(200, 10, txt="Summary statistics and analysis based on selected features.", ln=True)
         
         # Add Statistics Report
         if include_statistics_report:
