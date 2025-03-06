@@ -1323,6 +1323,11 @@ elif selected_tab == "Download Report":
         st.dataframe(sample_predictions)
 
     if include_histograms:
+        # Add header/title for histograms in PDF
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(200, 10, "Histograms: Distribution of Numeric Features", ln=True, align="C")
+        pdf.ln(5)  # Add a little space after the title
+
         # Display a header/title for histograms in Streamlit
         st.subheader("Histograms: Distribution of Numeric Features")
 
@@ -1353,13 +1358,12 @@ elif selected_tab == "Download Report":
             plt.close(fig)
 
     if include_bar_charts:
-        # Display a header/title for bar charts in Streamlit
-        st.subheader("Bar Charts: Distribution of Numeric Features")
-        
         # Identify categorical features in selected_features
         categorical_features = st.session_state.X_test[selected_features].select_dtypes(include=['object', 'category']).columns
 
         if not categorical_features.empty:
+            # Display a header/title for bar charts in Streamlit
+            st.subheader("Bar Charts: Distribution of Numeric Features")
             # Create a figure for the bar charts
             fig, axes = plt.subplots(1, len(categorical_features), figsize=(6 * len(categorical_features), 5))
     
