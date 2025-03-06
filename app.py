@@ -1295,7 +1295,7 @@ elif selected_tab == "Download Report":
         # Compute descriptive statistics
         descriptive_stats = st.session_state.X_test[selected_features].describe().transpose()
         st.header("Box Office Revenue Analysis")
-        st.write("Descriptive Statistics:")
+        st.subheader("Descriptive Statistics:")
         st.dataframe(descriptive_stats)  # Show it in Streamlit
     
         # Compute skewness
@@ -1479,9 +1479,6 @@ elif selected_tab == "Download Report":
         
         # Add Statistics Report
         if include_statistics_report:
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(200, 10, "Box Office Revenue Analysis", ln=True, align="C")
-            pdf.ln(5)  # Add a little space after the title
             numeric_df = st.session_state.X_test[selected_features].select_dtypes(include=['number'])  # Keep only numeric columns
             descriptive_stats = numeric_df.describe().round(2).transpose()
             skewness = numeric_df.skew(numeric_only=True).round(2).to_frame(name="Skewness")
