@@ -1346,11 +1346,6 @@ elif selected_tab == "Download Report":
     
             # Display in Streamlit
             st.pyplot(fig)
-
-            # Add header/title for histograms in PDF
-            pdf.set_font("Arial", "B", 14)
-            pdf.cell(200, 10, "Histograms: Distribution of Numeric Features", ln=True, align="C")
-            pdf.ln(5)  # Add a little space after the title
     
             # Save figure for PDF report
             histogram_path = "histograms.png"
@@ -1493,6 +1488,10 @@ elif selected_tab == "Download Report":
                 table_from_dataframe(pdf, correlation_matrix, "Correlation Matrix")
 
         if include_histograms and not numeric_features.empty:
+            # Add header/title for histograms in PDF
+            pdf.set_font("Arial", "B", 14)
+            pdf.cell(200, 10, "Histograms: Distribution of Numeric Features", ln=True, align="C")
+            pdf.ln(5)  # Add a little space after the title
             pdf.image(histogram_path, x=10, w=180)
 
         if include_bar_charts and not categorical_features.empty:
