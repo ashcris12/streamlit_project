@@ -1294,7 +1294,7 @@ elif selected_tab == "Download Report":
         
         # Compute descriptive statistics
         descriptive_stats = st.session_state.X_test[selected_features].describe().transpose()
-        st.subheader("Box Office Revenue Analysis)
+        st.subheader("Box Office Revenue Analysis")
         st.dataframe(descriptive_stats)  # Show it in Streamlit
     
         # Compute skewness
