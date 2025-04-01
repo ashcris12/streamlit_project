@@ -933,10 +933,10 @@ elif selected_tab == "Model Training":
         X_train_selected = st.session_state.X_train[selected_features]
         X_test_selected = st.session_state.X_test[selected_features]
 
-        st.session_state.X_train_selected = X_train_selected  # Ensure it's saved
+        st.session_state.X_train_selected = X_train_selected  
 
         try:
-            # Train model synchronously (without threading)
+            # Train model synchronously 
             model.fit(X_train_selected, st.session_state.y_train)
             
             # Save trained model type to session state
@@ -949,8 +949,8 @@ elif selected_tab == "Model Training":
             st.session_state.X_test_selected = X_test_selected.reindex(columns=X_train_selected.columns)
 
             for i in range(1, 101, 10):  
-                progress_bar.progress(i / 100)  # Streamlit expects a value between 0 and 1
-                status_text.text(f"Training in progress... {i}%")  # Show percentage
+                progress_bar.progress(i / 100)  
+                status_text.text(f"Training in progress... {i}%")  
                 time.sleep(0.1)  
 
             st.success(f"{model_option} has been trained successfully! ✅")
@@ -1017,7 +1017,7 @@ elif selected_tab == "Predictions & Performance":
         # Compute evaluation metrics
         mae = mean_absolute_error(y_test, y_pred)
         r2 = r2_score(y_test, y_pred)
-        rmse = mean_squared_error(y_test, y_pred) ** 0.5  # ✅ Manually compute RMSE
+        rmse = mean_squared_error(y_test, y_pred) ** 0.5  
 
         # Display results
         st.subheader("Model Evaluation Metrics")
@@ -1042,10 +1042,10 @@ elif selected_tab == "Download Report":
     if st.session_state.role in ["data_science", "finance"]:
         
         creator_username = st.session_state.username
-         # 📌 Metadata File for Tracking Reports
+        # Metadata File for Tracking Reports
         METADATA_FILE = "report_metadata.csv"
     
-        # 📌 Role-Based Folder Mapping
+        # Role-Based Folder Mapping
         ROLE_FOLDERS = {
             "Executive": "Executive_Reports",
             "Finance Analyst": "Finance_Reports",
@@ -1113,7 +1113,7 @@ elif selected_tab == "Download Report":
             role_permissions = {
                 "Executive": "reader",
                 "Finance Analyst": "reader",
-                "Data Science Team": "writer"  # Can upload & manage reports
+                "Data Science Team": "writer"  
             }
         
             permission = {
@@ -1189,7 +1189,7 @@ elif selected_tab == "Download Report":
         st.stop()
     
     # Retrieve the actual test values (y_test) from session state
-    y_test = st.session_state.y_test  # Ensure y_test is loaded
+    y_test = st.session_state.y_test  
     
     # Generate basic descriptive statistics
     desc_stats = st.session_state.X_test[selected_features].describe()
@@ -1244,7 +1244,7 @@ elif selected_tab == "Download Report":
     def plot_actual_vs_predicted(y_test, y_pred, filename="actual_vs_predicted.png"):
         plt.figure(figsize=(6, 4))
         sns.scatterplot(x=y_test, y=y_pred, alpha=0.7)
-        plt.plot(y_test, y_test, color='red', linestyle='--')  # Ideal line
+        plt.plot(y_test, y_test, color='red', linestyle='--')  
         plt.xlabel("Actual Values")
         plt.ylabel("Predicted Values")
         plt.title("Actual vs. Predicted")
@@ -1294,7 +1294,7 @@ elif selected_tab == "Download Report":
         # Compute descriptive statistics
         descriptive_stats = st.session_state.X_test[selected_features].describe().transpose()
         st.subheader("Box Office Revenue Analysis")
-        st.dataframe(descriptive_stats)  # Show it in Streamlit
+        st.dataframe(descriptive_stats)  
     
         # Compute skewness
         skewness = st.session_state.X_test[selected_features].skew(numeric_only=True).to_frame(name="Skewness")
@@ -1370,7 +1370,7 @@ elif selected_tab == "Download Report":
                 # Plot a bar chart for the categorical feature
                 sns.countplot(x=st.session_state.X_test[col], ax=ax)
                 ax.set_title(f"Distribution of {col.capitalize()}")
-                ax.set_xticklabels(ax.get_xticklabels(), rotation=45)  # Rotate x-tick labels if needed
+                ax.set_xticklabels(ax.get_xticklabels(), rotation=45)  
     
             # Display in Streamlit
             st.pyplot(fig)
@@ -1428,21 +1428,21 @@ elif selected_tab == "Download Report":
 
     def table_from_dataframe(pdf, df, title):
         pdf.set_font("Arial", "B", 14)
-        pdf.cell(200, 10, title, ln=True, align="C")  # Title
+        pdf.cell(200, 10, title, ln=True, align="C") 
         pdf.ln(5)
     
-        pdf.set_font("Arial", "B", 8)  # Smaller font for column headers
+        pdf.set_font("Arial", "B", 8) 
         
         # Set maximum table width
         max_table_width = 180  # Keep within page margins
         num_columns = len(df.columns)
     
-        # Compute column widths (evenly distribute if too many columns)
+        # Compute column widths 
         column_widths = [max_table_width / num_columns] * num_columns
     
         # Print the header
         for i, col in enumerate(df.columns):
-            pdf.cell(column_widths[i], 8, col[:15], border=1, align="C")  # Limit column name length
+            pdf.cell(column_widths[i], 8, col[:15], border=1, align="C") 
         pdf.ln()
 
         pdf.set_font("Arial", size=8)  # Reduce font for data readability
@@ -1454,7 +1454,7 @@ elif selected_tab == "Download Report":
                 pdf.cell(column_widths[i], 8, text, border=1, align="C")
             pdf.ln()
     
-        pdf.ln(5)  # Add spacing after the table
+        pdf.ln(5)  
 
     # Generate PDF Report with Visuals
     def generate_pdf(report_name):
@@ -1477,7 +1477,7 @@ elif selected_tab == "Download Report":
         
         # Add Statistics Report
         if include_statistics_report:
-            numeric_df = st.session_state.X_test[selected_features].select_dtypes(include=['number'])  # Keep only numeric columns
+            numeric_df = st.session_state.X_test[selected_features].select_dtypes(include=['number'])  
             descriptive_stats = numeric_df.describe().round(2).transpose()
             skewness = numeric_df.skew(numeric_only=True).round(2).to_frame(name="Skewness")
             correlation_matrix = numeric_df.corr(numeric_only=True).round(2)
@@ -1556,13 +1556,12 @@ elif selected_tab == "Download Report":
                 pdf.image(os.path.join(plot_dir, "feature_importance.png"), x=10, w=180)
     
         # Save the PDF with the custom report name
-        pdf_output_path = f"report_{report_name}"  # Save with custom name entered by user
+        pdf_output_path = f"report_{report_name}"  
         pdf.output(pdf_output_path)
     
-    # UI - Report Upload & Viewing
+    # Report Upload & Viewing
     st.title("Download Reports")
     
-    # Assume user role is stored in session state
     user_role = st.session_state.get("user_role", "Guest")
     
     # Upload Section
