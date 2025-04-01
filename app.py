@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[251]:
 import streamlit as st
+from cryptography.fernet import Fernet
 
 """
    Initialize database
