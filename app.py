@@ -9,18 +9,18 @@ def init_db():
    """
    Initialize database
     """
-    conn = sqlite3.connect("users.db")
-    cursor = conn.cursor()
+   conn = sqlite3.connect("users.db")
+   cursor = conn.cursor()
 
-    # Create users table
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE,
-            name TEXT,
-            password_hash TEXT,
-            mfa_secret TEXT,
-            role TEXT
+   # Create users table
+   cursor.execute("""
+      CREATE TABLE IF NOT EXISTS users (
+         id INTEGER PRIMARY KEY AUTOINCREMENT,
+         username TEXT UNIQUE,
+         name TEXT,
+         password_hash TEXT,
+         mfa_secret TEXT,
+         role TEXT
         )
     """)
 
