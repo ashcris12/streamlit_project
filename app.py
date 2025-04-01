@@ -5,10 +5,10 @@ import streamlit as st
 from cryptography.fernet import Fernet
 import sqlite3
 
-"""
+def init_db():
+   """
    Initialize database
     """
-def init_db():
     conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
 
