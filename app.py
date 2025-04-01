@@ -2,6 +2,7 @@
 # coding: utf-8
 
 # In[251]:
+import streamlit as st
 
 """
    Initialize database
