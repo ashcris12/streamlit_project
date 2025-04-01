@@ -1,29 +1,36 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import streamlit as st
-from cryptography.fernet import Fernet
+# In[251]:
+
+
 import sqlite3
+import pyotp
+from cryptography.fernet import Fernet
+import bcrypt
+import streamlit as st
 
+# Initialize Database
 def init_db():
-     conn = sqlite3.connect("users.db")
-     cursor = conn.cursor()
- 
-     # Create users table
-     cursor.execute("""
-         CREATE TABLE IF NOT EXISTS users (
-             id INTEGER PRIMARY KEY AUTOINCREMENT,
-             username TEXT UNIQUE,
-             name TEXT,
-             password_hash TEXT,
-             mfa_secret TEXT,
-             role TEXT
-         )
-     """)
- 
-     conn.commit()
-     conn.close()
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
 
+    # Create users table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            name TEXT,
+            password_hash TEXT,
+            mfa_secret TEXT,
+            role TEXT
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+
+# Add User (with encrypted MFA secret)
 def add_user(username, name, password, role):
     """
     Adds a new user to the database with a hashed password and assigned role.
@@ -61,7 +68,8 @@ def add_user(username, name, password, role):
             print(f"Error inserting user: {e}")
 
     conn.close()
- 
+
+# Decrypt MFA Secret 
 def decrypt_mfa_secret(username):
     """
     Decrypts the stored MFA secret for a user to enable multi-factor authentication.
@@ -84,6 +92,7 @@ def decrypt_mfa_secret(username):
 
     if encrypted_secret:
         try:
+            # Decrypt MFA secret
             decrypted_secret = cipher.decrypt(encrypted_secret[0].encode()).decode()
             print(f"Decryption successful for {username}: {decrypted_secret}")
         except Exception as e:
@@ -93,13 +102,15 @@ def decrypt_mfa_secret(username):
 
     conn.close()
 
+# Example usage:
+init_db()  # Initialize the DB 
+
 # Add example users based on role
 add_user("exec_user", "Executive User", "password123", "executive")
 add_user("finance_user", "Finance User", "securepass456", "finance")
 add_user("data_user", "Data User", "datapass789", "data_science")
 
 # In[252]:
-
 
 # final submission 
 import pandas as pd
