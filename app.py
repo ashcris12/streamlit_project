@@ -3,6 +3,7 @@
 
 import streamlit as st
 from cryptography.fernet import Fernet
+import sqlite3
 
 """
    Initialize database
