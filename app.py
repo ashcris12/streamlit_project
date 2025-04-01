@@ -6,26 +6,23 @@ from cryptography.fernet import Fernet
 import sqlite3
 
 def init_db():
-   """
-   Initialize database
-    """
-   conn = sqlite3.connect("users.db")
-   cursor = conn.cursor()
-
-   # Create users table
-   cursor.execute("""
-      CREATE TABLE IF NOT EXISTS users (
-         id INTEGER PRIMARY KEY AUTOINCREMENT,
-         username TEXT UNIQUE,
-         name TEXT,
-         password_hash TEXT,
-         mfa_secret TEXT,
-         role TEXT
-        )
-    """)
-
-    conn.commit()
-    conn.close()
+     conn = sqlite3.connect("users.db")
+     cursor = conn.cursor()
+ 
+     # Create users table
+     cursor.execute("""
+         CREATE TABLE IF NOT EXISTS users (
+             id INTEGER PRIMARY KEY AUTOINCREMENT,
+             username TEXT UNIQUE,
+             name TEXT,
+             password_hash TEXT,
+             mfa_secret TEXT,
+             role TEXT
+         )
+     """)
+ 
+     conn.commit()
+     conn.close()
 
 def add_user(username, name, password, role):
     """
