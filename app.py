@@ -30,7 +30,7 @@ def init_db():
     conn.commit()
     conn.close()
 
-# Add User (with encrypted MFA secret)
+# Add User 
 def add_user(username, name, password, role):
     """
     Adds a new user to the database with a hashed password and assigned role.
@@ -42,7 +42,6 @@ def add_user(username, name, password, role):
     conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
 
-    # Check if the user already exists
     cursor.execute("SELECT 1 FROM users WHERE username = ?", (username,))
     user_exists = cursor.fetchone()
 
@@ -56,7 +55,6 @@ def add_user(username, name, password, role):
         mfa_secret = pyotp.random_base32()
         encrypted_mfa = cipher.encrypt(mfa_secret.encode()).decode()
 
-        # Insert user into the database
         try:
             cursor.execute("""
                 INSERT INTO users (username, name, password_hash, mfa_secret, role) 
@@ -92,7 +90,6 @@ def decrypt_mfa_secret(username):
 
     if encrypted_secret:
         try:
-            # Decrypt MFA secret
             decrypted_secret = cipher.decrypt(encrypted_secret[0].encode()).decode()
             print(f"Decryption successful for {username}: {decrypted_secret}")
         except Exception as e:
@@ -102,7 +99,6 @@ def decrypt_mfa_secret(username):
 
     conn.close() 
 
-# Add example users based on role
 add_user("exec_user", "Executive User", "password123", "executive")
 add_user("finance_user", "Finance User", "securepass456", "finance")
 add_user("data_user", "Data User", "datapass789", "data_science")
@@ -155,18 +151,14 @@ def authenticate_google_drive():
     # Load credentials from Streamlit secrets
     creds_dict = dict(st.secrets["gcp_service_account"])
     
-    # Create credentials object
     creds = service_account.Credentials.from_service_account_info(creds_dict)
     
-    # Build the Drive service
     drive_service = build("drive", "v3", credentials=creds)
 
     return drive_service
 
-# Authenticate at the start of the script
 drive_service = authenticate_google_drive()
     
-# Initialize session state variables if they don't exist
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 if "last_activity" not in st.session_state:
@@ -206,7 +198,7 @@ def get_user(username):
         return {
             "name": user[0],
             "password_hash": user[1],
-            "mfa_secret": cipher.decrypt(user[2].encode()).decode() if user[2] else None,  # Decrypt MFA secret
+            "mfa_secret": cipher.decrypt(user[2].encode()).decode() if user[2] else None,  
             "role": user[3]
         }
     return None
@@ -224,17 +216,15 @@ def check_timeout():
     """
     if st.session_state.authenticated:
         current_time = time.time()
-        if current_time - st.session_state.last_activity > 900:  # 900 seconds = 15 minutes
+        if current_time - st.session_state.last_activity > 900:  
             st.warning("Session timed out due to inactivity. Please log in again.")
             st.session_state.authenticated = False
             st.session_state.username = None
             st.session_state.role = None
             st.rerun()
 
-# Ensure NOTHING from the app renders unless the user is authenticated
 if not st.session_state.authenticated:
 
-    # Render login form
     st.title("🔒 Secure User Login")
 
     username_input = st.text_input("Username")
@@ -242,17 +232,16 @@ if not st.session_state.authenticated:
     login_button = st.button("Login")
 
     if login_button:
-        user_data = get_user(username_input)  # Fetch from database
+        user_data = get_user(username_input)  
 
         if user_data:
             hashed_pw = user_data["password_hash"]
 
             if bcrypt.checkpw(password_input.encode(), hashed_pw.encode("utf-8")):
                 st.session_state.username = username_input
-                st.session_state.authenticated = False  # MFA required
+                st.session_state.authenticated = False  
                 st.session_state.role = user_data["role"]
 
-                # Generate an MFA secret if the user has never set one up
                 if user_data["mfa_secret"] is None:
                     user_data["mfa_secret"] = pyotp.random_base32()
 
@@ -265,12 +254,11 @@ if not st.session_state.authenticated:
         else:
             st.error("❌ Invalid credentials!")
 
-    # MFA Step (only AFTER password is verified)
+    # MFA Step 
     if st.session_state.username and not st.session_state.authenticated:
         st.subheader("🔑 Set Up or Enter Your MFA Code")
         totp = pyotp.TOTP(st.session_state.mfa_secret)
 
-        # Generate a QR Code for first-time MFA setup
         otp_url = totp.provisioning_uri(st.session_state.username, issuer_name="Box Office Prediction App")
         qr = qrcode.make(otp_url)
         buf = BytesIO()
@@ -284,7 +272,6 @@ if not st.session_state.authenticated:
                 st.session_state.authenticated = True
                 st.session_state.last_activity = time.time()
 
-                # Store username in session to fetch user details after rerun
                 st.session_state.username = username_input  
 
                 st.success("MFA Verified! Logging you in...")
@@ -293,13 +280,12 @@ if not st.session_state.authenticated:
             else:
                 st.error("❌ Invalid MFA Code!")
 
-    st.stop()  # Prevents anything below from rendering unless authenticated
+    st.stop() 
 
-# User is authenticated, enforce RBAC
-check_timeout()  # Ensure inactivity timeout is enforced
+check_timeout()  
 
 if st.session_state.authenticated and st.session_state.username:
-    user_data = get_user(st.session_state.username)  # Re-fetch user data
+    user_data = get_user(st.session_state.username)  
     if user_data:
         st.session_state.role = user_data["role"]
     else:
@@ -308,7 +294,6 @@ if st.session_state.authenticated and st.session_state.username:
         st.session_state.username = None
         st.stop()
 
-# Ensure role exists before rendering content
 if not st.session_state.role:
     st.error("🚫 Unauthorized access. Please contact the admin.")
     st.stop()
@@ -317,18 +302,15 @@ if not st.session_state.role:
 if st.session_state.role == "executive":
     st.subheader("📊 Executive Dashboard")
     st.write("You can view reports generated by the data science team.")
-    # Load and display reports from a database or stored files
 
 elif st.session_state.role == "finance":
     st.subheader("📈 Finance Analyst Workspace")
     st.write("You can view reports and run predictive models.")
-    # Allow model execution, but restrict raw data access
 
 elif st.session_state.role == "data_science":
     st.subheader("🔬 Data Science Team Dashboard")
     st.write("You have full access to reports, model execution, and raw data.")
-    # Show full access to all tools, raw data, and model outputs
-
+   
 else:
     st.error("🚫 Unauthorized access. Please contact the admin.")
     st.stop()
@@ -336,8 +318,8 @@ else:
 # Log Out Button
 if st.session_state.authenticated:
     if st.sidebar.button("🔒 Log Out"):
-        st.session_state.logged_out = True  # Set a flag
-        st.session_state.clear()  # Clears session variables
+        st.session_state.logged_out = True 
+        st.session_state.clear()  
         st.success("✅ Logged out successfully. Redirecting...")
         time.sleep(2)
         st.rerun()  
@@ -386,7 +368,7 @@ if st.session_state.authenticated:
             st.write("Users can customize report content before exporting as a PDF.")
             st.write("**Troubleshooting:** If reports are not appearing in storage, refresh the page or verify user permissions.")
 
-# Main App Content After Authentication
+# Main app content after authentication
 st.write("✅ You are securely logged in.")
 
 # Update last activity time on user interaction
@@ -398,24 +380,22 @@ if st.button("Refresh Session"):
 if st.session_state.authenticated:
     st.title("🎬 Box Office Revenue Prediction")
 
-# Check the role before setting up tabs
 if st.session_state.role == "executive":
     # Executives only see the "View Reports" tab
-    tabs = ["View Reports"]  # Only show View Reports for executives
+    tabs = ["View Reports"] 
 elif st.session_state.role == "finance":
     # Executives only see the "View Reports" tab
     tabs = ["Upload Data", "Feature Engineering", "Model Training", "Predictions & Performance", "Download Report"]
 elif st.session_state.role == "data_science":
-    # Non-executives (like data science and finance) see all tabs
+    # Non-executives see all tabs
     tabs = ["Upload Data", "EDA", "Data Cleaning", "Feature Engineering", "Model Training", "Predictions & Performance", "Download Report"]
 
 selected_tab = st.selectbox("Select a tab", tabs)
 
 creator_username = st.session_state.username
- # 📌 Metadata File for Tracking Reports
+
 METADATA_FILE = "report_metadata.csv"
 
-# 📌 Role-Based Folder Mapping
 ROLE_FOLDERS = {
     "Executive": "Executive_Reports",
     "Finance Analyst": "Finance_Reports",
@@ -423,7 +403,6 @@ ROLE_FOLDERS = {
 }
 
 def get_or_create_folder(folder_name, parent_folder_id=None):
-    # Check if a folder exists in Google Drive; if not, create it 
     query = f"name='{folder_name}' and mimeType='application/vnd.google-apps.folder'"
     if parent_folder_id:
         query += f" and '{parent_folder_id}' in parents"
@@ -446,11 +425,11 @@ def set_drive_permissions(file_id, user_role):
     role_permissions = {
         "Executive": "reader",
         "Finance Analyst": "reader",
-        "Data Science Team": "writer"  # Can upload & manage reports
+        "Data Science Team": "writer" 
     }
 
     permission = {
-        "type": "domain",  # Restrict to organization users if using G Suite
+        "type": "domain",  
         "role": role_permissions.get(user_role, "reader")
     }
 
@@ -477,17 +456,15 @@ def get_reports_by_role(username, role):
     if st.session_state.role == "executive":
         df_reports = df
     else:
-        # Filter reports based on creator (username) for other roles
         df_reports = df[df['Creator'] == username]
     
     return df_reports
     
 if selected_tab == "View Reports":
-    # Logic for Executives to view reports
         st.header("View Reports")
         st.write("As an Executive, you can only view the available reports.")
         
-        # Display a list of available reports for Executives (if needed)
+        # Display a list of available reports for Executives 
         df_reports = get_reports_by_role(st.session_state.role, st.session_state.username)
 
         if not df_reports.empty:
@@ -500,11 +477,9 @@ if selected_tab == "View Reports":
 
 elif selected_tab == "Upload Data":
         st.header("Upload Your Data")
-        # Ensure df exists in session state
         if "df" not in st.session_state:
             st.session_state.df = None
 
-        # Always show file upload options
         uploaded_file = st.file_uploader("Upload a CSV file", type=["csv"])
         url_input = st.text_input("Or enter a URL to fetch the data")
 
@@ -512,7 +487,7 @@ elif selected_tab == "Upload Data":
         if uploaded_file is None and not url_input:
             st.session_state.df = None
             st.session_state.cleaned_df = None
-            st.session_state.processed_df = None  # Clear other stored versions if needed
+            st.session_state.processed_df = None  
 
         # Define required columns
         required_columns = ["Domestic Gross (USD)", "Production Budget (USD)", "Opening Weekend (USD)"]
@@ -522,44 +497,41 @@ elif selected_tab == "Upload Data":
             try:
                 df = pd.read_csv(uploaded_file)
 
-                # Check for required columns
                 missing_cols = [col for col in required_columns if col not in df.columns]
 
                 if missing_cols:
                     st.error(f"The uploaded dataset is missing required columns: {', '.join(missing_cols)}. "
                              "Please upload a correctly formatted CSV.")
-                    st.session_state.df = None  # Reset dataframe
+                    st.session_state.df = None  
                 else:
-                    st.session_state.df = df  # Save to session state
+                    st.session_state.df = df 
                     st.success("File uploaded successfully.")
                     st.dataframe(df.head())
 
             except Exception as e:
                 st.error(f"An error occurred while reading the file: {e}")
-                st.session_state.df = None  # Ensure df is reset
+                st.session_state.df = None  
 
         # URL Input Handling
         elif url_input:
             try:
                 df = pd.read_csv(url_input)
 
-                # Check for required columns
                 missing_cols = [col for col in required_columns if col not in df.columns]
 
                 if missing_cols:
                     st.error(f"The dataset loaded from the URL is missing required columns: {', '.join(missing_cols)}. "
                              "Please provide a valid dataset.")
-                    st.session_state.df = None  # Reset dataframe
+                    st.session_state.df = None  
                 else:
-                    st.session_state.df = df  # Save to session state
+                    st.session_state.df = df  
                     st.success("Data loaded successfully from URL.")
                     st.dataframe(df.head())
 
             except Exception as e:
                 st.error(f"An error occurred while reading the URL: {e}")
-                st.session_state.df = None  # Reset dataframe
+                st.session_state.df = None  
 
-        # Retrieve df from session state
         if st.session_state.df is not None:
             df = st.session_state.df
 
@@ -572,11 +544,10 @@ elif selected_tab == "EDA":
     if st.session_state.role in ["data_science"]:
         st.header("Exploratory Data Analysis (EDA)")
 
-        # Ensure df exists before accessing it
         if "df" not in st.session_state or st.session_state.df is None:
             st.warning("No data uploaded yet. Please upload a CSV file or URL in the 'Upload Data' tab.")
-            st.stop()  # 🚀 This prevents further execution when df is missing
-
+            st.stop() 
+            
         df = st.session_state.df  
 
         # Display Basic Statistics
@@ -586,7 +557,7 @@ elif selected_tab == "EDA":
         # Correlation Heatmap
         st.subheader("Correlation Heatmap")
         numeric_df = df.select_dtypes(include=['number'])
-        if not numeric_df.empty:  # Ensure numeric columns exist
+        if not numeric_df.empty:  
             corr = numeric_df.corr()
             fig = px.imshow(corr, text_auto=True, color_continuous_scale="Viridis")
             st.plotly_chart(fig)
@@ -645,29 +616,25 @@ elif selected_tab == "Data Cleaning":
 
         if "df" not in st.session_state or st.session_state.df is None or st.session_state.df.empty:
             st.warning("No data uploaded yet. Please upload a CSV file or URL in the 'Upload Data' tab.")
-            st.session_state.cleaned_df = None  # ✅ Reset cleaned_df
+            st.session_state.cleaned_df = None  
             st.stop()
 
-        # Retrieve or initialize cleaned_df
         if "cleaned_df" not in st.session_state or st.session_state.cleaned_df is None:
             st.session_state.cleaned_df = st.session_state.df.copy()
 
         cleaned_df = st.session_state.cleaned_df  
 
-        # Only show the preview if cleaned_df is not empty
         if cleaned_df.empty:
             st.warning("⚠️ No data available for preview.")
         else:
             st.subheader("Raw Data Preview:")
             st.dataframe(cleaned_df.head())
 
-            df = st.session_state.df.copy()  # Copy only when df exists
+            df = st.session_state.df.copy()  
 
-            # Load data into session state if not already present
             if "cleaned_df" not in st.session_state:
                 st.session_state.cleaned_df = df.copy()
 
-            # Work on a copy of the session state dataframe
             cleaned_df = st.session_state.cleaned_df
 
             ### Step 1: Remove Invalid Data Points
@@ -706,7 +673,7 @@ elif selected_tab == "Data Cleaning":
                     if custom_fill_value:
                         cleaned_df[categorical_cols] = cleaned_df[categorical_cols].fillna(custom_fill_value)
                         
-                print(cleaned_df.isna().sum())  # or st.write(cleaned_df.isna().sum())
+                print(cleaned_df.isna().sum()) 
                 st.session_state.cleaned_df = cleaned_df
 
             ### Step 3: Feature Engineering
@@ -730,7 +697,7 @@ elif selected_tab == "Data Cleaning":
                     label_enc_cols = ['Genre', 'Director']
                     for col in label_enc_cols:
                         if col in cleaned_df.columns:
-                            cleaned_df[col] = cleaned_df[col].astype(str)  # Ensure values are strings
+                            cleaned_df[col] = cleaned_df[col].astype(str)  
                             encoder = LabelEncoder()
                             cleaned_df[col] = encoder.fit_transform(cleaned_df[col])
 
@@ -746,8 +713,8 @@ elif selected_tab == "Data Cleaning":
                 if apply_log_transform:
                     skewed_cols = cleaned_df.select_dtypes(include=['float64', 'int64']).apply(lambda x: x.skew()).abs()
                     high_skew = skewed_cols[skewed_cols > 0.75].index
-                    cleaned_df[high_skew] = cleaned_df[high_skew].fillna(0)  # Fill NaNs before log transform
-                    cleaned_df[high_skew] = cleaned_df[high_skew].apply(lambda x: np.log1p(x))  # Apply log1p(x)
+                    cleaned_df[high_skew] = cleaned_df[high_skew].fillna(0)  
+                    cleaned_df[high_skew] = cleaned_df[high_skew].apply(lambda x: np.log1p(x))  
 
                 st.session_state.cleaned_df = cleaned_df
 
@@ -758,8 +725,7 @@ elif selected_tab == "Data Cleaning":
                 if apply_winsorization:
                     numeric_cols = cleaned_df.select_dtypes(include=['float64', 'int64']).columns
                     for col in numeric_cols:
-                        cleaned_df[col] = winsorize(cleaned_df[col], limits=[0.01, 0.01])  # Caps extreme values at 1st & 99th percentile
-
+                        cleaned_df[col] = winsorize(cleaned_df[col], limits=[0.01, 0.01])  
                 st.session_state.cleaned_df = cleaned_df
 
             ### Display Processed Data
@@ -781,31 +747,28 @@ elif selected_tab == "Feature Engineering":
     else:
         if st.session_state.role in ["data_science", "finance"]:  
             st.warning("No data uploaded yet. Please upload a CSV file or URL in the 'Upload Data' tab.")
-            st.stop()  # Stop only for Data Science & Finance roles
+            st.stop() 
         else:
-            df = None  # Prevents errors for executives
+            df = None  
         
     # Section: Data Overview
     st.header("Data Overview")
     if st.checkbox('Show Data Overview'):
         st.subheader("Top Rows of the Data")
-        st.write(df.head())  # Show top rows of the data
+        st.write(df.head())  
         st.subheader("Summary Statistics")
-        st.write(df.describe())  # Display data statistics
+        st.write(df.describe())  
         
         with st.expander("Show Dataset Info (Data Types & Missing Values)"):
-            # Capture df.info() output
             buffer = io.StringIO()
             df.info(buf=buffer)
             info_str = buffer.getvalue()
         
-            # Format output as markdown for better readability
             st.markdown(f"```{info_str}```")
 
-    # Ensure the target variable is defined
+    # Define target variable
     target = 'Domestic Gross (USD)'
 
-    # Dynamically generate a list of all features (excluding the target)
     if "df" in globals() and df is not None:
         all_features = [col for col in df.columns if col != target]
     else:
@@ -820,44 +783,40 @@ elif selected_tab == "Feature Engineering":
 
     # Section: Feature Selection
     st.header("Select Features for Model")
-    # Ensure df is defined and not None before accessing columns
     if "df" in globals() and df is not None:
-        all_features = [col for col in df.columns if col != target and col != "release_date"]  # Exclude original date column
+        all_features = [col for col in df.columns if col != target and col != "release_date"]  
     else:
         all_features = []
     selected_features = st.multiselect(
         "Select the features you want to include in the model:",
-        options=all_features,  # Use all features except the target
+        options=all_features,  
     )
 
     # Ensure at least one feature is selected
     if not selected_features:
         st.warning("Please select at least one feature.")
 
-    # Define X and y after selection
     if "df" in globals() and df is not None:
         X = df[selected_features]
     else:
-        X = None  # Or use an empty DataFrame: X = pd.DataFrame()
+        X = None  
     y = df[target]
 
     # Split the data into training and testing sets (80/20)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # Ensure selected_features are stored in a consistent order
-    selected_features = list(X_train.columns)  # Preserve feature order
+    selected_features = list(X_train.columns)  
 
-    # Store split datasets in session state to access them in another tab
     st.session_state.X_train = X_train
     st.session_state.X_test = X_test
     st.session_state.y_train = y_train
     st.session_state.y_test = y_test
-    st.session_state.selected_features = list(X_train.columns)  # Ensure consistent feature order
+    st.session_state.selected_features = list(X_train.columns)  
 
     # Section: Correlation Analysis
     st.header("Correlation Analysis")
     if st.checkbox('Show Correlation Heatmap'):
-        corr = df[selected_features + [target]].corr()  # Ensure correlation matches selected features
+        corr = df[selected_features + [target]].corr()  
         fig, ax = plt.subplots(figsize=(10, 6))
         sns.heatmap(corr, annot=True, cmap='seismic', ax=ax)
         st.pyplot(fig)
@@ -868,18 +827,16 @@ elif selected_tab == "Model Training":
         st.stop()
     st.header("Model Training")
 
-    # Ensure train-test data exists in session state
     if "X_train" not in st.session_state or "y_train" not in st.session_state:
         st.warning("Train-test split data is missing. Please complete feature selection in the previous tab.")
-        st.stop()  # 🚀 Stops execution if data isn't available
+        st.stop()  
 
-    # Load data from session state
     X_train = st.session_state.X_train
     X_test = st.session_state.X_test
     y_train = st.session_state.y_train
     y_test = st.session_state.y_test
 
-    # Select model type (user option)
+    # Select model type 
     model_option = st.selectbox("Select a Model to Train", ["XGBoost", "Random Forest", "Decision Tree", "Linear Regression"])
 
     # Hyperparameter selection
@@ -916,21 +873,19 @@ elif selected_tab == "Model Training":
         progress_bar = st.progress(0)  
         status_text = st.empty()
 
-        # Ensure selected features exist
         if "selected_features" not in st.session_state or not st.session_state.selected_features:
             st.error("No selected features found. Please select features before training.")
             return  
 
         selected_features = st.session_state.selected_features
 
-        # Ensure feature order consistency
         X_train_selected = st.session_state.X_train[selected_features]
         X_test_selected = st.session_state.X_test[selected_features]
 
         st.session_state.X_train_selected = X_train_selected  
 
         try:
-            # Train model synchronously 
+            # Train model 
             model.fit(X_train_selected, st.session_state.y_train)
             
             # Save trained model type to session state
@@ -956,7 +911,6 @@ elif selected_tab == "Model Training":
             progress_bar.progress(100)
             status_text.text("")
 
-    # Ensure the button is inside the tab block
     if st.button("Train Model"):
         st.info(f"Training {model_option}... Please wait.")
         train_model(model_option, model)
@@ -968,7 +922,6 @@ elif selected_tab == "Predictions & Performance":
         st.stop()
     st.title("Evaluate Model Performance")
 
-    # Ensure required session state variables exist
     if "trained_model" not in st.session_state or st.session_state.trained_model is None:
         st.warning("❌ No trained model found. Please train a model first.")
         st.stop()
@@ -985,22 +938,18 @@ elif selected_tab == "Predictions & Performance":
         st.warning("❌ No selected train data found. Please train selected features first.")
         st.stop()
 
-    # Retrieve session state variables
     model = st.session_state.trained_model 
     X_train_selected = st.session_state.X_train_selected
 
-    # Ensure X_test has the same columns as used in training
     X_test = st.session_state.X_test.reindex(columns=X_train_selected.columns, fill_value=0)
     y_test = st.session_state.y_test
 
-    # Debugging output
     train_features = list(st.session_state.X_train_selected.columns)
     test_features = list(X_test.columns)
 
     if train_features != test_features:
         st.error("Feature order mismatch detected between X_train and X_test!")
 
-        # Display mismatch details
         mismatch_df = pd.DataFrame({"X_train Order": train_features, "X_test Order": test_features})
         st.write(mismatch_df)
         st.stop()
@@ -1036,10 +985,9 @@ elif selected_tab == "Download Report":
     if st.session_state.role in ["data_science", "finance"]:
         
         creator_username = st.session_state.username
-        # Metadata File for Tracking Reports
+  
         METADATA_FILE = "report_metadata.csv"
     
-        # Role-Based Folder Mapping
         ROLE_FOLDERS = {
             "Executive": "Executive_Reports",
             "Finance Analyst": "Finance_Reports",
@@ -1047,7 +995,6 @@ elif selected_tab == "Download Report":
         }
         
         def get_or_create_folder(folder_name, parent_folder_id=None):
-            # Check if a folder exists in Google Drive; if not, create it 
             query = f"name='{folder_name}' and mimeType='application/vnd.google-apps.folder'"
             if parent_folder_id:
                 query += f" and '{parent_folder_id}' in parents"
@@ -1080,7 +1027,7 @@ elif selected_tab == "Download Report":
             """
             if not os.path.exists(filepath):
                 print(f"⚠️ Error: The file '{filepath}' does not exist. Skipping upload.")
-                return None  # Prevents further execution
+                return None  
         
             folder_name = ROLE_FOLDERS.get(user_role, "General_Reports")
             folder_id = get_or_create_folder(folder_name)
@@ -1111,7 +1058,7 @@ elif selected_tab == "Download Report":
             }
         
             permission = {
-                "type": "domain",  # Restrict to organization users if using G Suite
+                "type": "domain",  
                 "role": role_permissions.get(user_role, "reader")
             }
         
@@ -1167,7 +1114,6 @@ elif selected_tab == "Download Report":
         st.warning("❌ Test data is empty. Retrain the model before proceeding.")
         st.stop()
     
-    # Assuming y_test was part of the session state during the training phase
     if "y_test" not in st.session_state or st.session_state.y_test is None:
         st.warning("❌ Test target values are missing. Retrain the model with correct data.")
         st.stop()
@@ -1177,28 +1123,23 @@ elif selected_tab == "Download Report":
     
     try:
         y_pred = model.predict(X_test_processed)
-        st.session_state.y_pred = y_pred  # Store predictions in session state
+        st.session_state.y_pred = y_pred 
     except ValueError as e:
         st.error(f"⚠️ Prediction error: {e}")
         st.stop()
     
-    # Retrieve the actual test values (y_test) from session state
+    # Retrieve the actual test values from session state
     y_test = st.session_state.y_test  
     
-    # Generate basic descriptive statistics
     desc_stats = st.session_state.X_test[selected_features].describe()
     
-    # Select only numeric columns
     numeric_df = st.session_state.X_test[selected_features].select_dtypes(include=['number'])
     
-    # Compute skewness only on numeric columns
     skewness = numeric_df.skew()
     kurtosis = numeric_df.kurtosis()
 
-    # Compute correlation only on numeric columns
     correlation_matrix = numeric_df.corr()
     
-    # Missing values summary
     missing_values = st.session_state.X_test[selected_features].isnull().sum()
     
     # Store the information to include in the report
@@ -1265,8 +1206,8 @@ elif selected_tab == "Download Report":
             plt.ylabel("Features")
             plt.title("Feature Importance")
     
-            plt.yticks(rotation=0)  # Keep y-axis labels horizontal
-            plt.tight_layout()  # Prevent labels from being cut off
+            plt.yticks(rotation=0)  
+            plt.tight_layout()  
     
             plt.savefig(os.path.join(plot_dir, filename))
             plt.close()
@@ -1316,28 +1257,21 @@ elif selected_tab == "Download Report":
         st.dataframe(sample_predictions)
 
     if include_histograms:
-        # Display a header/title for histograms in Streamlit
         st.subheader("Histograms: Distribution of Numeric Features")
 
-        # Identify numeric features in selected_features
         numeric_features = st.session_state.X_test[selected_features].select_dtypes(include=['number']).columns
 
         if not numeric_features.empty:
-            # Create a figure for the histograms
             fig, axes = plt.subplots(1, len(numeric_features), figsize=(6 * len(numeric_features), 5))
     
-            # If there's only one feature, ensure axes is iterable
             if len(numeric_features) == 1:
                 axes = [axes]
     
-            # Loop through selected numeric features and plot histograms
             for ax, col in zip(axes, numeric_features):
-                # Plot a histogram for the numeric feature
                 sns.histplot(st.session_state.X_test[col], bins=30, kde=True, ax=ax)
                 ax.set_title(f"Distribution of {col.capitalize()}")
                 ax.set_xlabel(col.capitalize())  
     
-            # Display in Streamlit
             st.pyplot(fig)
     
             # Save figure for PDF report
@@ -1350,23 +1284,18 @@ elif selected_tab == "Download Report":
         categorical_features = st.session_state.X_test[selected_features].select_dtypes(include=['object', 'category']).columns
 
         if not categorical_features.empty:
-            # Display a header/title for bar charts in Streamlit
             st.subheader("Bar Charts: Distribution of Categorical Features")
-            # Create a figure for the bar charts
             fig, axes = plt.subplots(1, len(categorical_features), figsize=(6 * len(categorical_features), 5))
     
-            # If there's only one feature, ensure axes is iterable
             if len(categorical_features) == 1:
                 axes = [axes]
     
-            # Loop through selected categorical features and plot bar charts
             for ax, col in zip(axes, categorical_features):
                 # Plot a bar chart for the categorical feature
                 sns.countplot(x=st.session_state.X_test[col], ax=ax)
                 ax.set_title(f"Distribution of {col.capitalize()}")
                 ax.set_xticklabels(ax.get_xticklabels(), rotation=45)  
     
-            # Display in Streamlit
             st.pyplot(fig)
     
             # Save figure for PDF report
@@ -1382,7 +1311,6 @@ elif selected_tab == "Download Report":
         sns.heatmap(correlation_matrix, annot=True, fmt=".2f", cmap="coolwarm", ax=ax)
         ax.set_title("Feature Correlation Heatmap")
     
-        # Display in Streamlit
         st.pyplot(fig)
     
         # Save figure for PDF report
@@ -1391,7 +1319,6 @@ elif selected_tab == "Download Report":
         plt.close(fig)
 
     if include_box_plots:
-        # Display a header/title for boxplots in Streamlit
         st.subheader("Box Plots: Distribution of Numeric Features")
         
         # Identify numerical features in selected_features
@@ -1400,16 +1327,13 @@ elif selected_tab == "Download Report":
         if not numeric_features.empty:
             fig, axes = plt.subplots(1, len(numeric_features), figsize=(6 * len(numeric_features), 5))
     
-            # Ensure axes is iterable for a single feature case
             if len(numeric_features) == 1:
                 axes = [axes]
     
-            # Loop through selected numeric features and plot boxplots
             for ax, col in zip(axes, numeric_features):
                 sns.boxplot(y=st.session_state.X_test[col], ax=ax)
                 ax.set_title(f"Box Plot of {col.capitalize()}")
     
-            # Display in Streamlit
             st.pyplot(fig)
     
             # Save figure for PDF report
@@ -1427,24 +1351,20 @@ elif selected_tab == "Download Report":
     
         pdf.set_font("Arial", "B", 8) 
         
-        # Set maximum table width
-        max_table_width = 180  # Keep within page margins
+        max_table_width = 180  
         num_columns = len(df.columns)
     
-        # Compute column widths 
         column_widths = [max_table_width / num_columns] * num_columns
     
-        # Print the header
         for i, col in enumerate(df.columns):
             pdf.cell(column_widths[i], 8, col[:15], border=1, align="C") 
         pdf.ln()
 
-        pdf.set_font("Arial", size=8)  # Reduce font for data readability
+        pdf.set_font("Arial", size=8)  
     
-        # Print the table content
         for index, row in df.iterrows():
             for i, value in enumerate(row):
-                text = str(value)[:15]  # Limit text length per cell
+                text = str(value)[:15]  
                 pdf.cell(column_widths[i], 8, text, border=1, align="C")
             pdf.ln()
     
@@ -1463,10 +1383,7 @@ elif selected_tab == "Download Report":
         """
         pdf = FPDF()
         pdf.set_auto_page_break(auto=True, margin=15)
-        # Add the first page
         pdf.add_page()
-
-        # Set font for document
         pdf.set_font("Arial", size=12)
         
         # Add Statistics Report
@@ -1484,28 +1401,28 @@ elif selected_tab == "Download Report":
                 table_from_dataframe(pdf, correlation_matrix, "Correlation Matrix")
 
         if include_histograms and not numeric_features.empty:
-            # Add header/title for histograms in PDF
+            # Add title for histograms in PDF
             pdf.set_font("Arial", "B", 12)
             pdf.cell(200, 10, "Histograms: Distribution of Numeric Features", ln=True, align="C")
-            pdf.ln(5)  # Add a little space after the title
+            pdf.ln(5)  
             pdf.image(histogram_path, x=10, w=180)
 
         if include_bar_charts and not categorical_features.empty:
-            # Add header/title for bar charts in PDF
+            # Add title for bar charts in PDF
             pdf.set_font("Arial", "B", 12)
             pdf.cell(200, 10, "Bar Charts: Distribution of Categorical Features", ln=True, align="C")
-            pdf.ln(5)  # Add a little space after the title
+            pdf.ln(5)  
             pdf.image(barchart_path, x=10, w=180)
         
         if include_heatmap:
             pdf.image(heatmap_path, x=10, w=180)
-            pdf.ln(5)  # Add a little space after the title
+            pdf.ln(5)  
         
         if include_box_plots and not numeric_features.empty:
-            # Add header/title for box plots in PDF
+            # Add title for box plots in PDF
             pdf.set_font("Arial", "B", 12)
             pdf.cell(200, 10, "Box Plots: Distribution of Numeric Features", ln=True, align="C")
-            pdf.ln(5)  # Add a little space after the title
+            pdf.ln(5)  
             pdf.image(boxplot_path, x=10, w=180)
             
         # Add Model Summary
@@ -1562,9 +1479,8 @@ elif selected_tab == "Download Report":
     report_name = st.text_input("Enter Report Name", "BoxOfficeReport.pdf")
  
     if st.button("Generate & Download Report as PDF"):
-        generate_pdf(report_name)  # Function to generate report
+        generate_pdf(report_name)  
     
-        # Ensure we reference the correct filename
         pdf_output_path = f"report_{report_name}"  
     
         if os.path.exists(pdf_output_path):
@@ -1574,9 +1490,9 @@ elif selected_tab == "Download Report":
             st.error(f"⚠ Report generation failed. Expected file not found: {pdf_output_path}")
     
     if st.button("Upload Report to Google Drive"):
-        report_path = f"report_{report_name}"  # Ensure consistent filename
+        report_path = f"report_{report_name}"  
     
-        if os.path.exists(report_path):  # ✅ Ensure the report exists before uploading
+        if os.path.exists(report_path):  
             report_link = upload_to_drive(report_name, report_path, user_role, creator_username)
             st.success(f"✅ Report uploaded successfully! [🔗 View Report]({report_link})")
         else:
