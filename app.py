@@ -100,9 +100,7 @@ def decrypt_mfa_secret(username):
     else:
         print(f"No MFA secret found for {username}")
 
-    conn.close()
-
-init_db()  
+    conn.close() 
 
 # Add example users based on role
 add_user("exec_user", "Executive User", "password123", "executive")
