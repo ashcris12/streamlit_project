@@ -1560,6 +1560,8 @@ elif selected_tab == "Download Report":
     
     # Upload Section
     report_name = st.text_input("Enter Report Name", "BoxOfficeReport.pdf")
+
+    report_path = "report.pdf"
     
     if st.button("Generate & Download Report as PDF"):
         generate_pdf(report_name)  
