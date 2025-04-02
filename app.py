@@ -1575,17 +1575,17 @@ elif selected_tab == "Download Report":
     else:
         st.error("⚠ Report not found. Generate the report first before uploading.")
 
-     # Display available reports
-     st.subheader("Available Reports")
+    # Display available reports
+    st.subheader("Available Reports")
     
-     # Reload reports after saving metadata
-     df_reports = get_reports_by_role(st.session_state.username)
+    # Reload reports after saving metadata
+    df_reports = get_reports_by_role(st.session_state.username)
     
-     if not df_reports.empty:
-         st.dataframe(df_reports[["Report Name", "Folder Name"]])
+    if not df_reports.empty:
+        st.dataframe(df_reports[["Report Name", "Folder Name"]])
     
-         for _, row in df_reports.iterrows():
-             report_link = f"https://drive.google.com/file/d/{row['File ID']}/view"
-             st.markdown(f"[📄 {row['Report Name']}]({report_link})")
-     else:
-         st.write("No reports available for your role.")
+        for _, row in df_reports.iterrows():
+            report_link = f"https://drive.google.com/file/d/{row['File ID']}/view"
+            st.markdown(f"[📄 {row['Report Name']}]({report_link})")
+    else:
+        st.write("No reports available for your role.")
