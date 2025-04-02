@@ -102,8 +102,7 @@ def decrypt_mfa_secret(username):
 
     conn.close()
 
-# Example usage:
-init_db()  # Initialize the DB 
+init_db()  
 
 # Add example users based on role
 add_user("exec_user", "Executive User", "password123", "executive")
