@@ -1574,13 +1574,13 @@ elif selected_tab == "Download Report":
             st.error(f"⚠ Report generation failed. Expected file not found: {pdf_output_path}")
     
     if st.button("Upload Report to Google Drive"):
-        report_path = "report.pdf"
-
-    if os.path.exists(report_path):  # ✅ Ensure the report exists before uploading
-        report_link = upload_to_drive(report_name, report_path, user_role, creator_username)
-        st.success(f"✅ Report uploaded successfully! [🔗 View Report]({report_link})")
-    else:
-        st.error("⚠ Report not found. Generate the report first before uploading.")
+        report_path = f"report_{report_name}"  # Ensure consistent filename
+    
+        if os.path.exists(report_path):  # ✅ Ensure the report exists before uploading
+            report_link = upload_to_drive(report_name, report_path, user_role, creator_username)
+            st.success(f"✅ Report uploaded successfully! [🔗 View Report]({report_link})")
+        else:
+            st.error(f"⚠ Report not found. Expected file: {report_path}")
 
     # Display available reports
     st.subheader("Available Reports")
