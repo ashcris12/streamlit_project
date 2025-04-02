@@ -1560,16 +1560,14 @@ elif selected_tab == "Download Report":
     
     # Upload Section
     report_name = st.text_input("Enter Report Name", "BoxOfficeReport.pdf")
-
-    report_path = "report.pdf"
     
     if st.button("Generate & Download Report as PDF"):
         generate_pdf(report_name)  
-        with open("report.pdf", "rb") as f:
+        with open("report_name", "rb") as f:
             st.download_button("📄 Download Report", f, file_name=report_name, mime="application/pdf")
     
     if st.button("Upload Report to Google Drive"):
-        report_path = "report.pdf"
+        report_path = "report_name"
     
         if os.path.exists(report_path):  
             report_link = upload_to_drive(report_name, report_path, user_role, creator_username)
