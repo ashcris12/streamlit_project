@@ -1335,7 +1335,7 @@ elif selected_tab == "Download Report":
                 # Plot a histogram for the numeric feature
                 sns.histplot(st.session_state.X_test[col], bins=30, kde=True, ax=ax)
                 ax.set_title(f"Distribution of {col.capitalize()}")
-                ax.set_xlabel(col.capitalize())  # Set axis label
+                ax.set_xlabel(col.capitalize())  
     
             # Display in Streamlit
             st.pyplot(fig)
@@ -1562,8 +1562,8 @@ elif selected_tab == "Download Report":
     report_name = st.text_input("Enter Report Name", "BoxOfficeReport.pdf")
     
     if st.button("Generate & Download Report as PDF"):
-        generate_pdf(report_name)  # Function to generate report
-        with open("report.pdf", "rb") as f:
+        generate_pdf(report_name)  
+        with open("report_name.pdf", "rb") as f:
             st.download_button("📄 Download Report", f, file_name=report_name, mime="application/pdf")
     
     if st.button("Upload Report to Google Drive"):
