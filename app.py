@@ -129,8 +129,6 @@ from io import BytesIO
 from fpdf import FPDF
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
-import logging
-import datetime
 import toml
 import getpass
 import streamlit_authenticator as stauth
