@@ -1558,32 +1558,32 @@ elif selected_tab == "Download Report":
     
     user_role = st.session_state.get("user_role", "Guest")
     
-        # Upload Section
-     report_name = st.text_input("Enter Report Name", "BoxOfficeReport.pdf")
+    # Upload Section
+    report_name = st.text_input("Enter Report Name", "BoxOfficeReport.pdf")
  
-     if st.button("Generate & Download Report as PDF"):
-         generate_pdf(report_name)  # Function to generate report
-         with open("report.pdf", "rb") as f:
-             st.download_button("📄 Download Report", f, file_name=report_name, mime="application/pdf")
- 
-     if st.button("Upload Report to Google Drive"):
-         report_path = "report.pdf"
- 
-         if os.path.exists(report_path):  # ✅ Ensure the report exists before uploading
-             report_link = upload_to_drive(report_name, report_path, user_role, creator_username)
-             st.success(f"✅ Report uploaded successfully! [🔗 View Report]({report_link})")
-         else:
-             st.error("⚠ Report not found. Generate the report first before uploading.")
- 
+    if st.button("Generate & Download Report as PDF"):
+     generate_pdf(report_name)  # Function to generate report
+     with open("report.pdf", "rb") as f:
+         st.download_button("📄 Download Report", f, file_name=report_name, mime="application/pdf")
+
+    if st.button("Upload Report to Google Drive"):
+        report_path = "report.pdf"
+
+    if os.path.exists(report_path):  # ✅ Ensure the report exists before uploading
+        report_link = upload_to_drive(report_name, report_path, user_role, creator_username)
+        st.success(f"✅ Report uploaded successfully! [🔗 View Report]({report_link})")
+     else:
+         st.error("⚠ Report not found. Generate the report first before uploading.")
+
      # Display available reports
      st.subheader("Available Reports")
- 
+    
      # Reload reports after saving metadata
      df_reports = get_reports_by_role(st.session_state.username)
- 
+    
      if not df_reports.empty:
          st.dataframe(df_reports[["Report Name", "Folder Name"]])
- 
+    
          for _, row in df_reports.iterrows():
              report_link = f"https://drive.google.com/file/d/{row['File ID']}/view"
              st.markdown(f"[📄 {row['Report Name']}]({report_link})")
