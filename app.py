@@ -1572,8 +1572,8 @@ elif selected_tab == "Download Report":
     if os.path.exists(report_path):  # ✅ Ensure the report exists before uploading
         report_link = upload_to_drive(report_name, report_path, user_role, creator_username)
         st.success(f"✅ Report uploaded successfully! [🔗 View Report]({report_link})")
-     else:
-         st.error("⚠ Report not found. Generate the report first before uploading.")
+    else:
+        st.error("⚠ Report not found. Generate the report first before uploading.")
 
      # Display available reports
      st.subheader("Available Reports")
