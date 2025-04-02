@@ -36,7 +36,7 @@ def add_user(username, name, password, role):
     Adds a new user to the database with a hashed password and assigned role.
     Prevents duplicate user entries.
     """
-    cipher_key = st.secrets["SECRET_KEY"].encode()  # Streamlit secrets management
+    cipher_key = st.secrets["SECRET_KEY"].encode()  
     cipher = Fernet(cipher_key)
 
     conn = sqlite3.connect("users.db")
@@ -111,7 +111,6 @@ add_user("data_user", "Data User", "datapass789", "data_science")
 
 # final submission 
 import pandas as pd
-import pickle
 from xgboost import XGBRegressor
 import plotly.express as px
 import holidays
