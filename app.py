@@ -1562,13 +1562,16 @@ elif selected_tab == "Download Report":
     report_name = st.text_input("Enter Report Name", "BoxOfficeReport.pdf")
  
     if st.button("Generate & Download Report as PDF"):
-     generate_pdf(report_name)  # Function to generate report
-     pdf_output_path = f"report_{report_name}"  
+        generate_pdf(report_name)  # Function to generate report
+    
+        # Ensure we reference the correct filename
+        pdf_output_path = f"report_{report_name}"  
+    
         if os.path.exists(pdf_output_path):
             with open(pdf_output_path, "rb") as f:
                 st.download_button("📄 Download Report", f, file_name=report_name, mime="application/pdf")
         else:
-            st.error("⚠ Report generation failed. Please try again.")
+            st.error(f"⚠ Report generation failed. Expected file not found: {pdf_output_path}")
     
     if st.button("Upload Report to Google Drive"):
         report_path = "report.pdf"
