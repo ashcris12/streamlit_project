@@ -26,7 +26,6 @@ def init_db():
             role TEXT
         )
     """)
-
     conn.commit()
     conn.close()
 
