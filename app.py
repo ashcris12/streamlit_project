@@ -9,6 +9,8 @@ from cryptography.fernet import Fernet
 import bcrypt
 import streamlit as st
 
+init_db()
+
 # Initialize Database
 def init_db():
     conn = sqlite3.connect("users.db")
