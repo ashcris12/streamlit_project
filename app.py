@@ -31,30 +31,30 @@ def init_db():
 
 # Add User (with encrypted MFA secret)
 def add_user(username, name, password, role):
-     """
-     Adds a new user to the database with a hashed password and assigned role.
-     Prevents duplicate user entries.
-     """
-     cipher_key = st.secrets["SECRET_KEY"].encode()  
-     cipher = Fernet(cipher_key)
+    """
+    Adds a new user to the database with a hashed password and assigned role.
+    Prevents duplicate user entries.
+    """
+    cipher_key = st.secrets["SECRET_KEY"].encode()  
+    cipher = Fernet(cipher_key)
     
-     conn = sqlite3.connect("users.db")
-     cursor = conn.cursor()
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
     
-     # Check if the user already exists
-     cursor.execute("SELECT 1 FROM users WHERE username = ?", (username,))
-     user_exists = cursor.fetchone()
+    # Check if the user already exists
+    cursor.execute("SELECT 1 FROM users WHERE username = ?", (username,))
+    user_exists = cursor.fetchone()
     
-     if user_exists:
+    if user_exists:
          print(f"User {username} already exists. Skipping insertion.")
-     else:
+    else:
          # Hash password
          password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(12)).decode('utf-8')
-    
+        
          # Encrypt MFA secret
          mfa_secret = pyotp.random_base32()
          encrypted_mfa = cipher.encrypt(mfa_secret.encode()).decode()
-    
+        
          # Insert user into the database
          try:
              cursor.execute("""
@@ -65,41 +65,41 @@ def add_user(username, name, password, role):
              print(f"User {username} added successfully.")
          except sqlite3.IntegrityError as e:
              print(f"Error inserting user: {e}")
-
-         conn.close()
+    
+    conn.close()
 
 # Decrypt MFA Secret 
 def decrypt_mfa_secret(username):
- """
- Decrypts the stored MFA secret for a user to enable multi-factor authentication.
-
- Args:
+    """
+    Decrypts the stored MFA secret for a user to enable multi-factor authentication.
+    
+    Args:
      username: str - The username whose MFA secret needs to be decrypted.
-
- Returns:
+    
+    Returns:
      str: The decrypted MFA secret.
- """
- # Load encryption key
- cipher_key = st.secrets["SECRET_KEY"].encode()
- cipher = Fernet(cipher_key)
-
- conn = sqlite3.connect("users.db")
- cursor = conn.cursor()
-
- cursor.execute("SELECT mfa_secret FROM users WHERE username = ?", (username,))
- encrypted_secret = cursor.fetchone()
-
- if encrypted_secret:
-     try:
-         # Decrypt MFA secret
-         decrypted_secret = cipher.decrypt(encrypted_secret[0].encode()).decode()
-         print(f"Decryption successful for {username}: {decrypted_secret}")
-     except Exception as e:
-         print(f"Decryption failed for {username}: {e}")
- else:
-     print(f"No MFA secret found for {username}")
-
- conn.close() 
+    """
+    # Load encryption key
+    cipher_key = st.secrets["SECRET_KEY"].encode()
+    cipher = Fernet(cipher_key)
+    
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT mfa_secret FROM users WHERE username = ?", (username,))
+    encrypted_secret = cursor.fetchone()
+    
+    if encrypted_secret:
+        try:
+             # Decrypt MFA secret
+             decrypted_secret = cipher.decrypt(encrypted_secret[0].encode()).decode()
+             print(f"Decryption successful for {username}: {decrypted_secret}")
+        except Exception as e:
+             print(f"Decryption failed for {username}: {e}")
+    else:
+        print(f"No MFA secret found for {username}")
+    
+    conn.close() 
 
 # Add example users based on role
 add_user("exec_user", "Executive User", "password123", "executive")
