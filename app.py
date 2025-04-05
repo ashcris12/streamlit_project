@@ -13,7 +13,7 @@ import streamlit as st
 def init_db():
     conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
-
+    
      # Create users table
      cursor.execute("""
          CREATE TABLE IF NOT EXISTS users (
