@@ -26,8 +26,8 @@ def init_db():
          )
      """)
     
-     conn.commit()
-     conn.close()
+    conn.commit()
+    conn.close()
 
 # Add User (with encrypted MFA secret)
 def add_user(username, name, password, role):
