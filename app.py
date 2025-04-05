@@ -11,52 +11,52 @@ import bcrypt
 import streamlit as st
 
 # Initialize Database
- def init_db():
-     conn = sqlite3.connect("users.db")
-     cursor = conn.cursor()
- 
-     # Create users table
-     cursor.execute("""
-         CREATE TABLE IF NOT EXISTS users (
-             id INTEGER PRIMARY KEY AUTOINCREMENT,
-             username TEXT UNIQUE,
-             name TEXT,
-             password_hash TEXT,
-             mfa_secret TEXT,
-             role TEXT
-         )
-     """)
- 
-     conn.commit()
-     conn.close()
- 
- # Add User (with encrypted MFA secret)
- def add_user(username, name, password, role):
-     """
-     Adds a new user to the database with a hashed password and assigned role.
-     Prevents duplicate user entries.
-     """
-     cipher_key = st.secrets["SECRET_KEY"].encode()  
-     cipher = Fernet(cipher_key)
- 
-     conn = sqlite3.connect("users.db")
-     cursor = conn.cursor()
- 
-     # Check if the user already exists
-     cursor.execute("SELECT 1 FROM users WHERE username = ?", (username,))
-     user_exists = cursor.fetchone()
- 
-     if user_exists:
-         print(f"User {username} already exists. Skipping insertion.")
-     else:
-         # Hash password
-         password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(12)).decode('utf-8')
- 
-         # Encrypt MFA secret
-         mfa_secret = pyotp.random_base32()
-         encrypted_mfa = cipher.encrypt(mfa_secret.encode()).decode()
- 
-         # Insert user into the database
+def init_db():
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+
+    # Create users table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            name TEXT,
+            password_hash TEXT,
+            mfa_secret TEXT,
+            role TEXT
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+
+# Add User (with encrypted MFA secret)
+def add_user(username, name, password, role):
+    """
+    Adds a new user to the database with a hashed password and assigned role.
+    Prevents duplicate user entries.
+    """
+    cipher_key = st.secrets["SECRET_KEY"].encode()  
+    cipher = Fernet(cipher_key)
+
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+
+    # Check if the user already exists
+    cursor.execute("SELECT 1 FROM users WHERE username = ?", (username,))
+    user_exists = cursor.fetchone()
+
+    if user_exists:
+        print(f"User {username} already exists. Skipping insertion.")
+    else:
+        # Hash password
+        password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(12)).decode('utf-8')
+
+        # Encrypt MFA secret
+        mfa_secret = pyotp.random_base32()
+        encrypted_mfa = cipher.encrypt(mfa_secret.encode()).decode()
+
+        # Insert user into the database
 
 # Decrypt MFA Secret 
 def decrypt_mfa_secret(username):
