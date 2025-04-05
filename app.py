@@ -9,8 +9,6 @@ from cryptography.fernet import Fernet
 import bcrypt
 import streamlit as st
 
-init_db()
-
 # Initialize Database
 def init_db():
     conn = sqlite3.connect("users.db")
@@ -30,6 +28,8 @@ def init_db():
     
     conn.commit()
     conn.close()
+
+init_db()
 
 # Add User (with encrypted MFA secret)
 def add_user(username, name, password, role):
